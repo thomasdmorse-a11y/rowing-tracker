@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom's Rowing Tracker v2.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f1923;--bg2:#1e2d3d;--bg3:#2a3f52;
+  --border:#2a3f52;--border2:#3a5068;
+  --text:#f0f4f6;--text2:#7a9ab0;--text3:#4a6478;
+  --mono:'Courier New',monospace;
+  --red-bg:#3a1010;--red:#f09090;--red-border:#d84040;
+  --green-bg:#0a2820;--green:#60c8a0;--green-border:#20a080;
+  --blue-bg:#0a1a2a;--blue:#70b0d8;--blue-border:#4090c0;
+  --amber-bg:#3a2800;--amber:#f0c040;--amber-border:#e8a020;
+  --orange-bg:#3a1800;--orange:#f09040;--orange-border:#e07020;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 12px;border-bottom:0.5px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100;}
+.nav-title{font-size:12px;font-weight:500;color:var(--text2);letter-spacing:.1em;text-transform:uppercase;}
+.btn{background:none;border:0.5px solid var(--border2);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;color:var(--text);font-family:inherit;transition:background .15s;}
+.btn:hover{background:var(--bg2);}
+.btn-primary{background:var(--text);color:var(--bg);border-color:var(--text);}
+.btn-primary:hover{opacity:.88;background:var(--text);}
+.btn-sm{padding:4px 10px;font-size:12px;}
+.btn-ghost{border-color:transparent;color:var(--text2);}
+.btn-ghost:hover{background:var(--bg2);border-color:var(--border);}
+
+/* SETUP */
+.setup-body{padding:20px 20px 40px;max-width:540px;margin:0 auto;}
+.s-section{margin-bottom:26px;}
+.s-label{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:8px;}
+.s-sublabel{font-size:12px;color:var(--text3);margin-bottom:10px;display:block;margin-top:-4px;}
+.focus-card{border:0.5px solid var(--border2);border-radius:10px;padding:14px 10px;cursor:pointer;transition:all .15s;text-align:center;}
+.focus-card:hover{background:var(--bg2);}
+.focus-card.sel-2k{border-color:var(--blue-border);background:var(--blue-bg);}
+.focus-name{font-size:13px;font-weight:500;}
+.focus-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.pb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.pb-field label{font-size:13px;color:var(--text2);display:block;margin-bottom:5px;}
+.pb-field input{width:100%;font-family:var(--mono);font-size:16px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);}
+.pb-field input:focus{outline:none;border-color:var(--blue-border);}
+.pb-hint{font-size:11px;color:var(--text3);margin-top:4px;}
+.week-grid{display:flex;gap:8px;}
+.week-btn{flex:1;background:none;border:1px solid var(--border2);border-radius:8px;padding:10px 8px;cursor:pointer;font-size:13px;color:var(--text2);font-family:inherit;text-align:center;line-height:1.6;transition:all .15s;}
+.week-btn:hover{background:var(--bg2);}
+.week-btn.sel{border:2px solid var(--text)!important;background:var(--bg2)!important;color:var(--text)!important;}
+.wk-title{font-weight:600;display:block;margin-bottom:3px;}
+.wk-seq{font-size:11px;color:var(--text3);display:block;}
+.week-btn.sel .wk-seq{color:var(--text2);}
+input[type="date"]{background:var(--bg2);border:0.5px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:14px;}
+input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
+
+/* PLAN VIEW */
+.plan-body{padding:16px 20px 40px;max-width:600px;margin:0 auto;}
+.plan-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.plan-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:5px;letter-spacing:.05em;text-transform:uppercase;}
+.badge-2k{background:var(--blue-bg);color:var(--blue);}
+.plan-stat{font-size:12px;color:var(--text3);}
+.week-block{margin-bottom:22px;}
+.week-header{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);}
+.week-header.final{color:var(--amber);}
+.day-row{display:grid;grid-template-columns:36px 40px 1fr;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);align-items:start;}
+.day-row:last-child{border-bottom:none;}
+.day-label{font-size:12px;color:var(--text3);padding-top:3px;}
+.day-date{font-size:11px;color:var(--text3);padding-top:4px;}
+.rest-text{font-size:13px;color:var(--text3);padding:3px 0;}
+.session-card{border:0.5px solid var(--border2);border-radius:8px;padding:8px 10px;margin-bottom:5px;}
+.session-card:last-child{margin-bottom:0;}
+.session-card.test-card{border-color:var(--amber-border);background:var(--amber-bg);}
+.sc-top{display:flex;align-items:flex-start;gap:8px;}
+.sc-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;margin-top:1px;}
+.b-max{background:var(--red-bg);color:var(--red);}
+.b-thresh{background:var(--green-bg);color:var(--green);}
+.b-end{background:var(--blue-bg);color:var(--blue);}
+.b-speed{background:var(--orange-bg);color:var(--orange);}
+.b-test{background:var(--amber-bg);color:var(--amber);}
+.sc-info{flex:1;min-width:0;}
+.sc-name{font-size:13px;font-weight:500;}
+.sc-meta{font-size:11px;color:var(--text3);margin-top:1px;}
+.swap-btn{background:none;border:0.5px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11px;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;}
+.swap-btn:hover{border-color:var(--border2);color:var(--text2);}
+.sc-bottom{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;align-items:center;}
+.target-pill{font-size:11px;padding:2px 8px;border-radius:4px;background:var(--bg3);font-family:var(--mono);}
+.tpill-label{font-size:10px;color:var(--text3);margin-right:3px;font-family:inherit;}
+.dur-pill{font-size:11px;color:var(--text3);}
+.primer-divider{font-size:10px;color:var(--text3);text-align:center;padding:3px 0;letter-spacing:.05em;}
+.swap-drawer{display:none;background:var(--bg2);border:0.5px solid var(--border2);border-radius:7px;margin-top:5px;overflow:hidden;}
+.swap-drawer.open{display:block;}
+.swap-opt{padding:8px 12px;cursor:pointer;border-bottom:0.5px solid var(--border);transition:background .12s;}
+.swap-opt:last-child{border-bottom:none;}
+.swap-opt:hover{background:var(--bg3);}
+.swap-opt.cur{opacity:.4;pointer-events:none;}
+.swap-opt-top{display:flex;align-items:center;gap:8px;}
+.swap-opt-name{font-size:13px;flex:1;}
+.swap-opt-tgt{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.swap-opt-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* CALENDAR */
+.cal-body{padding:0 20px 24px;max-width:600px;margin:0 auto;}
+.cal-month-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0;margin-bottom:4px;}
+.cal-month-label{font-size:16px;font-weight:500;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border-top:0.5px solid var(--border);border-left:0.5px solid var(--border);}
+.cal-dow{font-size:11px;color:var(--text3);text-align:center;padding:6px 0;border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border);letter-spacing:.05em;}
+.cal-day{border-right:0.5px solid var(--border);border-bottom:0.5px solid var(--border);padding:6px 5px 7px;min-height:64px;cursor:pointer;transition:background .12s;position:relative;}
+.cal-day:hover{background:var(--bg2);}
+.cal-day.empty{cursor:default;pointer-events:none;}
+.cal-day.is-today{background:var(--bg2);}
+.day-num{font-size:11px;color:var(--text3);display:block;margin-bottom:3px;}
+.cal-day.is-today .day-num{background:var(--text);color:var(--bg);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.pip{font-size:10px;font-weight:500;padding:2px 4px;border-radius:3px;margin-bottom:2px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pip-max{background:var(--red-bg);color:var(--red);}
+.pip-thresh{background:var(--green-bg);color:var(--green);}
+.pip-end{background:var(--blue-bg);color:var(--blue);}
+.pip-speed{background:var(--orange-bg);color:var(--orange);}
+.pip-test{background:var(--amber-bg);color:var(--amber);}
+.pip.done{opacity:.5;}
+.pip.skipped{opacity:.3;text-decoration:line-through;}
+.status-dot{width:6px;height:6px;border-radius:50%;position:absolute;top:5px;right:5px;}
+.dot-done{background:var(--green-border);}
+.dot-due{background:#e06020;}
+.dot-upcoming{background:var(--border2);}
+.pace-mini{font-size:9px;color:var(--text3);font-family:var(--mono);display:block;margin-top:1px;}
+.today-section{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
+
+/* STREAK */
+.streak-card{border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;border:0.5px solid var(--border2);}
+.streak-card.active{background:linear-gradient(135deg,#0a1a0a,#0a200f);border-color:var(--green-border);}
+.streak-card.zero{background:var(--bg2);}
+.streak-flame{font-size:26px;flex-shrink:0;padding-top:2px;}
+.streak-main{flex:1;}
+.streak-count{font-size:22px;font-weight:700;font-family:var(--mono);color:#40d060;line-height:1;}
+.streak-count.zero{color:var(--text3);}
+.streak-label{font-size:12px;color:var(--text2);margin-top:3px;}
+.streak-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.streak-dots{display:flex;gap:4px;flex-shrink:0;padding-top:4px;}
+.sdot{width:8px;height:8px;border-radius:50%;}
+.sdot-done{background:var(--green-border);}
+.sdot-today{background:#40d060;}
+.sdot-up{background:var(--border2);opacity:.3;}
+.milestone-note{margin-top:10px;padding:8px 10px;border-radius:7px;background:#0a2010;border:0.5px solid var(--green-border);display:flex;align-items:flex-start;gap:8px;}
+.milestone-note-icon{font-size:14px;flex-shrink:0;padding-top:1px;}
+.milestone-note-text{font-size:12px;color:var(--green);line-height:1.5;flex:1;}
+.milestone-dismiss{background:none;border:none;cursor:pointer;color:#20a060;font-size:14px;padding:0;flex-shrink:0;opacity:.7;}
+.milestone-dismiss:hover{opacity:1;}
+.today-workout{border:0.5px solid var(--border2);border-radius:12px;padding:14px 16px;cursor:pointer;transition:background .12s;}
+.today-workout:hover{background:var(--bg2);}
+.today-workout.test{border-color:var(--amber-border);background:var(--amber-bg);}
+.tw-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.tw-status{font-size:12px;margin-left:auto;}
+.tw-name{font-size:16px;font-weight:600;margin-bottom:3px;}
+.tw-meta{font-size:12px;color:var(--text3);}
+
+/* MILESTONE MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal-overlay.hidden{display:none;}
+.milestone-modal{background:var(--bg);border-radius:16px;padding:28px 24px;max-width:340px;width:100%;border:0.5px solid var(--green-border);text-align:center;}
+.modal-flame{font-size:44px;margin-bottom:10px;display:block;}
+.modal-count{font-size:34px;font-weight:700;font-family:var(--mono);color:#40d060;line-height:1;margin-bottom:3px;}
+.modal-count-label{font-size:12px;color:var(--text2);margin-bottom:14px;}
+.modal-title{font-size:17px;font-weight:600;margin-bottom:10px;line-height:1.3;}
+.modal-message{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:20px;}
+.modal-btn{background:#20a060;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:500;color:#fff;cursor:pointer;font-family:inherit;width:100%;transition:opacity .15s;}
+.modal-btn:hover{opacity:.88;}
+
+/* DAILY */
+.daily-body{padding:0 20px 100px;max-width:600px;margin:0 auto;}
+.workout-hero{padding:16px 0 12px;}
+.workout-name{font-size:22px;font-weight:600;margin-bottom:4px;line-height:1.2;}
+.workout-meta-line{font-size:13px;color:var(--text3);}
+.target-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
+.target-chip{padding:6px 14px;border-radius:7px;background:var(--bg2);border:0.5px solid var(--border2);}
+.tc-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px;}
+.tc-val{font-size:15px;font-family:var(--mono);font-weight:500;}
+.primer-card{background:var(--bg2);border-radius:10px;padding:12px 14px;margin-bottom:16px;border:0.5px solid var(--border2);border-left:3px solid var(--orange-border);}
+.primer-hdr{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+.primer-badge{font-size:9px;font-weight:500;padding:1px 6px;border-radius:3px;background:var(--orange-bg);color:var(--orange);}
+.primer-name{font-size:13px;font-weight:500;margin-bottom:5px;}
+.pn{font-size:12px;color:var(--text3);margin-bottom:3px;padding-left:10px;position:relative;}
+.pn::before{content:'·';position:absolute;left:0;}
+.prev-block{background:var(--bg2);border-radius:10px;padding:12px 14px;margin-bottom:16px;border-left:3px solid var(--border2);}
+.prev-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block;}
+.prev-pace{font-size:20px;font-family:var(--mono);font-weight:500;}
+.prev-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.prev-note{font-size:13px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);font-style:italic;line-height:1.5;}
+.desc-text{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:16px;}
+.notes-section{margin-bottom:16px;}
+.notes-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0;margin-bottom:10px;}
+.notes-title{font-size:12px;font-weight:500;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;}
+.notes-toggle{font-size:11px;color:var(--text3);}
+.note-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
+.note-dot{width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0;margin-top:8px;}
+.note-text{font-size:13px;color:var(--text2);line-height:1.6;}
+.divider{height:.5px;background:var(--border);margin:18px 0;}
+.log-section{margin-bottom:20px;}
+.log-label{font-size:12px;font-weight:500;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:8px;}
+.pace-wrap{display:flex;align-items:center;gap:10px;}
+.pace-in{font-family:var(--mono);font-size:24px;width:120px;text-align:center;background:var(--bg2);border:0.5px solid var(--border2);border-radius:8px;padding:8px 10px;color:var(--text);}
+.pace-in:focus{outline:none;border-color:var(--blue-border);}
+.pace-unit{font-size:13px;color:var(--text2);}
+.effort-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.eff-btn{background:none;border:0.5px solid var(--border2);border-radius:8px;padding:9px 4px;cursor:pointer;font-family:inherit;text-align:center;transition:all .12s;}
+.eff-btn:hover{background:var(--bg2);}
+.eff-label{font-size:12px;font-weight:500;display:block;color:var(--text2);}
+.eff-sub{font-size:10px;color:var(--text3);display:block;margin-top:2px;}
+.eff-btn.sel-1{border-color:var(--blue-border);background:var(--blue-bg);}.eff-btn.sel-1 .eff-label{color:var(--blue);}
+.eff-btn.sel-2{border-color:var(--green-border);background:var(--green-bg);}.eff-btn.sel-2 .eff-label{color:var(--green);}
+.eff-btn.sel-3{border-color:#c0a020;background:#262008;}.eff-btn.sel-3 .eff-label{color:#e8c860;}
+.eff-btn.sel-4{border-color:var(--red-border);background:var(--red-bg);}.eff-btn.sel-4 .eff-label{color:var(--red);}
+.txt-in{width:100%;resize:vertical;font-family:inherit;font-size:14px;line-height:1.6;background:var(--bg2);border:0.5px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);}
+.txt-in:focus{outline:none;border-color:var(--blue-border);}
+.fwd-hint{font-size:11px;color:var(--text3);margin-top:4px;}
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);padding:12px 20px;display:flex;gap:10px;align-items:center;}
+.skip-link{font-size:12px;color:var(--text3);cursor:pointer;margin-left:auto;text-decoration:underline;text-underline-offset:2px;}
+.complete-banner{background:#0a2818;border:0.5px solid var(--green-border);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.complete-text{font-size:14px;color:var(--green);font-weight:500;}
+.complete-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.test-note-box{background:#1a1200;border:0.5px solid var(--amber-border);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+.test-note-title{font-size:11px;font-weight:500;color:var(--amber);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.test-note-text{font-size:13px;color:var(--text2);line-height:1.6;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green-bg);border:0.5px solid var(--green-border);color:var(--green);padding:8px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;}
+
+/* DATA BACKUP LINK */
+.data-link{display:block;text-align:center;padding:16px 20px 24px;font-size:13px;color:var(--text3);cursor:pointer;text-decoration:none;}
+.data-link:hover{color:var(--text2);}
+.data-link span{text-decoration:underline;text-underline-offset:2px;}
+
+/* BACKUP SCREEN */
+.backup-body{padding:16px 20px 40px;max-width:540px;margin:0 auto;}
+.backup-card{background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:16px;margin-bottom:20px;}
+.backup-summary{margin-bottom:14px;}
+.summary-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.summary-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0;}
+.summary-text{font-size:13px;color:var(--text2);}
+.summary-val{font-size:13px;font-weight:500;margin-left:auto;font-family:var(--mono);}
+.backup-code{width:100%;font-family:var(--mono);font-size:11px;background:var(--bg);border:0.5px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text2);resize:none;line-height:1.5;margin-bottom:10px;}
+.copy-btn{width:100%;background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.copy-btn:hover{opacity:.88;}
+.copy-btn.copied{background:#20a060;color:#fff;}
+.backup-hint{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.5;}
+.import-hint-text{font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5;}
+.import-input{width:100%;font-family:var(--mono);font-size:11px;background:var(--bg);border:0.5px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);resize:vertical;line-height:1.5;min-height:80px;}
+.import-input:focus{outline:none;border-color:var(--blue-border);}
+.import-input.valid{border-color:var(--green-border);}
+.import-input.invalid{border-color:var(--red-border);}
+.import-result{margin:10px 0;padding:10px 12px;border-radius:8px;font-size:13px;display:none;}
+.import-result.show{display:block;}
+.import-result.ok{background:var(--green-bg);border:0.5px solid var(--green-border);color:var(--green);}
+.import-result.err{background:var(--red-bg);border:0.5px solid var(--red-border);color:var(--red);}
+.import-btn{width:100%;background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:10px;}
+.import-btn:hover{opacity:.88;}
+.import-btn:disabled{opacity:.3;cursor:default;}
+.confirm-modal{background:var(--bg);border-radius:14px;padding:22px 20px;max-width:340px;width:100%;border:0.5px solid var(--border2);}
+.confirm-title{font-size:16px;font-weight:600;margin-bottom:8px;}
+.confirm-body{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;}
+.confirm-warn{font-size:12px;color:#e06020;margin-bottom:16px;padding:8px 10px;background:#2a1000;border-radius:6px;border:0.5px solid #e06020;}
+.confirm-btns{display:flex;gap:8px;}
+.confirm-btns .btn{flex:1;text-align:center;}
+.btn-danger{background:var(--red-border);color:#fff;border-color:var(--red-border);}
+.btn-danger:hover{opacity:.88;background:var(--red-border);}
+
+/* ERG LINK */
+.erg-paste-wrap{background:var(--bg2);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;}
+.erg-paste-hint{font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5;}
+.erg-input-row{display:flex;gap:8px;align-items:flex-start;}
+.erg-input{flex:1;font-family:inherit;font-size:13px;background:var(--bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;color:var(--text);resize:none;}
+.erg-input:focus{outline:none;border-color:var(--blue-border);}
+.erg-input.warn{border-color:#e06020;}
+.erg-save-btn{background:none;border:0.5px solid var(--border2);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;white-space:nowrap;flex-shrink:0;transition:all .12s;}
+.erg-save-btn:hover{border-color:var(--border);color:var(--text);}
+.erg-warn{font-size:11px;color:#e06020;margin-top:5px;display:none;}
+.erg-warn.show{display:block;}
+.erg-saved-wrap{display:flex;align-items:center;gap:10px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:10px;padding:10px 14px;}
+.erg-send-btn{display:flex;align-items:center;gap:7px;background:var(--blue-bg);border:0.5px solid var(--blue-border);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:14px;font-weight:500;color:var(--blue);font-family:inherit;text-decoration:none;transition:all .15s;flex-shrink:0;}
+.erg-send-btn:hover{background:#0f2236;border-color:#60a0d0;}
+.erg-saved-meta{flex:1;min-width:0;}
+.erg-saved-label{font-size:11px;color:var(--text3);margin-bottom:2px;}
+.erg-saved-url{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--mono);}
+.erg-edit-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3);text-decoration:underline;text-underline-offset:2px;padding:0;font-family:inherit;flex-shrink:0;}
+.erg-edit-btn:hover{color:var(--text2);}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div class="screen active" id="screen-setup">
+  <div class="nav">
+    <span class="nav-title">Tom's rowing tracker v2.1</span>
+    <button class="btn btn-primary" onclick="buildPlan()">Generate plan →</button>
+  </div>
+  <div class="setup-body">
+    <div class="s-section">
+      <span class="s-label">Monthly focus</span>
+      <div class="focus-card sel-2k" id="fc-2k" onclick="selFocus('2k')">
+        <div class="focus-name">2k training</div>
+        <div class="focus-sub">Max effort · Threshold · Endurance</div>
+      </div>
+    </div>
+    <div class="s-section">
+      <span class="s-label">Benchmarks</span>
+      <span class="s-sublabel">All pacing targets derive from your 2k PB — enter at least that one</span>
+      <div class="pb-grid">
+        <div class="pb-field"><label>500m PB</label><input type="text" id="pb500" placeholder="1:28.5"><div class="pb-hint">m:ss.t</div></div>
+        <div class="pb-field"><label>2k PB <span style="color:var(--red);font-size:11px">★</span></label><input type="text" id="pb2k" placeholder="7:48.0"><div class="pb-hint">mm:ss.t</div></div>
+        <div class="pb-field"><label>5k PB</label><input type="text" id="pb5k" placeholder="20:30.0"><div class="pb-hint">mm:ss.t</div></div>
+      </div>
+    </div>
+    <div class="s-section">
+      <span class="s-label">Rest days per week</span>
+      <div class="week-grid">
+        <button class="week-btn" id="wb-1" onclick="selRest(1)"><span class="wk-title">1 rest day</span><span class="wk-seq">Rest · Hard · End · Thresh · End · Thresh · End</span></button>
+        <button class="week-btn" id="wb-2" onclick="selRest(2)"><span class="wk-title">2 rest days</span><span class="wk-seq">Rest · Hard · End · Thresh · Rest · Thresh · End</span></button>
+      </div>
+    </div>
+    <div class="s-section">
+      <span class="s-label">Plan start</span>
+      <input type="date" id="plan-start">
+    </div>
+  </div>
+  <a class="data-link" onclick="showScreen('screen-backup')">⧉ <span>Export / Import data</span></a>
+</div>
+
+<!-- BACKUP SCREEN -->
+<div class="screen" id="screen-backup">
+  <div class="nav">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-ghost btn-sm" id="backup-back-btn" onclick="showScreen('screen-setup')">← Back</button>
+      <span class="nav-title">Export / Import</span>
+    </div>
+  </div>
+  <div class="backup-body">
+    <div class="s-section">
+      <span class="s-label">Export your data</span>
+      <div class="backup-card">
+        <div class="backup-summary" id="backup-summary"></div>
+        <textarea class="backup-code" id="backup-code" rows="3" readonly></textarea>
+        <button class="copy-btn" id="copy-btn" onclick="copyExport()">⧉ Copy to clipboard</button>
+        <div class="backup-hint">Paste this into the Import field on any version of the tracker to restore your data. Save it in Notes or email it to yourself as a backup.</div>
+      </div>
+    </div>
+    <div class="s-section">
+      <span class="s-label">Import data</span>
+      <div class="backup-card">
+        <div class="import-hint-text">Paste exported data below. Your current data will be replaced after you confirm.</div>
+        <textarea class="import-input" id="import-input" placeholder="Paste your export code here..." oninput="parseImport()"></textarea>
+        <div class="import-result" id="import-result"></div>
+        <button class="import-btn" id="import-btn" disabled onclick="confirmImport()">Import data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM IMPORT MODAL -->
+<div class="modal-overlay hidden" id="import-modal-overlay">
+  <div class="confirm-modal">
+    <div class="confirm-title">Replace current data?</div>
+    <div class="confirm-body" id="import-confirm-body"></div>
+    <div class="confirm-warn">⚠ This will overwrite your current plan, logs, and ErgData links. Export your current data first if you want to keep it.</div>
+    <div class="confirm-btns">
+      <button class="btn" onclick="dismissImportModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="doImport()">Yes, import</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div class="screen" id="screen-plan">
+  <div class="nav">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-setup')">← Edit</button>
+      <span class="nav-title" id="plan-nav-title">Plan</span>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="savePlan()">Save plan ✓</button>
+  </div>
+  <div class="plan-body">
+    <div class="plan-meta">
+      <span class="plan-badge badge-2k">2k Training</span>
+      <span class="plan-stat" id="plan-stat-sessions"></span>
+      <span class="plan-stat" id="plan-stat-paces"></span>
+    </div>
+    <div id="plan-weeks"></div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="screen" id="screen-cal">
+  <div class="nav">
+    <span class="nav-title">Tom's rowing tracker</span>
+    <button class="btn btn-ghost btn-sm" onclick="goSetup()">⚙ New plan</button>
+  </div>
+  <div class="cal-body">
+    <div class="cal-month-nav">
+      <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">‹</button>
+      <span class="cal-month-label" id="cal-month-label"></span>
+      <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="today-section" id="today-section"></div>
+    <a class="data-link" onclick="showScreen('screen-backup');renderBackup()">⧉ <span>Export / Import data</span></a>
+  </div>
+</div>
+
+<!-- DAILY -->
+<div class="screen" id="screen-daily">
+  <div class="nav">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-cal')">‹ Plan</button>
+      <span class="nav-title" id="daily-date-label"></span>
+    </div>
+  </div>
+  <div class="daily-body" id="daily-body"></div>
+  <div class="save-bar" id="save-bar" style="display:none;">
+    <button class="btn btn-primary" onclick="saveLog()">Save workout</button>
+    <button class="btn" onclick="showScreen('screen-cal')">Cancel</button>
+    <span class="skip-link" onclick="confirmSkip()">Mark as skipped</span>
+  </div>
+</div>
+
+<!-- MILESTONE MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="dismissModal(event)">
+  <div class="milestone-modal">
+    <span class="modal-flame" id="modal-flame">🔥</span>
+    <div class="modal-count" id="modal-count"></div>
+    <div class="modal-count-label" id="modal-count-label"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-message" id="modal-message"></div>
+    <button class="modal-btn" onclick="dismissModal()">Keep going →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── MILESTONES ──
+const MILESTONES=[
+  {days:3,title:"You've found your rhythm.",message:"Three sessions in a row is where it starts. Your body is already adapting — and you're building something more important than fitness right now. You're building a habit.",note:"3 days in — you've found your rhythm. Keep it going."},
+  {days:5,title:"A full working week.",message:"Five consecutive sessions. Most people quit before they get here. The hardest part of any streak is the beginning — and you're past it. This is real momentum.",note:"5 days straight. The hard part is behind you."},
+  {days:7,title:"One week straight.",message:"Seven days. That's a full cycle of the plan, every session logged. Your body has had one of each — a hard day, threshold work, steady rows. This is what consistent training feels like.",note:"One week straight. You've completed a full training cycle."},
+  {days:10,title:"Ten sessions. Double figures.",message:"Double figures. Ten sessions means ten separate decisions to show up. On some of those days, you probably didn't feel like it. That's the whole point.",note:"10 sessions logged. Double figures."},
+  {days:14,title:"Two full weeks.",message:"Fourteen days of consistent training. The research says habit formation takes around 21 days — you're two thirds of the way there. This is starting to become who you are.",note:"Two weeks down. One more to make it a habit."},
+  {days:21,title:"Three weeks. This is a habit now.",message:"Twenty-one days. Most habit research puts the formation threshold somewhere around here. You haven't just been training — you've been rewiring how you spend your time.",note:"21 days — you've crossed the habit threshold."},
+  {days:30,title:"One month of consistent training.",message:"Thirty days. You've been through a full plan cycle — hard sessions, threshold work, steady rows, and a time trial. Whatever your 2k showed at the end of that month, you earned it.",note:"One month. A full plan cycle, start to finish."},
+  {days:45,title:"Forty-five days.",message:"Six weeks of showing up. Your fitness gains compound the same way a streak does — slowly, then all at once. By now you're a different rower than you were at day one.",note:"45 days. Six weeks of compounding fitness."},
+  {days:60,title:"Two months straight.",message:"Sixty days. The athletes who make the biggest gains aren't necessarily the most talented — they're the most consistent. You're proving that right now.",note:"Two months. Consistency is its own kind of talent."},
+  {days:90,title:"Ninety days. This is who you are now.",message:"Three months of consistent training. You don't need motivation to show up anymore — you need a reason not to. This isn't a streak. It's just your life now.",note:"90 days. This isn't a streak anymore — it's just what you do."},
+];
+const MILESTONE_DAYS=new Set(MILESTONES.map(m=>m.days));
+
+// ── SESSION LIBRARY ──
+const LIB={
+  max:[
+    {key:'8x500',type:'max',name:'8 × 500m',meta:'4000m · 3:30 rest',totalMins:28,pt:p=>fmt(p-3),pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
+    {key:'pyramid',type:'max',name:'Speed pyramid',meta:'4000m · scaled rest',totalMins:32,pt:p=>fmt(p),pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
+    {key:'4x1000',type:'max',name:'4 × 1000m',meta:'4000m · 5:00 rest',totalMins:42,pt:p=>fmt(p+1),pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
+    {key:'10x400m',type:'max',name:'10 × 400m',meta:'4000m · 2:00 rest',totalMins:35,pt:p=>fmt(p-4),pl:'Target pace',desc:'10 reps of 400m with 2:00 rest. Total: 4000m. Shorter, faster intervals targeting top-end speed above 2k race pace.',notes:['Warm up generously — minimum 15 minutes easy rowing plus a few 10-stroke pickups at target pace.','Target pace is faster than 2k pace — these develop the speed ceiling above race pace.','2:00 rest after ~1:40 of work is roughly equal work-to-rest.','Focus on consistent pace across all 10 reps rather than going out hard and fading.']},
+    {key:'12x300m',type:'max',name:'12 × 300m',meta:'3600m · 2:00 rest',totalMins:34,pt:p=>fmt(p-4),pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
+    {key:'6x3min',type:'max',name:'6 × 3 min',meta:'~3600m · 3:00 rest',totalMins:36,pt:p=>fmt(p),pl:'Target pace',desc:'6 reps of 3 minutes at 2k pace with 3:00 rest. ~3600m total. A VO2max interval session targeting the aerobic ceiling that limits 2k performance.',notes:['Warm up thoroughly — minimum 15–20 minutes easy rowing building into 2–3 short pieces at target pace.','Based on Norwegian interval research, 3-minute pieces at 85–100% effort with equal rest is one of the most effective VO2max development formats.','Target pace is 2k race pace — this is sustained maximum aerobic effort, not a sprint.','The effort should feel like your absolute aerobic limit by rep 4–5. If it feels manageable throughout, you are not at the right intensity.']},
+  ],
+  thresh:[
+    {key:'5x1500',type:'thresh',name:'5 × 1500m',meta:'7500m · 5:00 rest',totalMins:55,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
+    {key:'4x2000',type:'thresh',name:'4 × 2000m',meta:'8000m · 5:00 rest',totalMins:60,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'4 reps of 2000m at threshold pace with 5:00 rest. The landmark Pete Plan threshold session.',notes:['Go out too hard on rep 1 and rep 4 will be a fight. Rep 1 should feel almost easy.','Rest fully for all 5:00 between reps.','All four reps within 2 sec/500m of each other is an excellent session.']},
+    {key:'3k-ladder',type:'thresh',name:'3k / 2.5k / 2k',meta:'7500m · 5:00 rest',totalMins:47,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Descending distance: 3000m · 2500m · 2000m with 5:00 rest. Same target pace throughout.',notes:['Decreasing distance compensates for fatigue — the pace should feel the same on every piece.','Don\'t treat the final 2k as a race. Hold threshold pace.']},
+    {key:'3x10min',type:'thresh',name:'3 × 10 min',meta:'Timed · 5:00 rest',totalMins:40,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 10-minute pieces at threshold effort with 5:00 rest.',notes:['5:00 rest gives genuine recovery — you should hold true threshold pace across all three.','Note your total meters for each piece — improving meters/piece over weeks is your progress signal.','Treat each 10-minute block as its own piece. Don\'t hold back in piece 1.']},
+    {key:'3x2500m',type:'thresh',name:'3 × 2500m',meta:'7500m · 6:00 rest',totalMins:50,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'3 reps of 2500m at threshold pace with 6:00 rest. 7500m total.',notes:['6:00 rest on a ~10:30 rep is about 57% of work time — good threshold quality rest.','Only three reps but 2500m is long — pacing discipline matters from the first stroke.','Even splits across all three. Rep 3 should feel hard but not a pace collapse.']},
+    {key:'5x6min',type:'thresh',name:'5 × 6 min',meta:'~7125m · 3:00 rest',totalMins:45,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Five 6-minute pieces at threshold pace with 3:00 rest. ~7125m total.',notes:['3:00 rest on a 6-minute piece is 50% of work time — exactly the threshold quality standard.','Five reps means more opportunities to dial in pace consistency.','Don\'t let the shorter reps tempt you into going out too hard. Hold target pace from rep 1.']},
+    {key:'hard-5k',type:'thresh',name:'Hard 5k',meta:'5000m · rate free',totalMins:20,pt:p=>fmt(p*1.12),pl:'Target pace',desc:'One hard continuous 5000m effort. No rate cap. A sustained push above steady pace.',notes:['The one session where you lift above the 25 spm rate cap.','Pete Plan: rotate through 5k, 6k, and 2k as ranking distances over successive weeks.','Your time here is a direct ranking benchmark — record and compare across months.']},
+  ],
+  end:[
+    {key:'steady-8k',type:'end',name:'Steady 8k',meta:'8000m · 22–25 spm',totalMins:40,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 8000m at steady aerobic pace, 22–25 spm.',notes:['Rate cap: 22–25 spm. Non-negotiable.','Should feel genuinely easy — full conversation pace.','Use this to focus on technique: long strokes, clean catches, controlled recovery.']},
+    {key:'steady-10k',type:'end',name:'Steady 10k',meta:'10000m · 22–25 spm',totalMins:50,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
+    {key:'steady-12k',type:'end',name:'Steady 12k',meta:'12000m · 22–25 spm',totalMins:60,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
+    {key:'timed-30min',type:'end',name:'30 min steady',meta:'Timed · 22–25 spm',totalMins:30,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 30-minute row at steady aerobic pace.',notes:['Record total meters each time. Meters/30min is a reliable aerobic benchmark.']},
+    {key:'2x20min',type:'end',name:'2 × 20 min',meta:'~8k · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 20-minute pieces with 90 seconds rest. More volume, not more intensity.',notes:['The 90s rest is a sip of water and a breath — your heart rate won\'t drop much.','Same pace target as steady rows. Aerobic work, not threshold.']},
+    {key:'3x15min',type:'end',name:'3 × 15 min',meta:'~9k · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Three 15-minute pieces with 90 seconds rest.',notes:['90s rest keeps the aerobic system fully engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
+    {key:'3x3000m',type:'end',name:'3 × 3000m',meta:'9000m · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'3 reps of 3000m with 90 seconds rest at endurance pace.',notes:['90s rest — just enough to reset mentally, not enough for genuine recovery.','Steady rate throughout: 22–25 spm. If rate is creeping up, pace is too fast.']},
+    {key:'4x2500m',type:'end',name:'4 × 2500m',meta:'10000m · 90s rest',totalMins:54,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'4 reps of 2500m with 90 seconds rest. 10k total volume.',notes:['Four pieces at steady pace — equivalent to a steady 10k.','With four pieces, pacing consistency is easier to track than on a continuous row.']},
+    {key:'5x1500m-end',type:'end',name:'5 × 1500m (endurance)',meta:'7500m · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 1500m at endurance pace with 90 seconds rest.',notes:['Pace target is × 1.16 — significantly slower than the threshold 5×1500m (× 1.08).','Good lighter endurance day option.']},
+    {key:'6x1000m',type:'end',name:'6 × 1000m',meta:'6000m · 90s rest',totalMins:35,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'6 reps of 1000m at endurance pace with 90 seconds rest. Lighter total volume.',notes:['Lowest total volume endurance session — 6k. Use on lighter days.','The short rep length makes this mentally easy. Good when motivation is lower.']},
+    {key:'8x1000m',type:'end',name:'8 × 1000m',meta:'8000m · 90s rest',totalMins:46,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'8 reps of 1000m at endurance pace with 90 seconds rest.',notes:['8k total — equivalent to the steady 8k but broken into eight pieces.','Rate cap still applies: 22–25 spm per rep.']},
+    {key:'5x2000m',type:'end',name:'5 × 2000m',meta:'10000m · 90s rest',totalMins:55,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 2000m with 90 seconds rest at endurance pace. 10k total.',notes:['2000m per rep — you will naturally focus on form over the full rep.','Record your split for each rep. Watching consistency improve reflects aerobic adaptation.']},
+    {key:'4x20min',type:'end',name:'4 × 20 min',meta:'~12k · 90s rest',totalMins:82,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Four 20-minute pieces with 90 seconds rest. High-volume endurance session, ~12k total.',notes:['Reserve for endurance-focused months or high-volume weeks.','At 82 minutes, nutrition and hydration before you start are important.']},
+    {key:'2x30min',type:'end',name:'2 × 30 min',meta:'~12k · 90s rest',totalMins:62,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 30-minute pieces with 90 seconds rest. ~12k total.',notes:['Treat this as a 60-minute continuous row with a very brief pause in the middle.','Record meters for each piece. Matching them is the goal.']},
+  ],
+  speed:[
+    {key:'spr-3stroke',type:'speed',name:'5 × 3-stroke sprint',meta:'~75m · 3+ min rest',totalMins:16,pt:()=>null,pl:'Max effort',desc:'5 reps of 3 strokes at maximum force. Pure neuromuscular activation — primer before the main session.',notes:['Nervous system session. Goal: peak force on every stroke.','Take 3+ minutes between every rep — full recovery is essential.','Rest 5–6 minutes after the final sprint before starting the main piece.']},
+    {key:'spr-60m',type:'speed',name:'3 × 60m sprint',meta:'~180m · 3+ min rest',totalMins:12,pt:()=>null,pl:'Max effort',desc:'3 reps of 60m at absolute maximum effort. Neuromuscular activation.',notes:['Peak watts is your key metric — not pace or time.','Full recovery (3+ min) between every rep.','Rest 5–6 minutes after the final sprint before the main session.']},
+  ],
+  test:[
+    {key:'2k-test',type:'test',name:'2k time trial',meta:'2000m · max effort',totalMins:20,pt:()=>null,pl:'Current PB',desc:'A full 2000m time trial. The standard indoor rowing benchmark.',notes:['Full warm-up essential — 15–20 min easy rowing building into a few short hard pieces.','Pacing: slightly fast first 500m, settle to race pace for the middle 1k, empty the tank in the final 500m.','Record your split every 500m.','After finishing: update your 2k PB in setup so all target paces recalculate for next month.']},
+  ],
+};
+const ALL=[...LIB.max,...LIB.thresh,...LIB.end,...LIB.speed,...LIB.test];
+const PRIMER_KEYS=['spr-3stroke','spr-60m'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS_SHORT=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const TYPE_BADGE={max:'b-max',thresh:'b-thresh',end:'b-end',speed:'b-speed',test:'b-test'};
+const TYPE_LABEL={max:'Max effort',thresh:'Threshold',end:'Endurance',speed:'Speed',test:'Time Trial'};
+const PIP_CLS={max:'pip-max',thresh:'pip-thresh',end:'pip-end',speed:'pip-speed',test:'pip-test'};
+
+// ── STATE ──
+let G={
+  focus:'2k',restDays:null,pb500:'',pb2k:'',pb5k:'',planStart:null,
+  plan:[],logs:{},ergLinks:{},
+  viewYear:null,viewMonth:null,
+  currentDate:null,currentEffort:null,notesOpen:true,editMode:false,
+  activeMilestone:null
+};
+
+// ── HELPERS ──
+function parseT(s){if(!s||!s.trim())return null;const p=s.replace(',','.').trim().split(':');if(p.length!==2)return null;const m=parseFloat(p[0]),sec=parseFloat(p[1]);return isNaN(m)||isNaN(sec)?null:m*60+sec;}
+function fmt(s){if(!s||s<=0||!isFinite(s))return null;const m=Math.floor(s/60),r=s%60;return m+':'+r.toFixed(1).padStart(4,'0');}
+function p2w(p){return p?Math.round(2.80/Math.pow(p/500,3)):null;}
+function pace2k(){return G.pb2k?parseT(G.pb2k)/4:null;}
+function getTgt(s){if(!s)return null;const p=pace2k();if(!p)return null;const v=s.pt?s.pt(p):null;return v?{label:s.pl||'Target pace',val:v+' /500m'}:null;}
+function fmtDur(m){return m<60?'~'+m+' min':'~'+Math.floor(m/60)+'h '+(m%60)+'m';}
+function getByKey(k){return ALL.find(s=>s.key===k)||null;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='screen-backup')renderBackup();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+// ── PERSISTENCE ──
+function saveState(){try{localStorage.setItem('trt_v2',JSON.stringify({focus:G.focus,restDays:G.restDays,pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,planStart:G.planStart,plan:G.plan,logs:G.logs,ergLinks:G.ergLinks,viewYear:G.viewYear,viewMonth:G.viewMonth,activeMilestone:G.activeMilestone}));}catch(e){}}
+function loadState(){try{const d=localStorage.getItem('trt_v2');if(d){const s=JSON.parse(d);Object.assign(G,s);G.ergLinks=G.ergLinks||{};return true;}}catch(e){}return false;}
+
+// ── SETUP ──
+function selFocus(f){G.focus=f;}
+function selRest(n){G.restDays=n;document.getElementById('wb-1').classList.remove('sel');document.getElementById('wb-2').classList.remove('sel');document.getElementById('wb-'+n).classList.add('sel');}
+
+// ── PLAN GENERATION ──
+function weekTemplate(restDays,weekIdx){
+  const isFinal=weekIdx===3;
+  if(restDays===1)return isFinal?['rest','hard','end','thresh','end','rest','test']:['rest','hard','end','thresh','end','thresh','end-short'];
+  return isFinal?['rest','hard','end','thresh','rest','rest','test']:['rest','hard','end','thresh','rest','thresh','end'];
+}
+function pickSession(slot,weekIndex,used){
+  if(slot==='rest'||slot==='test')return null;
+  let pool;
+  if(slot==='hard')pool=LIB.max;
+  else if(slot==='thresh')pool=LIB.thresh;
+  else pool=slot==='end-short'?[LIB.end[0],LIB.end[3],LIB.end[4]]:LIB.end;
+  const unused=pool.filter(s=>!used.has(s.key));
+  const src=unused.length?unused:pool;
+  return{...src[weekIndex%src.length]};
+}
+function pickPrimer(weekIdx){const k=PRIMER_KEYS[weekIdx%PRIMER_KEYS.length];return{...LIB.speed.find(s=>s.key===k)};}
+
+function buildPlan(){
+  if(!G.restDays){alert('Choose rest days per week.');return;}
+  const v2k=document.getElementById('pb2k').value.trim();
+  const v500=document.getElementById('pb500').value.trim();
+  const v5k=document.getElementById('pb5k').value.trim();
+  if(!v2k&&!v500&&!v5k){alert('Enter at least your 2k PB to calculate target paces.');return;}
+  G.pb2k=v2k;G.pb500=v500;G.pb5k=v5k;
+  G.planStart=document.getElementById('plan-start').value||new Date().toISOString().slice(0,10);
+  const start=new Date(G.planStart+'T00:00:00');
+  const dow=start.getDay();start.setDate(start.getDate()+(dow===0?-6:1-dow));
+  G.plan=[];G.logs={};
+  for(let w=0;w<4;w++){
+    const tmpl=weekTemplate(G.restDays,w);const used=new Set();
+    for(let d=0;d<7;d++){
+      const dt=new Date(start);dt.setDate(start.getDate()+w*7+d);
+      const slot=tmpl[d];
+      const session=slot==='test'?{...LIB.test[0]}:pickSession(slot,w,used);
+      if(session&&session.key!=='2k-test')used.add(session.key);
+      // Primers fire on ALL hard days
+      const primer=slot==='hard'?pickPrimer(w):null;
+      G.plan.push({date:dt.toISOString().slice(0,10),slot,session,primer,status:'upcoming'});
+    }
+  }
+  const today=new Date();G.viewYear=today.getFullYear();G.viewMonth=today.getMonth();
+  renderPlanView();showScreen('screen-plan');
+}
+
+function renderPlanView(){
+  const d0=new Date(G.planStart+'T00:00:00');
+  document.getElementById('plan-nav-title').textContent=MONTHS[d0.getMonth()]+' plan';
+  const total=G.plan.filter(d=>d.session).length;
+  document.getElementById('plan-stat-sessions').textContent=total+' sessions';
+  const parts=[];if(G.pb500)parts.push('500m: '+G.pb500);if(G.pb2k)parts.push('2k: '+G.pb2k);if(G.pb5k)parts.push('5k: '+G.pb5k);
+  document.getElementById('plan-stat-paces').textContent=parts.join(' · ');
+  const container=document.getElementById('plan-weeks');container.innerHTML='';
+  for(let w=0;w<4;w++){
+    const days=G.plan.slice(w*7,(w+1)*7);const isFinal=w===3;
+    const block=document.createElement('div');block.className='week-block';
+    block.innerHTML=`<div class="week-header${isFinal?' final':''}">Week ${w+1}${isFinal?' — Final week':''}</div>`;
+    days.forEach((day,di)=>{
+      const row=document.createElement('div');row.className='day-row';
+      const dt=new Date(day.date+'T00:00:00');
+      const dateLabel=(dt.getMonth()+1)+'/'+dt.getDate();
+      if(!day.session){
+        row.innerHTML=`<span class="day-label">${DAYS_SHORT[di]}</span><span class="day-date">${dateLabel}</span><div><span class="rest-text">— Rest</span></div>`;
+      } else {
+        const cards=[];
+        if(day.primer){cards.push(buildPlanCard(w,di,'primer',day.primer));cards.push(`<div class="primer-divider">↓ 5–6 min rest ↓</div>`);}
+        cards.push(buildPlanCard(w,di,'main',day.session));
+        row.innerHTML=`<span class="day-label">${DAYS_SHORT[di]}</span><span class="day-date">${dateLabel}</span><div>${cards.join('')}</div>`;
+      }
+      block.appendChild(row);
+    });
+    container.appendChild(block);
+  }
+}
+
+function buildPlanCard(wi,di,which,session){
+  const tgt=getTgt(session);const dur=fmtDur(session.totalMins);const isTest=session.type==='test';
+  const drawerId=`sd-${wi}-${di}-${which}`;
+  const tgtHtml=tgt?`<span class="target-pill"><span class="tpill-label">${tgt.label}:</span>${tgt.val}</span>`:'';
+  const swapBtn=isTest?'':`<button class="swap-btn" onclick="toggleSwap(event,${wi},${di},'${which}')">swap ↕</button>`;
+  return `<div class="session-card${isTest?' test-card':''}">
+    <div class="sc-top"><span class="sc-badge ${TYPE_BADGE[session.type]||'b-end'}">${TYPE_LABEL[session.type]||session.type}</span>
+    <div class="sc-info"><div class="sc-name">${session.name}</div><div class="sc-meta">${session.meta}</div></div>${swapBtn}</div>
+    <div class="sc-bottom">${tgtHtml}<span class="dur-pill">⏱ ${dur}</span></div>
+    <div class="swap-drawer" id="${drawerId}"></div></div>`;
+}
+
+function toggleSwap(e,wi,di,which){
+  e.stopPropagation();
+  const drawerId=`sd-${wi}-${di}-${which}`;const drawer=document.getElementById(drawerId);
+  const isOpen=drawer.classList.contains('open');
+  document.querySelectorAll('.swap-drawer').forEach(d=>d.classList.remove('open'));
+  if(isOpen)return;
+  const day=G.plan[wi*7+di];const current=which==='primer'?day.primer:day.session;
+  const pool=which==='primer'?LIB.speed:(LIB[day.session.type]||[]);
+  drawer.innerHTML=pool.map(s=>{const t=getTgt(s);const tv=t&&!t.isText?t.val:'';
+    return `<div class="swap-opt${s.key===current.key?' cur':''}" onclick="doSwap(${wi},${di},'${which}','${s.key}')">
+      <div class="swap-opt-top"><span class="swap-opt-name">${s.name}</span><span class="swap-opt-tgt">${tv}</span></div>
+      <div class="swap-opt-sub">${s.meta} · ${fmtDur(s.totalMins)}</div></div>`;}).join('');
+  drawer.classList.add('open');
+}
+function doSwap(wi,di,which,newKey){
+  const day=G.plan[wi*7+di];const pool=which==='primer'?LIB.speed:(LIB[day.session.type]||[]);
+  const s=pool.find(x=>x.key===newKey);if(!s)return;
+  if(which==='primer')day.primer={...s};else day.session={...s};
+  document.querySelectorAll('.swap-drawer').forEach(d=>d.classList.remove('open'));renderPlanView();
+}
+document.addEventListener('click',()=>document.querySelectorAll('.swap-drawer').forEach(d=>d.classList.remove('open')));
+
+function savePlan(){saveState();renderCal();showScreen('screen-cal');showToast('Plan saved — ready to row!');}
+function goSetup(){
+  document.getElementById('pb500').value=G.pb500||'';
+  document.getElementById('pb2k').value=G.pb2k||'';
+  document.getElementById('pb5k').value=G.pb5k||'';
+  if(G.planStart)document.getElementById('plan-start').value=G.planStart;
+  if(G.restDays)selRest(G.restDays);
+  showScreen('screen-setup');
+}
+
+// ── STREAK ──
+function calcStreak(){
+  const todayStr=new Date().toISOString().slice(0,10);
+  const days=[...G.plan].filter(d=>d.date<=todayStr).reverse();
+  let streak=0;
+  for(const day of days){
+    if(day.slot==='rest'||!day.session)continue;
+    if(day.status==='done'){streak++;continue;}
+    break;
+  }
+  return streak;
+}
+function streakDots(){
+  const todayStr=new Date().toISOString().slice(0,10);
+  return G.plan.filter(d=>d.date<=todayStr&&d.slot!=='rest'&&d.session).slice(-7).map(d=>({done:d.status==='done',today:d.date===todayStr}));
+}
+
+// ── MILESTONE ──
+function checkMilestone(streak){
+  if(!MILESTONE_DAYS.has(streak))return null;
+  return MILESTONES.find(m=>m.days===streak)||null;
+}
+function showMilestoneModal(ms){
+  document.getElementById('modal-flame').textContent='🔥';
+  document.getElementById('modal-count').textContent=ms.days;
+  document.getElementById('modal-count-label').textContent='day streak';
+  document.getElementById('modal-title').textContent=ms.title;
+  document.getElementById('modal-message').textContent=ms.message;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+function dismissModal(e){
+  if(e&&e.target!==document.getElementById('modal-overlay'))return;
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+function dismissMilestoneNote(){G.activeMilestone=null;saveState();renderTodaySection();}
+
+// ── CALENDAR ──
+function changeMonth(dir){
+  G.viewMonth+=dir;
+  if(G.viewMonth>11){G.viewMonth=0;G.viewYear++;}
+  if(G.viewMonth<0){G.viewMonth=11;G.viewYear--;}
+  renderCal();
+}
+function planFor(dateStr){return G.plan.find(d=>d.date===dateStr)||null;}
+
+function renderCal(){
+  const y=G.viewYear,m=G.viewMonth;
+  document.getElementById('cal-month-label').textContent=MONTHS[m]+' '+y;
+  const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  DAYS_SHORT.forEach(d=>{const el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el);});
+  const first=new Date(y,m,1);let startDow=first.getDay();startDow=startDow===0?6:startDow-1;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const todayStr=new Date().toISOString().slice(0,10);
+  for(let i=0;i<startDow;i++){const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);}
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isToday=dateStr===todayStr;const isPast=dateStr<todayStr;
+    const plan=planFor(dateStr);
+    const el=document.createElement('div');el.className='cal-day'+(isToday?' is-today':'');el.onclick=()=>openDay(dateStr);
+    const numEl=document.createElement('span');numEl.className='day-num';numEl.textContent=d;el.appendChild(numEl);
+    if(plan&&plan.slot!=='rest'&&plan.session){
+      const s=plan.session;
+      const pip=document.createElement('span');
+      pip.className='pip '+(PIP_CLS[s.type]||'pip-end')+(plan.status==='done'?' done':plan.status==='skipped'?' skipped':'');
+      pip.textContent=s.name;el.appendChild(pip);
+      const logKey=plan.date+'_'+s.key;const log=G.logs[logKey];
+      if(log&&log.pace){const pe=document.createElement('span');pe.className='pace-mini';pe.textContent=log.pace+'/500';el.appendChild(pe);}
+      const dot=document.createElement('div');
+      if(plan.status==='done')dot.className='status-dot dot-done';
+      else if(isPast)dot.className='status-dot dot-due';
+      else dot.className='status-dot dot-upcoming';
+      el.appendChild(dot);
+    } else if(plan&&plan.slot==='rest'){
+      const re=document.createElement('span');re.style.cssText='font-size:10px;color:var(--text3);';re.textContent='Rest';el.appendChild(re);
+    }
+    grid.appendChild(el);
+  }
+  renderTodaySection();
+}
+
+function renderTodaySection(){
+  const section=document.getElementById('today-section');
+  const todayStr=new Date().toISOString().slice(0,10);
+  const streak=calcStreak();const dots=streakDots();
+  const todayPlan=planFor(todayStr);const todaySession=todayPlan?.session;
+  let streakHtml='';
+  if(streak>0){
+    const msg=streak>=90?'This is just what you do now.':streak>=60?'Two months of consistent training.':streak>=45?'Six weeks of compounding fitness.':streak>=30?'A full plan cycle, start to finish.':streak>=21?'This is a habit now.':streak>=14?'Two weeks — one more to make it a habit.':streak>=7?'A complete training cycle.':streak>=3?'You\'ve found your rhythm.':'Keep it going!';
+    const dotsHtml=dots.map(d=>`<div class="sdot ${d.today?'sdot-today':d.done?'sdot-done':'sdot-up'}"></div>`).join('');
+    const msNote=G.activeMilestone?`<div class="milestone-note"><span class="milestone-note-icon">🏆</span><span class="milestone-note-text">${G.activeMilestone.note}</span><button class="milestone-dismiss" onclick="dismissMilestoneNote()">✕</button></div>`:'';
+    streakHtml=`<div class="streak-card active"><div class="streak-flame">🔥</div>
+      <div class="streak-main"><div class="streak-count">${streak} day${streak===1?'':'s'}</div>
+      <div class="streak-label">${msg}</div><div class="streak-sub">Rest days don't count against your streak</div>${msNote}</div>
+      <div class="streak-dots">${dotsHtml}</div></div>`;
+  } else {
+    streakHtml=`<div class="streak-card zero"><div class="streak-flame" style="opacity:.3">🔥</div>
+      <div class="streak-main"><div class="streak-count zero">0 days</div>
+      <div class="streak-label">Log today's session to start your streak</div></div></div>`;
+  }
+  let workoutHtml='';
+  if(todaySession&&todayPlan.slot!=='rest'){
+    const tgt=getTgt(todaySession);const typeCls=TYPE_BADGE[todaySession.type]||'b-end';
+    const typeLabel=TYPE_LABEL[todaySession.type]||todaySession.type;
+    const isTest=todaySession.type==='test';const isDone=todayPlan.status==='done';
+    const statusColor=isDone?'var(--green)':'#e06020';const statusLabel=isDone?'✓ Logged':'Due today';
+    workoutHtml=`<div class="today-workout${isTest?' test':''}" onclick="openDay('${todayStr}')">
+      <div class="tw-top"><span class="sc-badge ${typeCls}" style="margin-bottom:0">${typeLabel}</span>
+      <span class="tw-status" style="color:${statusColor}">${statusLabel}</span></div>
+      <div class="tw-name">${todaySession.name}</div>
+      <div class="tw-meta">${todaySession.meta} · ~${todaySession.totalMins} min${tgt?' · '+tgt.label+': '+tgt.val:''}</div></div>`;
+  } else if(!todayPlan||todayPlan.slot==='rest'){
+    workoutHtml=`<div style="background:var(--bg2);border-radius:12px;padding:14px 16px;border:0.5px solid var(--border2);text-align:center;color:var(--text3);font-size:14px;">Rest day — recovery is part of training</div>`;
+  }
+  section.innerHTML=streakHtml+workoutHtml;
+}
+
+// ── ERG LINK ──
+function renderErgSection(sessionKey){
+  const saved=G.ergLinks[sessionKey];
+  const editMode=G._ergEditMode===sessionKey;
+  if(saved&&!editMode){
+    return `<div class="erg-saved-wrap">
+      <a class="erg-send-btn" href="${saved}" target="_blank" rel="noopener">⎋ Send to Erg</a>
+      <div class="erg-saved-meta">
+        <div class="erg-saved-label">Opens in ErgData on your phone</div>
+        <div class="erg-saved-url">${saved}</div>
+      </div>
+      <button class="erg-edit-btn" onclick="ergStartEdit('${sessionKey}')">Edit</button>
+    </div>`;
+  }
+  const currentVal=saved||'';
+  return `<div class="erg-paste-wrap">
+    <div class="erg-paste-hint">Paste an ErgData shared workout link — opens the session on your erg when tapped on your phone.</div>
+    <div class="erg-input-row">
+      <textarea class="erg-input" id="erg-input" rows="2" placeholder="https://ergdata.com/shared/..."
+        oninput="ergClearWarn()">${currentVal}</textarea>
+      <button class="erg-save-btn" onclick="ergSaveLink('${sessionKey}')">Save link</button>
+    </div>
+    <div class="erg-warn" id="erg-warn">Doesn't look like an ErgData share URL — double check it, or
+      <button onclick="ergSaveLink('${sessionKey}',true)" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text2);text-decoration:underline;font-family:inherit;">save anyway</button>
+    </div>
+    ${saved?'<div style="margin-top:8px;"><button class="erg-edit-btn" onclick="ergClearLink(\''+sessionKey+'\')" style="color:var(--text3)">Remove link</button></div>':''}
+  </div>`;
+}
+function ergStartEdit(key){G._ergEditMode=key;rerenderErgSection(key);}
+function ergClearWarn(){const i=document.getElementById('erg-input');if(i)i.classList.remove('warn');const w=document.getElementById('erg-warn');if(w)w.classList.remove('show');}
+function ergSaveLink(key,force){
+  const input=document.getElementById('erg-input');if(!input)return;
+  const val=input.value.trim();
+  if(!val){G._ergEditMode=null;rerenderErgSection(key);return;}
+  if(!force&&!val.includes('ergdata.com/shared/')){input.classList.add('warn');document.getElementById('erg-warn').classList.add('show');return;}
+  G.ergLinks[key]=val;G._ergEditMode=null;saveState();rerenderErgSection(key);
+}
+function ergClearLink(key){delete G.ergLinks[key];G._ergEditMode=null;saveState();rerenderErgSection(key);}
+function rerenderErgSection(key){
+  const el=document.getElementById('erg-section-content');
+  if(el)el.innerHTML=renderErgSection(key);
+  setTimeout(()=>{const i=document.getElementById('erg-input');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},30);
+}
+
+// ── DAILY VIEW ──
+function openDay(dateStr){
+  G.currentDate=dateStr;G.currentEffort=null;G.editMode=false;G._ergEditMode=null;
+  const plan=planFor(dateStr);
+  const dt=new Date(dateStr+'T00:00:00');
+  document.getElementById('daily-date-label').textContent=MONTHS[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear();
+  renderDaily(plan);showScreen('screen-daily');
+}
+
+function renderDaily(plan){
+  const body=document.getElementById('daily-body');const saveBar=document.getElementById('save-bar');
+  if(!plan||plan.slot==='rest'){
+    body.innerHTML=`<div style="padding:32px 0;text-align:center;"><div style="font-size:32px;margin-bottom:12px;color:var(--text3)">—</div><div style="font-size:20px;font-weight:600;margin-bottom:6px;">Rest day</div><div style="font-size:14px;color:var(--text2);">Recovery is part of training.</div></div>`;
+    saveBar.style.display='none';return;
+  }
+  const s=plan.session;const primer=plan.primer||null;const tgt=getTgt(s);
+  const typeCls=TYPE_BADGE[s.type]||'b-end';const typeLabel=TYPE_LABEL[s.type]||s.type;
+  const isLogged=plan.status==='done';const isTest=s.type==='test';
+  const logKey=plan.date+'_'+s.key;const log=G.logs[logKey]||{};
+  const prevDays=G.plan.filter(d=>d.session&&d.session.key===s.key&&d.status==='done'&&d.date!==plan.date);
+  const prev=prevDays.length?prevDays[prevDays.length-1]:null;
+  const prevLog=prev?G.logs[prev.date+'_'+s.key]:null;
+  let html='';
+  if(isLogged&&!G.editMode){
+    html+=`<div class="complete-banner"><div style="font-size:20px">✓</div>
+      <div><div class="complete-text">Workout logged</div>
+      <div class="complete-sub">${log.pace?log.pace+' /500m avg':''} ${log.effort?'· Effort '+log.effort+'/4':''}</div></div>
+      <button class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(planFor(G.currentDate))">Edit</button></div>`;
+  }
+  if(isTest){
+    html+=`<div class="test-note-box"><div class="test-note-title">Month-end time trial</div>
+      <div class="test-note-text">Record your result to update benchmarks for next month's plan. All target paces recalculate automatically.</div></div>`;
+  }
+  html+=`<div class="workout-hero"><span class="sc-badge ${typeCls}" style="font-size:11px;padding:3px 10px;margin-bottom:10px;display:inline-block;">${typeLabel}</span>
+    <div class="workout-name">${s.name}</div><div class="workout-meta-line">${s.meta}</div></div>`;
+  if(primer){
+    const ps=getByKey(primer.key)||primer;
+    html+=`<div class="primer-card"><div class="primer-hdr"><span class="primer-badge">Do first</span> 5–6 min rest before main session</div>
+      <div class="primer-name">${ps.name} <span style="font-size:11px;color:var(--text3);font-weight:400">${ps.meta}</span></div>
+      ${(ps.notes||[]).slice(0,2).map(n=>`<div class="pn">${n}</div>`).join('')}</div>`;
+  }
+  const chips=[];
+  if(tgt)chips.push(`<div class="target-chip"><span class="tc-label">${tgt.label}</span><span class="tc-val">${tgt.val}</span></div>`);
+  chips.push(`<div class="target-chip"><span class="tc-label">Est. duration</span><span class="tc-val">~${s.totalMins} min</span></div>`);
+  html+=`<div class="target-row">${chips.join('')}</div>`;
+  if(prev&&prevLog){
+    const pd=new Date(prev.date+'T00:00:00');
+    html+=`<div class="prev-block"><span class="prev-label">Last time — ${MONTHS[pd.getMonth()]} ${pd.getDate()}</span>
+      <div class="prev-pace">${prevLog.pace||'—'} <span style="font-size:13px;color:var(--text3)">/500m avg</span></div>
+      ${prevLog.effort?`<div class="prev-sub">Effort ${prevLog.effort}/4</div>`:''}
+      ${prevLog.fwd?`<div class="prev-note">"${prevLog.fwd}"</div>`:''}
+    </div>`;
+  }
+  html+=`<div class="desc-text">${s.desc}</div>`;
+  if(s.notes&&s.notes.length){
+    html+=`<div class="notes-section"><div class="notes-header" onclick="toggleNotes()">
+      <span class="notes-title">Session notes</span>
+      <span class="notes-toggle" id="ntog">${G.notesOpen?'▲ hide':'▼ show'}</span></div>
+      <div id="notes-body" style="display:${G.notesOpen?'block':'none'}">
+        ${s.notes.map(n=>`<div class="note-row"><div class="note-dot"></div><div class="note-text">${n}</div></div>`).join('')}
+      </div></div>`;
+  }
+  html+=`<div class="divider"></div>`;
+  // ERG LINK SECTION
+  html+=`<div class="log-section"><span class="log-label">Send to erg</span>
+    <div id="erg-section-content">${renderErgSection(s.key)}</div></div>
+    <div class="divider"></div>`;
+  if(!isLogged||G.editMode){
+    html+=`<div class="log-section"><span class="log-label">Avg pace / 500m</span>
+      <div class="pace-wrap"><input class="pace-in" id="log-pace" type="text" placeholder="2:05.0" value="${log.pace||''}">
+      <span class="pace-unit">/ 500m</span></div></div>
+      <div class="log-section"><span class="log-label">Effort</span>
+      <div class="effort-grid">
+        <button class="eff-btn" id="e1" onclick="selEff(1)"><span class="eff-label">Easy</span><span class="eff-sub">held back</span></button>
+        <button class="eff-btn" id="e2" onclick="selEff(2)"><span class="eff-label">Solid</span><span class="eff-sub">on target</span></button>
+        <button class="eff-btn" id="e3" onclick="selEff(3)"><span class="eff-label">Hard</span><span class="eff-sub">stretched</span></button>
+        <button class="eff-btn" id="e4" onclick="selEff(4)"><span class="eff-label">Max</span><span class="eff-sub">everything</span></button>
+      </div></div>
+      <div class="log-section"><span class="log-label">Reflection</span>
+      <textarea class="txt-in" id="log-reflect" rows="3" placeholder="How did it feel? What worked, what didn't?">${log.reflect||''}</textarea></div>
+      <div class="log-section"><span class="log-label">Note for next time</span>
+      <textarea class="txt-in" id="log-fwd" rows="2" placeholder="Tip or target to carry forward...">${log.fwd||''}</textarea>
+      <div class="fwd-hint">↗ Shown next time you open this session type</div></div>`;
+    if(log.effort){G.currentEffort=log.effort;setTimeout(()=>selEff(log.effort),0);}
+    saveBar.style.display='flex';
+  } else {
+    if(log){
+      html+=`<div class="log-section"><span class="log-label">Your log</span>`;
+      if(log.reflect)html+=`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:8px">${log.reflect}</div>`;
+      if(log.fwd)html+=`<div style="font-size:13px;color:var(--text3);font-style:italic">Note for next time: "${log.fwd}"</div>`;
+      html+=`</div>`;
+    }
+    saveBar.style.display='none';
+  }
+  body.innerHTML=html;
+}
+
+function toggleNotes(){
+  G.notesOpen=!G.notesOpen;
+  const b=document.getElementById('notes-body'),t=document.getElementById('ntog');
+  if(b)b.style.display=G.notesOpen?'block':'none';if(t)t.textContent=G.notesOpen?'▲ hide':'▼ show';
+}
+function selEff(n){
+  G.currentEffort=n;
+  [1,2,3,4].forEach(k=>{const el=document.getElementById('e'+k);if(el)el.className='eff-btn'+(k===n?' sel-'+k:'');});
+}
+function saveLog(){
+  const plan=planFor(G.currentDate);if(!plan)return;
+  const logKey=plan.date+'_'+plan.session.key;
+  G.logs[logKey]={pace:document.getElementById('log-pace')?.value.trim(),effort:G.currentEffort,
+    reflect:document.getElementById('log-reflect')?.value.trim(),fwd:document.getElementById('log-fwd')?.value.trim()};
+  plan.status='done';G.editMode=false;
+  // Check milestone
+  const streak=calcStreak();
+  const ms=checkMilestone(streak);
+  if(ms){G.activeMilestone=ms;showMilestoneModal(ms);}
+  saveState();renderCal();renderDaily(plan);
+  document.getElementById('save-bar').style.display='none';
+  showToast('Workout saved ✓');
+}
+function confirmSkip(){
+  if(confirm('Mark this session as skipped? It will stay visible in your calendar.')){
+    const plan=planFor(G.currentDate);
+    if(plan){plan.status='skipped';delete G.logs[plan.date+'_'+plan.session?.key];}
+    saveState();renderCal();openDay(G.currentDate);
+  }
+}
+
+// ── EXPORT / IMPORT ──
+function buildExportString(){
+  const payload={
+    _version:'trt_v2',
+    _exportedAt:new Date().toISOString(),
+    pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
+    planStart:G.planStart,restDays:G.restDays,focus:G.focus,
+    plan:G.plan,logs:G.logs,ergLinks:G.ergLinks,
+    activeMilestone:G.activeMilestone,
+    viewYear:G.viewYear,viewMonth:G.viewMonth
+  };
+  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+}
+
+function parseExportString(str){
+  try{
+    const decoded=decodeURIComponent(escape(atob(str.trim())));
+    const parsed=JSON.parse(decoded);
+    if(!parsed._version)throw new Error('Missing version');
+    return{ok:true,data:parsed};
+  }catch(e){return{ok:false,error:e.message};}
+}
+
+function summariseExport(state){
+  const logCount=Object.keys(state.logs||{}).length;
+  const ergCount=Object.keys(state.ergLinks||{}).length;
+  const doneCount=(state.plan||[]).filter(d=>d.status==='done').length;
+  return{logCount,ergCount,doneCount,pb2k:state.pb2k||'—',version:state._version||'unknown'};
+}
+
+function renderBackup(){
+  // Update back button destination
+  const backBtn=document.getElementById('backup-back-btn');
+  if(backBtn)backBtn.setAttribute('onclick',G.plan&&G.plan.length?"showScreen('screen-cal')":" showScreen('screen-setup')");
+
+  const str=buildExportString();
+  const s=summariseExport(G);
+  document.getElementById('backup-summary').innerHTML=`
+    <div class="summary-row"><span class="summary-icon">🏋️</span><span class="summary-text">2k PB</span><span class="summary-val">${s.pb2k}</span></div>
+    <div class="summary-row"><span class="summary-icon">✓</span><span class="summary-text">Logged sessions</span><span class="summary-val">${s.doneCount}</span></div>
+    <div class="summary-row"><span class="summary-icon">⎋</span><span class="summary-text">ErgData links</span><span class="summary-val">${s.ergCount}</span></div>
+    <div class="summary-row"><span class="summary-icon">📦</span><span class="summary-text">Version</span><span class="summary-val">${s.version}</span></div>`;
+  const el=document.getElementById('backup-code');
+  el.value=str;el._full=str;
+  // reset import field
+  document.getElementById('import-input').value='';
+  document.getElementById('import-input').className='import-input';
+  document.getElementById('import-result').className='import-result';
+  document.getElementById('import-btn').disabled=true;
+}
+
+function copyExport(){
+  const el=document.getElementById('backup-code');
+  const str=el._full||el.value;
+  const btn=document.getElementById('copy-btn');
+  navigator.clipboard.writeText(str).then(()=>{
+    btn.classList.add('copied');btn.textContent='✓ Copied!';
+    setTimeout(()=>{btn.classList.remove('copied');btn.textContent='⧉ Copy to clipboard';},2000);
+  }).catch(()=>{
+    el.select();document.execCommand('copy');
+    btn.classList.add('copied');btn.textContent='✓ Copied!';
+    setTimeout(()=>{btn.classList.remove('copied');btn.textContent='⧉ Copy to clipboard';},2000);
+  });
+}
+
+let _pendingImport=null;
+function parseImport(){
+  const input=document.getElementById('import-input');
+  const result=document.getElementById('import-result');
+  const btn=document.getElementById('import-btn');
+  const val=input.value.trim();
+  if(!val){input.className='import-input';result.className='import-result';btn.disabled=true;_pendingImport=null;return;}
+  const parsed=parseExportString(val);
+  if(!parsed.ok){
+    input.className='import-input invalid';
+    result.className='import-result show err';
+    result.textContent="Couldn't read this data — make sure you copied the full export text.";
+    btn.disabled=true;_pendingImport=null;return;
+  }
+  const s=summariseExport(parsed.data);
+  input.className='import-input valid';
+  result.className='import-result show ok';
+  result.innerHTML=`✓ Valid export (${s.version}) · ${s.doneCount} logged sessions · ${s.ergCount} ErgData links · 2k PB: ${s.pb2k}`;
+  btn.disabled=false;_pendingImport=parsed.data;
+}
+
+function confirmImport(){
+  if(!_pendingImport)return;
+  const s=summariseExport(_pendingImport);
+  document.getElementById('import-confirm-body').innerHTML=
+    `This will restore <strong>${s.doneCount} logged sessions</strong>, <strong>${s.ergCount} ErgData links</strong>, and benchmarks (2k PB: ${s.pb2k}) from a ${s.version} export.`;
+  document.getElementById('import-modal-overlay').classList.remove('hidden');
+}
+
+function dismissImportModal(){document.getElementById('import-modal-overlay').classList.add('hidden');}
+
+function doImport(){
+  if(!_pendingImport)return;
+  const d=_pendingImport;
+  G.pb500=d.pb500||'';G.pb2k=d.pb2k||'';G.pb5k=d.pb5k||'';
+  G.planStart=d.planStart||null;G.restDays=d.restDays||null;G.focus=d.focus||'2k';
+  G.plan=d.plan||[];G.logs=d.logs||{};G.ergLinks=d.ergLinks||{};
+  G.activeMilestone=d.activeMilestone||null;
+  G.viewYear=d.viewYear||new Date().getFullYear();
+  G.viewMonth=d.viewMonth!==undefined?d.viewMonth:new Date().getMonth();
+  _pendingImport=null;
+  dismissImportModal();
+  saveState();
+  if(G.plan&&G.plan.length){renderCal();showScreen('screen-cal');}
+  else showScreen('screen-setup');
+  showToast('Data imported successfully ✓');
+}
+
+// ── INIT ──
+document.getElementById('plan-start').value=new Date().toISOString().slice(0,10);
+const loaded=loadState();
+if(loaded&&G.plan&&G.plan.length){
+  const today=new Date();
+  G.viewYear=G.viewYear||today.getFullYear();G.viewMonth=G.viewMonth!==null?G.viewMonth:today.getMonth();
+  if(G.pb2k)document.getElementById('pb2k').value=G.pb2k;
+  if(G.pb500)document.getElementById('pb500').value=G.pb500;
+  if(G.pb5k)document.getElementById('pb5k').value=G.pb5k;
+  if(G.restDays)selRest(G.restDays);
+  renderCal();showScreen('screen-cal');
+} else {
+  showScreen('screen-setup');
+}
+</script>
+</body>
+</html>
