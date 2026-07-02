@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tom's Rowing Tracker v2.1</title>
 <style>
@@ -224,6 +225,29 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green-bg);border:0.5px solid var(--green-border);color:var(--green);padding:8px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;}
 .toast.show{opacity:1;}
 
+/* DAY NAV */
+.day-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 0;max-width:600px;margin:0 auto;}
+.day-nav-btn{background:none;border:.5px solid var(--border2);border-radius:7px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit;transition:all .12s;display:flex;align-items:center;gap:4px;}
+.day-nav-btn:hover{background:var(--bg2);color:var(--text);}
+.day-nav-btn:disabled{opacity:.25;cursor:default;}
+.day-nav-center{font-size:11px;color:var(--text3);}
+
+/* PB CELEBRATION MODAL */
+.pb-modal{background:var(--bg);border-radius:16px;padding:28px 24px;max-width:340px;width:100%;border:0.5px solid var(--amber-border);text-align:center;}
+.pb-modal-trophy{font-size:48px;margin-bottom:10px;display:block;}
+.pb-modal-title{font-size:18px;font-weight:600;margin-bottom:6px;color:var(--amber);}
+.pb-modal-improvement{font-size:32px;font-weight:700;font-family:var(--mono);color:#40d060;margin:10px 0 4px;}
+.pb-modal-sub{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;}
+.pb-modal-times{display:flex;justify-content:center;gap:20px;margin-bottom:18px;}
+.pb-modal-time{text-align:center;}
+.pb-modal-time-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;}
+.pb-modal-time-val{font-size:18px;font-family:var(--mono);font-weight:500;}
+.pb-modal-time-val.old{color:var(--text3);text-decoration:line-through;}
+.pb-modal-time-val.new{color:#40d060;}
+.pb-modal-btn{background:var(--amber-border);border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:500;color:var(--bg);cursor:pointer;font-family:inherit;width:100%;transition:opacity .15s;margin-bottom:8px;}
+.pb-modal-btn:hover{opacity:.88;}
+.pb-modal-skip{font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:2px;background:none;border:none;font-family:inherit;width:100%;}
+
 /* DATA BACKUP LINK */
 .data-link{display:block;text-align:center;padding:16px 20px 24px;font-size:13px;color:var(--text3);cursor:pointer;text-decoration:none;}
 .data-link:hover{color:var(--text2);}
@@ -282,6 +306,19 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 .erg-saved-url{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--mono);}
 .erg-edit-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3);text-decoration:underline;text-underline-offset:2px;padding:0;font-family:inherit;flex-shrink:0;}
 .erg-edit-btn:hover{color:var(--text2);}
+
+/* EMAIL PROMPT */
+.email-prompt-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:0.5px solid var(--green-border);padding:12px 20px;z-index:150;display:none;}
+.email-prompt-bar.show{display:block;}
+.email-prompt-title{font-size:13px;font-weight:500;color:var(--green);margin-bottom:6px;}
+.email-prompt-sub{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.4;}
+.email-prompt-row{display:flex;gap:8px;align-items:center;}
+.email-input{flex:1;font-family:inherit;font-size:14px;background:var(--bg);border:0.5px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);}
+.email-input:focus{outline:none;border-color:var(--green-border);}
+.email-submit-btn{background:var(--green-border);border:none;border-radius:7px;padding:8px 14px;font-size:13px;font-weight:500;color:var(--bg);cursor:pointer;font-family:inherit;white-space:nowrap;}
+.email-dismiss{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3);text-decoration:underline;text-underline-offset:2px;padding:6px 0;font-family:inherit;display:block;margin-top:6px;}
+.sync-indicator{position:fixed;top:10px;right:14px;font-size:11px;color:var(--text3);z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;}
+.sync-indicator.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -312,13 +349,18 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     <div class="s-section">
       <span class="s-label">Rest days per week</span>
       <div class="week-grid">
-        <button class="week-btn" id="wb-1" onclick="selRest(1)"><span class="wk-title">1 rest day</span><span class="wk-seq">Rest · Hard · End · Thresh · End · Thresh · End</span></button>
-        <button class="week-btn" id="wb-2" onclick="selRest(2)"><span class="wk-title">2 rest days</span><span class="wk-seq">Rest · Hard · End · Thresh · Rest · Thresh · End</span></button>
+        <button class="week-btn" id="wb-1" onclick="selRest(1)"><span class="wk-title">1 rest day</span><span class="wk-seq">Hard · End · Thresh · End · Thresh · End · Rest</span></button>
+        <button class="week-btn" id="wb-2" onclick="selRest(2)"><span class="wk-title">2 rest days</span><span class="wk-seq">Hard · End · Thresh · Rest · Thresh · End · Rest</span></button>
       </div>
     </div>
     <div class="s-section">
       <span class="s-label">Plan start</span>
       <input type="date" id="plan-start">
+    </div>
+    <div class="s-section">
+      <span class="s-label">Using another device?</span>
+      <span class="s-sublabel">If you've already set up an account on another device, link it here to restore your data.</span>
+      <button class="btn" style="width:100%" onclick="linkDevice()">🔗 Link this device to my account</button>
     </div>
   </div>
   <a class="data-link" onclick="showScreen('screen-backup')">⧉ <span>Export / Import data</span></a>
@@ -412,11 +454,39 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
       <span class="nav-title" id="daily-date-label"></span>
     </div>
   </div>
+  <div class="day-nav" id="day-nav">
+    <button class="day-nav-btn" id="day-nav-prev" onclick="navigateDay(-1)">‹ Prev</button>
+    <span class="day-nav-center" id="day-nav-center"></span>
+    <button class="day-nav-btn" id="day-nav-next" onclick="navigateDay(1)">Next ›</button>
+  </div>
   <div class="daily-body" id="daily-body"></div>
   <div class="save-bar" id="save-bar" style="display:none;">
     <button class="btn btn-primary" onclick="saveLog()">Save workout</button>
     <button class="btn" onclick="showScreen('screen-cal')">Cancel</button>
     <span class="skip-link" onclick="confirmSkip()">Mark as skipped</span>
+  </div>
+</div>
+
+<!-- PB CELEBRATION MODAL -->
+<div class="modal-overlay hidden" id="pb-modal-overlay" onclick="dismissPbModal(event)">
+  <div class="pb-modal">
+    <span class="pb-modal-trophy">🏆</span>
+    <div class="pb-modal-title">New personal best!</div>
+    <div class="pb-modal-times">
+      <div class="pb-modal-time">
+        <span class="pb-modal-time-label">Previous</span>
+        <span class="pb-modal-time-val old" id="pb-modal-old"></span>
+      </div>
+      <div style="font-size:24px;color:var(--text3);padding-top:18px;">→</div>
+      <div class="pb-modal-time">
+        <span class="pb-modal-time-label">New PB</span>
+        <span class="pb-modal-time-val new" id="pb-modal-new"></span>
+      </div>
+    </div>
+    <div class="pb-modal-improvement" id="pb-modal-improvement"></div>
+    <div class="pb-modal-sub" id="pb-modal-sub"></div>
+    <button class="pb-modal-btn" onclick="pbModalStartNewPlan()">Start next month →</button>
+    <button class="pb-modal-skip" onclick="dismissPbModal()">Stay on calendar</button>
   </div>
 </div>
 
@@ -433,6 +503,19 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- EMAIL PROMPT BAR -->
+<div class="email-prompt-bar" id="email-prompt-bar">
+  <div class="email-prompt-title">🔒 Secure your training log</div>
+  <div class="email-prompt-sub">Add your email to access your data on any device and protect against data loss.</div>
+  <div class="email-prompt-row">
+    <input class="email-input" type="email" id="email-input" placeholder="your@email.com">
+    <button class="email-submit-btn" onclick="submitEmail()">Save</button>
+  </div>
+  <button class="email-dismiss" onclick="dismissEmailPrompt()">Remind me later</button>
+</div>
+<div class="sync-indicator" id="sync-indicator">⟳ Syncing...</div>
+
 
 <script>
 // ── MILESTONES ──
@@ -453,44 +536,46 @@ const MILESTONE_DAYS=new Set(MILESTONES.map(m=>m.days));
 // ── SESSION LIBRARY ──
 const LIB={
   max:[
-    {key:'8x500',type:'max',name:'8 × 500m',meta:'4000m · 3:30 rest',totalMins:28,pt:p=>fmt(p-3),pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
-    {key:'pyramid',type:'max',name:'Speed pyramid',meta:'4000m · scaled rest',totalMins:32,pt:p=>fmt(p),pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
-    {key:'4x1000',type:'max',name:'4 × 1000m',meta:'4000m · 5:00 rest',totalMins:42,pt:p=>fmt(p+1),pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
-    {key:'10x400m',type:'max',name:'10 × 400m',meta:'4000m · 2:00 rest',totalMins:35,pt:p=>fmt(p-4),pl:'Target pace',desc:'10 reps of 400m with 2:00 rest. Total: 4000m. Shorter, faster intervals targeting top-end speed above 2k race pace.',notes:['Warm up generously — minimum 15 minutes easy rowing plus a few 10-stroke pickups at target pace.','Target pace is faster than 2k pace — these develop the speed ceiling above race pace.','2:00 rest after ~1:40 of work is roughly equal work-to-rest.','Focus on consistent pace across all 10 reps rather than going out hard and fading.']},
-    {key:'12x300m',type:'max',name:'12 × 300m',meta:'3600m · 2:00 rest',totalMins:34,pt:p=>fmt(p-4),pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
-    {key:'6x3min',type:'max',name:'6 × 3 min',meta:'~3600m · 3:00 rest',totalMins:36,pt:p=>fmt(p),pl:'Target pace',desc:'6 reps of 3 minutes at 2k pace with 3:00 rest. ~3600m total. A VO2max interval session targeting the aerobic ceiling that limits 2k performance.',notes:['Warm up thoroughly — minimum 15–20 minutes easy rowing building into 2–3 short pieces at target pace.','Based on Norwegian interval research, 3-minute pieces at 85–100% effort with equal rest is one of the most effective VO2max development formats.','Target pace is 2k race pace — this is sustained maximum aerobic effort, not a sprint.','The effort should feel like your absolute aerobic limit by rep 4–5. If it feels manageable throughout, you are not at the right intensity.']},
+    {key:'8x500',dist:4000,type:'max',name:'8 × 500m',meta:'4000m · 3:30 rest',totalMins:28,pt:p=>fmt(p-3),pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
+    {key:'pyramid',dist:4000,type:'max',name:'Speed pyramid',meta:'4000m · scaled rest',totalMins:32,pt:p=>fmt(p),pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
+    {key:'4x1000',dist:4000,type:'max',name:'4 × 1000m',meta:'4000m · 5:00 rest',totalMins:42,pt:p=>fmt(p+1),pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
+    {key:'10x400m',dist:4000,type:'max',name:'10 × 400m',meta:'4000m · 2:00 rest',totalMins:35,pt:p=>fmt(p-4),pl:'Target pace',desc:'10 reps of 400m with 2:00 rest. Total: 4000m. Shorter, faster intervals targeting top-end speed above 2k race pace.',notes:['Warm up generously — minimum 15 minutes easy rowing plus a few 10-stroke pickups at target pace.','Target pace is faster than 2k pace — these develop the speed ceiling above race pace.','2:00 rest after ~1:40 of work is roughly equal work-to-rest.','Focus on consistent pace across all 10 reps rather than going out hard and fading.']},
+    {key:'12x300m',dist:3600,type:'max',name:'12 × 300m',meta:'3600m · 2:00 rest',totalMins:34,pt:p=>fmt(p-4),pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
+    {key:'6x3min',dist:3600,type:'max',name:'6 × 3 min',meta:'~3600m · 3:00 rest',totalMins:36,pt:p=>fmt(p),pl:'Target pace',desc:'6 reps of 3 minutes at 2k pace with 3:00 rest. ~3600m total. A VO2max interval session targeting the aerobic ceiling that limits 2k performance.',notes:['Warm up thoroughly — minimum 15–20 minutes easy rowing building into 2–3 short pieces at target pace.','Based on Norwegian interval research, 3-minute pieces at 85–100% effort with equal rest is one of the most effective VO2max development formats.','Target pace is 2k race pace — this is sustained maximum aerobic effort, not a sprint.','The effort should feel like your absolute aerobic limit by rep 4–5. If it feels manageable throughout, you are not at the right intensity.']},
   ],
   thresh:[
-    {key:'5x1500',type:'thresh',name:'5 × 1500m',meta:'7500m · 5:00 rest',totalMins:55,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
-    {key:'4x2000',type:'thresh',name:'4 × 2000m',meta:'8000m · 5:00 rest',totalMins:60,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'4 reps of 2000m at threshold pace with 5:00 rest. The landmark Pete Plan threshold session.',notes:['Go out too hard on rep 1 and rep 4 will be a fight. Rep 1 should feel almost easy.','Rest fully for all 5:00 between reps.','All four reps within 2 sec/500m of each other is an excellent session.']},
-    {key:'3k-ladder',type:'thresh',name:'3k / 2.5k / 2k',meta:'7500m · 5:00 rest',totalMins:47,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Descending distance: 3000m · 2500m · 2000m with 5:00 rest. Same target pace throughout.',notes:['Decreasing distance compensates for fatigue — the pace should feel the same on every piece.','Don\'t treat the final 2k as a race. Hold threshold pace.']},
-    {key:'3x10min',type:'thresh',name:'3 × 10 min',meta:'Timed · 5:00 rest',totalMins:40,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 10-minute pieces at threshold effort with 5:00 rest.',notes:['5:00 rest gives genuine recovery — you should hold true threshold pace across all three.','Note your total meters for each piece — improving meters/piece over weeks is your progress signal.','Treat each 10-minute block as its own piece. Don\'t hold back in piece 1.']},
-    {key:'3x2500m',type:'thresh',name:'3 × 2500m',meta:'7500m · 6:00 rest',totalMins:50,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'3 reps of 2500m at threshold pace with 6:00 rest. 7500m total.',notes:['6:00 rest on a ~10:30 rep is about 57% of work time — good threshold quality rest.','Only three reps but 2500m is long — pacing discipline matters from the first stroke.','Even splits across all three. Rep 3 should feel hard but not a pace collapse.']},
-    {key:'5x6min',type:'thresh',name:'5 × 6 min',meta:'~7125m · 3:00 rest',totalMins:45,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Five 6-minute pieces at threshold pace with 3:00 rest. ~7125m total.',notes:['3:00 rest on a 6-minute piece is 50% of work time — exactly the threshold quality standard.','Five reps means more opportunities to dial in pace consistency.','Don\'t let the shorter reps tempt you into going out too hard. Hold target pace from rep 1.']},
-    {key:'hard-5k',type:'thresh',name:'Hard 5k',meta:'5000m · rate free',totalMins:20,pt:p=>fmt(p*1.12),pl:'Target pace',desc:'One hard continuous 5000m effort. No rate cap. A sustained push above steady pace.',notes:['The one session where you lift above the 25 spm rate cap.','Pete Plan: rotate through 5k, 6k, and 2k as ranking distances over successive weeks.','Your time here is a direct ranking benchmark — record and compare across months.']},
+    {key:'5x1500',dist:7500,type:'thresh',name:'5 × 1500m',meta:'7500m · 5:00 rest',totalMins:55,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
+    {key:'4x2000',dist:8000,type:'thresh',name:'4 × 2000m',meta:'8000m · 5:00 rest',totalMins:60,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'4 reps of 2000m at threshold pace with 5:00 rest. The landmark Pete Plan threshold session.',notes:['Go out too hard on rep 1 and rep 4 will be a fight. Rep 1 should feel almost easy.','Rest fully for all 5:00 between reps.','All four reps within 2 sec/500m of each other is an excellent session.']},
+    {key:'3k-ladder',dist:7500,type:'thresh',name:'3k / 2.5k / 2k',meta:'7500m · 5:00 rest',totalMins:47,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Descending distance: 3000m · 2500m · 2000m with 5:00 rest. Same target pace throughout.',notes:['Decreasing distance compensates for fatigue — the pace should feel the same on every piece.','Don\'t treat the final 2k as a race. Hold threshold pace.']},
+    {key:'3x10min',dist:7100,type:'thresh',name:'3 × 10 min',meta:'Timed · 5:00 rest',totalMins:40,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 10-minute pieces at threshold effort with 5:00 rest.',notes:['5:00 rest gives genuine recovery — you should hold true threshold pace across all three.','Note your total meters for each piece — improving meters/piece over weeks is your progress signal.','Treat each 10-minute block as its own piece. Don\'t hold back in piece 1.']},
+    {key:'3x2500m',dist:7500,type:'thresh',name:'3 × 2500m',meta:'7500m · 6:00 rest',totalMins:50,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'3 reps of 2500m at threshold pace with 6:00 rest. 7500m total.',notes:['6:00 rest on a ~10:30 rep is about 57% of work time — good threshold quality rest.','Only three reps but 2500m is long — pacing discipline matters from the first stroke.','Even splits across all three. Rep 3 should feel hard but not a pace collapse.']},
+    {key:'5x6min',dist:7125,type:'thresh',name:'5 × 6 min',meta:'~7125m · 3:00 rest',totalMins:45,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Five 6-minute pieces at threshold pace with 3:00 rest. ~7125m total.',notes:['3:00 rest on a 6-minute piece is 50% of work time — exactly the threshold quality standard.','Five reps means more opportunities to dial in pace consistency.','Don\'t let the shorter reps tempt you into going out too hard. Hold target pace from rep 1.']},
+    {key:'hard-5k',dist:5000,type:'thresh',name:'Hard 5k',meta:'5000m · rate free',totalMins:20,pt:p=>fmt(p*1.12),pl:'Target pace',desc:'One hard continuous 5000m effort. No rate cap. A sustained push above steady pace.',notes:['The one session where you lift above the 25 spm rate cap.','Pete Plan: rotate through 5k, 6k, and 2k as ranking distances over successive weeks.','Your time here is a direct ranking benchmark — record and compare across months.']},
+    {key:'2x12min',type:'thresh',name:'2 × 12 min',meta:'Timed · 5:00 rest',totalMins:29,dist:5680,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Two 12-minute pieces at threshold effort with 5:00 rest. ~5700m total — a lighter threshold session that pairs well with a heavier threshold day earlier in the week.',notes:['5:00 rest after a 12-minute piece is 42% of work time — enough to hold genuine threshold quality on piece 2.','Record meters for each piece. Consistency between piece 1 and piece 2 is the goal.','A good lighter threshold option for weeks that already include 4×2000m or 5×1500m.','If piece 2 drops significantly below piece 1, you went out too hard.']},
+    {key:'3x8min',type:'thresh',name:'3 × 8 min',meta:'Timed · 4:00 rest',totalMins:28,dist:5685,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 8-minute pieces at threshold effort with 4:00 rest. ~5700m total — more reps than the 2×12min at the same total volume.',notes:['4:00 rest on an 8-minute piece is 50% of work time — solid threshold quality rest.','Three pieces means more opportunities to calibrate pace — use piece 1 to find the right effort level.','Record meters per piece. All three should be within a few meters of each other.','A good lighter threshold option that pairs with heavier sessions like 4×2000m or 5×1500m.']},
   ],
   end:[
-    {key:'steady-8k',type:'end',name:'Steady 8k',meta:'8000m · 22–25 spm',totalMins:40,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 8000m at steady aerobic pace, 22–25 spm.',notes:['Rate cap: 22–25 spm. Non-negotiable.','Should feel genuinely easy — full conversation pace.','Use this to focus on technique: long strokes, clean catches, controlled recovery.']},
-    {key:'steady-10k',type:'end',name:'Steady 10k',meta:'10000m · 22–25 spm',totalMins:50,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
-    {key:'steady-12k',type:'end',name:'Steady 12k',meta:'12000m · 22–25 spm',totalMins:60,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
-    {key:'timed-30min',type:'end',name:'30 min steady',meta:'Timed · 22–25 spm',totalMins:30,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 30-minute row at steady aerobic pace.',notes:['Record total meters each time. Meters/30min is a reliable aerobic benchmark.']},
-    {key:'2x20min',type:'end',name:'2 × 20 min',meta:'~8k · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 20-minute pieces with 90 seconds rest. More volume, not more intensity.',notes:['The 90s rest is a sip of water and a breath — your heart rate won\'t drop much.','Same pace target as steady rows. Aerobic work, not threshold.']},
-    {key:'3x15min',type:'end',name:'3 × 15 min',meta:'~9k · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Three 15-minute pieces with 90 seconds rest.',notes:['90s rest keeps the aerobic system fully engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
-    {key:'3x3000m',type:'end',name:'3 × 3000m',meta:'9000m · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'3 reps of 3000m with 90 seconds rest at endurance pace.',notes:['90s rest — just enough to reset mentally, not enough for genuine recovery.','Steady rate throughout: 22–25 spm. If rate is creeping up, pace is too fast.']},
-    {key:'4x2500m',type:'end',name:'4 × 2500m',meta:'10000m · 90s rest',totalMins:54,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'4 reps of 2500m with 90 seconds rest. 10k total volume.',notes:['Four pieces at steady pace — equivalent to a steady 10k.','With four pieces, pacing consistency is easier to track than on a continuous row.']},
-    {key:'5x1500m-end',type:'end',name:'5 × 1500m (endurance)',meta:'7500m · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 1500m at endurance pace with 90 seconds rest.',notes:['Pace target is × 1.16 — significantly slower than the threshold 5×1500m (× 1.08).','Good lighter endurance day option.']},
-    {key:'6x1000m',type:'end',name:'6 × 1000m',meta:'6000m · 90s rest',totalMins:35,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'6 reps of 1000m at endurance pace with 90 seconds rest. Lighter total volume.',notes:['Lowest total volume endurance session — 6k. Use on lighter days.','The short rep length makes this mentally easy. Good when motivation is lower.']},
-    {key:'8x1000m',type:'end',name:'8 × 1000m',meta:'8000m · 90s rest',totalMins:46,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'8 reps of 1000m at endurance pace with 90 seconds rest.',notes:['8k total — equivalent to the steady 8k but broken into eight pieces.','Rate cap still applies: 22–25 spm per rep.']},
-    {key:'5x2000m',type:'end',name:'5 × 2000m',meta:'10000m · 90s rest',totalMins:55,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 2000m with 90 seconds rest at endurance pace. 10k total.',notes:['2000m per rep — you will naturally focus on form over the full rep.','Record your split for each rep. Watching consistency improve reflects aerobic adaptation.']},
-    {key:'4x20min',type:'end',name:'4 × 20 min',meta:'~12k · 90s rest',totalMins:82,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Four 20-minute pieces with 90 seconds rest. High-volume endurance session, ~12k total.',notes:['Reserve for endurance-focused months or high-volume weeks.','At 82 minutes, nutrition and hydration before you start are important.']},
-    {key:'2x30min',type:'end',name:'2 × 30 min',meta:'~12k · 90s rest',totalMins:62,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 30-minute pieces with 90 seconds rest. ~12k total.',notes:['Treat this as a 60-minute continuous row with a very brief pause in the middle.','Record meters for each piece. Matching them is the goal.']},
+    {key:'steady-8k',dist:8000,type:'end',name:'Steady 8k',meta:'8000m · 22–25 spm',totalMins:40,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 8000m at steady aerobic pace, 22–25 spm.',notes:['Rate cap: 22–25 spm. Non-negotiable.','Should feel genuinely easy — full conversation pace.','Use this to focus on technique: long strokes, clean catches, controlled recovery.']},
+    {key:'steady-10k',dist:10000,type:'end',name:'Steady 10k',meta:'10000m · 22–25 spm',totalMins:50,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
+    {key:'steady-12k',dist:12000,type:'end',name:'Steady 12k',meta:'12000m · 22–25 spm',totalMins:60,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
+    {key:'timed-30min',dist:9000,type:'end',name:'30 min steady',meta:'Timed · 22–25 spm',totalMins:30,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 30-minute row at steady aerobic pace.',notes:['Record total meters each time. Meters/30min is a reliable aerobic benchmark.']},
+    {key:'2x20min',dist:8000,type:'end',name:'2 × 20 min',meta:'~8k · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 20-minute pieces with 90 seconds rest. More volume, not more intensity.',notes:['The 90s rest is a sip of water and a breath — your heart rate won\'t drop much.','Same pace target as steady rows. Aerobic work, not threshold.']},
+    {key:'3x15min',dist:9000,type:'end',name:'3 × 15 min',meta:'~9k · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Three 15-minute pieces with 90 seconds rest.',notes:['90s rest keeps the aerobic system fully engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
+    {key:'3x3000m',dist:9000,type:'end',name:'3 × 3000m',meta:'9000m · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'3 reps of 3000m with 90 seconds rest at endurance pace.',notes:['90s rest — just enough to reset mentally, not enough for genuine recovery.','Steady rate throughout: 22–25 spm. If rate is creeping up, pace is too fast.']},
+    {key:'4x2500m',dist:10000,type:'end',name:'4 × 2500m',meta:'10000m · 90s rest',totalMins:54,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'4 reps of 2500m with 90 seconds rest. 10k total volume.',notes:['Four pieces at steady pace — equivalent to a steady 10k.','With four pieces, pacing consistency is easier to track than on a continuous row.']},
+    {key:'5x1500m-end',dist:7500,type:'end',name:'5 × 1500m (endurance)',meta:'7500m · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 1500m at endurance pace with 90 seconds rest.',notes:['Pace target is × 1.16 — significantly slower than the threshold 5×1500m (× 1.08).','Good lighter endurance day option.']},
+    {key:'6x1000m',dist:6000,type:'end',name:'6 × 1000m',meta:'6000m · 90s rest',totalMins:35,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'6 reps of 1000m at endurance pace with 90 seconds rest. Lighter total volume.',notes:['Lowest total volume endurance session — 6k. Use on lighter days.','The short rep length makes this mentally easy. Good when motivation is lower.']},
+    {key:'8x1000m',dist:8000,type:'end',name:'8 × 1000m',meta:'8000m · 90s rest',totalMins:46,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'8 reps of 1000m at endurance pace with 90 seconds rest.',notes:['8k total — equivalent to the steady 8k but broken into eight pieces.','Rate cap still applies: 22–25 spm per rep.']},
+    {key:'5x2000m',dist:10000,type:'end',name:'5 × 2000m',meta:'10000m · 90s rest',totalMins:55,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 2000m with 90 seconds rest at endurance pace. 10k total.',notes:['2000m per rep — you will naturally focus on form over the full rep.','Record your split for each rep. Watching consistency improve reflects aerobic adaptation.']},
+    {key:'4x20min',dist:12000,type:'end',name:'4 × 20 min',meta:'~12k · 90s rest',totalMins:82,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Four 20-minute pieces with 90 seconds rest. High-volume endurance session, ~12k total.',notes:['Reserve for endurance-focused months or high-volume weeks.','At 82 minutes, nutrition and hydration before you start are important.']},
+    {key:'2x30min',dist:12000,type:'end',name:'2 × 30 min',meta:'~12k · 90s rest',totalMins:62,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 30-minute pieces with 90 seconds rest. ~12k total.',notes:['Treat this as a 60-minute continuous row with a very brief pause in the middle.','Record meters for each piece. Matching them is the goal.']},
   ],
   speed:[
-    {key:'spr-3stroke',type:'speed',name:'5 × 3-stroke sprint',meta:'~75m · 3+ min rest',totalMins:16,pt:()=>null,pl:'Max effort',desc:'5 reps of 3 strokes at maximum force. Pure neuromuscular activation — primer before the main session.',notes:['Nervous system session. Goal: peak force on every stroke.','Take 3+ minutes between every rep — full recovery is essential.','Rest 5–6 minutes after the final sprint before starting the main piece.']},
-    {key:'spr-60m',type:'speed',name:'3 × 60m sprint',meta:'~180m · 3+ min rest',totalMins:12,pt:()=>null,pl:'Max effort',desc:'3 reps of 60m at absolute maximum effort. Neuromuscular activation.',notes:['Peak watts is your key metric — not pace or time.','Full recovery (3+ min) between every rep.','Rest 5–6 minutes after the final sprint before the main session.']},
+    {key:'spr-3stroke',dist:75,type:'speed',name:'5 × 3-stroke sprint',meta:'~75m · 3+ min rest',totalMins:16,pt:()=>null,pl:'Max effort',desc:'5 reps of 3 strokes at maximum force. Pure neuromuscular activation — primer before the main session.',notes:['Nervous system session. Goal: peak force on every stroke.','Take 3+ minutes between every rep — full recovery is essential.','Rest 5–6 minutes after the final sprint before starting the main piece.']},
+    {key:'spr-60m',dist:180,type:'speed',name:'3 × 60m sprint',meta:'~180m · 3+ min rest',totalMins:12,pt:()=>null,pl:'Max effort',desc:'3 reps of 60m at absolute maximum effort. Neuromuscular activation.',notes:['Peak watts is your key metric — not pace or time.','Full recovery (3+ min) between every rep.','Rest 5–6 minutes after the final sprint before the main session.']},
   ],
   test:[
-    {key:'2k-test',type:'test',name:'2k time trial',meta:'2000m · max effort',totalMins:20,pt:()=>null,pl:'Current PB',desc:'A full 2000m time trial. The standard indoor rowing benchmark.',notes:['Full warm-up essential — 15–20 min easy rowing building into a few short hard pieces.','Pacing: slightly fast first 500m, settle to race pace for the middle 1k, empty the tank in the final 500m.','Record your split every 500m.','After finishing: update your 2k PB in setup so all target paces recalculate for next month.']},
+    {key:'2k-test',type:'test',name:'2k time trial',meta:'2000m · max effort',totalMins:20,dist:2000,pt:()=>null,pl:'Current PB',desc:'A full 2000m time trial. The standard indoor rowing benchmark.',notes:['Full warm-up essential — 15–20 min easy rowing building into a few short hard pieces.','Pacing: slightly fast first 500m, settle to race pace for the middle 1k, empty the tank in the final 500m.','Record your split every 500m.','If you set a new PB, the tracker will celebrate and take you straight to next month\'s plan with your updated benchmarks.']},
   ],
 };
 const ALL=[...LIB.max,...LIB.thresh,...LIB.end,...LIB.speed,...LIB.test];
@@ -504,7 +589,7 @@ const PIP_CLS={max:'pip-max',thresh:'pip-thresh',end:'pip-end',speed:'pip-speed'
 // ── STATE ──
 let G={
   focus:'2k',restDays:null,pb500:'',pb2k:'',pb5k:'',planStart:null,
-  plan:[],logs:{},ergLinks:{},
+  plan:[],logs:{},ergLinks:{},archive:[],
   viewYear:null,viewMonth:null,
   currentDate:null,currentEffort:null,notesOpen:true,editMode:false,
   activeMilestone:null
@@ -520,10 +605,32 @@ function fmtDur(m){return m<60?'~'+m+' min':'~'+Math.floor(m/60)+'h '+(m%60)+'m'
 function getByKey(k){return ALL.find(s=>s.key===k)||null;}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='screen-backup')renderBackup();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function localToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 // ── PERSISTENCE ──
-function saveState(){try{localStorage.setItem('trt_v2',JSON.stringify({focus:G.focus,restDays:G.restDays,pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,planStart:G.planStart,plan:G.plan,logs:G.logs,ergLinks:G.ergLinks,viewYear:G.viewYear,viewMonth:G.viewMonth,activeMilestone:G.activeMilestone}));}catch(e){}}
-function loadState(){try{const d=localStorage.getItem('trt_v2');if(d){const s=JSON.parse(d);Object.assign(G,s);G.ergLinks=G.ergLinks||{};return true;}}catch(e){}return false;}
+function saveState(){
+  try{
+    localStorage.setItem('trt_v2',JSON.stringify({
+      focus:G.focus,restDays:G.restDays,pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
+      planStart:G.planStart,plan:G.plan,logs:G.logs,ergLinks:G.ergLinks,
+      archive:G.archive,
+      viewYear:G.viewYear,viewMonth:G.viewMonth,activeMilestone:G.activeMilestone
+    }));
+  }catch(e){console.warn('saveState failed:',e);}
+}
+function loadState(){
+  try{
+    const d=localStorage.getItem('trt_v2');
+    if(d){
+      const s=JSON.parse(d);
+      Object.assign(G,s);
+      G.ergLinks=G.ergLinks||{};
+      G.archive=G.archive||[];
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
 
 // ── SETUP ──
 function selFocus(f){G.focus=f;}
@@ -532,20 +639,122 @@ function selRest(n){G.restDays=n;document.getElementById('wb-1').classList.remov
 // ── PLAN GENERATION ──
 function weekTemplate(restDays,weekIdx){
   const isFinal=weekIdx===3;
-  if(restDays===1)return isFinal?['rest','hard','end','thresh','end','rest','test']:['rest','hard','end','thresh','end','thresh','end-short'];
-  return isFinal?['rest','hard','end','thresh','rest','rest','test']:['rest','hard','end','thresh','rest','thresh','end'];
-}
-function pickSession(slot,weekIndex,used){
-  if(slot==='rest'||slot==='test')return null;
-  let pool;
-  if(slot==='hard')pool=LIB.max;
-  else if(slot==='thresh')pool=LIB.thresh;
-  else pool=slot==='end-short'?[LIB.end[0],LIB.end[3],LIB.end[4]]:LIB.end;
-  const unused=pool.filter(s=>!used.has(s.key));
-  const src=unused.length?unused:pool;
-  return{...src[weekIndex%src.length]};
+  // Final week is the same regardless of rest day count:
+  // Hard · End · Thresh · End · Rest · Test · Rest
+  if(isFinal) return['hard','end','thresh','end','rest','test','rest'];
+  if(restDays===1) return['hard','end','thresh','end','thresh','end-short','rest'];
+  return['hard','end','thresh','rest','thresh','end','rest'];
 }
 function pickPrimer(weekIdx){const k=PRIMER_KEYS[weekIdx%PRIMER_KEYS.length];return{...LIB.speed.find(s=>s.key===k)};}
+
+// ── VOLUME-BALANCED WEEK BUILDER ──
+// Weekly targets: 48,000–52,000m total, 10,500–14,000m threshold
+// Light threshold pool: hard-5k, 2x12min, 3x8min (~5000–5700m each)
+// Heavy threshold pool: 5x1500, 4x2000, 3k-ladder, 3x10min, 3x2500m, 5x6min (~7100–8000m each)
+// Endurance: shorter when hard session is longer, longer when hard is shorter
+const THRESH_LIGHT=['hard-5k','2x12min','3x8min'];
+const THRESH_HEAVY=['5x1500','4x2000','3k-ladder','3x10min','3x2500m','5x6min'];
+const END_SHORT_POOL=['timed-30min','6x1000m','hard-5k','2x12min','3x8min']; // lighter end-of-week options
+
+function buildWeek(weekIdx,restDays,usedKeys){
+  const isFinal=weekIdx===3;
+
+  // 1. Pick hard session first — drives the rest of the volume decisions
+  const hardPool=LIB.max.filter(s=>!usedKeys.has(s.key));
+  const hardSrc=hardPool.length?hardPool:LIB.max;
+  const hard={...hardSrc[weekIdx%hardSrc.length]};
+  usedKeys.add(hard.key);
+  const hardDist=hard.dist||4000;
+
+  // 2. Pick heavy threshold session
+  const heavyPool=LIB.thresh.filter(s=>THRESH_HEAVY.includes(s.key)&&!usedKeys.has(s.key));
+  const heavySrc=heavyPool.length?heavyPool:LIB.thresh.filter(s=>THRESH_HEAVY.includes(s.key));
+  const thresh1={...heavySrc[weekIdx%heavySrc.length]};
+  usedKeys.add(thresh1.key);
+
+  // 3. Pick light threshold session to pair — target total 10,500–14,000m
+  const thresh1Dist=thresh1.dist||7500;
+  const lightPool=LIB.thresh.filter(s=>THRESH_LIGHT.includes(s.key)&&!usedKeys.has(s.key));
+  const lightSrc=lightPool.length?lightPool:LIB.thresh.filter(s=>THRESH_LIGHT.includes(s.key));
+  const thresh2={...lightSrc[weekIdx%lightSrc.length]};
+  usedKeys.add(thresh2.key);
+  const threshTotal=thresh1Dist+(thresh2.dist||5000);
+
+  // 4. Calculate endurance budget
+  // Target weekly total: 50,000m midpoint
+  const weeklyTarget=50000;
+  const endBudget=weeklyTarget-hardDist-threshTotal;
+  // Distribute across endurance slots
+  // 1-rest: 3 end slots (end, end, end-short); 2-rest: 2 end slots (end, end)
+  const endSlots=restDays===1?3:2;
+  const endShortTarget=Math.round(endBudget*(endSlots===3?0.22:0)); // end-short ~22% of end budget
+  const mainEndTarget=endSlots===3
+    ?Math.round((endBudget-endShortTarget)/2)
+    :Math.round(endBudget/2);
+
+  // 5. Pick endurance sessions closest to target distances
+  // Harder hard day → shorter end sessions; lighter hard day → longer end sessions
+  // hardDist 4000 → bias toward shorter end; hardDist 3600 → bias toward longer end
+  const endBias=hardDist>=4000?-500:+500; // adjust target by ±500m based on hard session length
+
+  function pickEnd(target,used,pool){
+    const t=target+endBias;
+    const candidates=pool.filter(s=>!used.has(s.key));
+    const src=candidates.length?candidates:pool;
+    // Sort by proximity to target distance
+    const sorted=[...src].sort((a,b)=>Math.abs((a.dist||8000)-t)-Math.abs((b.dist||8000)-t));
+    return{...sorted[0]};
+  }
+
+  const mainEndPool=LIB.end.filter(s=>!THRESH_LIGHT.includes(s.key));
+  const end1=pickEnd(mainEndTarget,usedKeys,mainEndPool);
+  usedKeys.add(end1.key);
+  const end2=pickEnd(mainEndTarget,usedKeys,mainEndPool);
+  usedKeys.add(end2.key);
+
+  // end-short: always the shortest of the three, from a constrained lighter pool
+  const endShortCandidates=LIB.end.filter(s=>END_SHORT_POOL.includes(s.key)&&!usedKeys.has(s.key));
+  const endShortSrc=endShortCandidates.length?endShortCandidates:LIB.end.filter(s=>END_SHORT_POOL.includes(s.key));
+  const endShortSorted=[...endShortSrc].sort((a,b)=>(a.dist||8000)-(b.dist||8000));
+  const endShort={...endShortSorted[0]};
+
+  // 6. Assemble week according to template
+  // 1-rest: Hard · End · Thresh(heavy) · End · Thresh(light) · End-short · Rest
+  // 2-rest: Hard · End · Thresh(heavy) · Rest · Thresh(light) · End · Rest
+  // Final: Hard · End · Thresh(heavy) · End · Rest · Test · Rest
+  if(isFinal){
+    return[
+      {slot:'hard',session:hard,primer:pickPrimer(weekIdx)},
+      {slot:'end',session:end1},
+      {slot:'thresh',session:thresh1},
+      {slot:'end',session:end2},
+      {slot:'rest',session:null},
+      {slot:'test',session:{...LIB.test[0]}},
+      {slot:'rest',session:null},
+    ];
+  }
+  if(restDays===1){
+    return[
+      {slot:'hard',session:hard,primer:pickPrimer(weekIdx)},
+      {slot:'end',session:end1},
+      {slot:'thresh',session:thresh1},
+      {slot:'end',session:end2},
+      {slot:'thresh',session:thresh2},
+      {slot:'end-short',session:endShort},
+      {slot:'rest',session:null},
+    ];
+  }
+  // 2 rest days
+  return[
+    {slot:'hard',session:hard,primer:pickPrimer(weekIdx)},
+    {slot:'end',session:end1},
+    {slot:'thresh',session:thresh1},
+    {slot:'rest',session:null},
+    {slot:'thresh',session:thresh2},
+    {slot:'end',session:end2},
+    {slot:'rest',session:null},
+  ];
+}
 
 function buildPlan(){
   if(!G.restDays){alert('Choose rest days per week.');return;}
@@ -554,20 +763,30 @@ function buildPlan(){
   const v5k=document.getElementById('pb5k').value.trim();
   if(!v2k&&!v500&&!v5k){alert('Enter at least your 2k PB to calculate target paces.');return;}
   G.pb2k=v2k;G.pb500=v500;G.pb5k=v5k;
-  G.planStart=document.getElementById('plan-start').value||new Date().toISOString().slice(0,10);
-  const start=new Date(G.planStart+'T00:00:00');
-  const dow=start.getDay();start.setDate(start.getDate()+(dow===0?-6:1-dow));
+  G.planStart=document.getElementById('plan-start').value||localToday();
+  const [py,pm,pd]=G.planStart.split('-').map(Number);
+
+  // Archive current plan before overwriting, if it has logged sessions
+  if(G.plan&&G.plan.length&&Object.keys(G.logs).length>0){
+    G.archive=G.archive||[];
+    G.archive.push({
+      planStart:G.planStart,
+      completedAt:localToday(),
+      pb2k:G.pb2k,pb500:G.pb500,pb5k:G.pb5k,
+      plan:G.plan.map(d=>({date:d.date,slot:d.slot,session:d.session?{key:d.session.key,type:d.session.type,name:d.session.name,meta:d.session.meta,dist:d.session.dist}:null,status:d.status})),
+      logs:{...G.logs},
+    });
+  }
+
   G.plan=[];G.logs={};
+  const usedKeys=new Set(); // track across full month for variety
   for(let w=0;w<4;w++){
-    const tmpl=weekTemplate(G.restDays,w);const used=new Set();
+    const days=buildWeek(w,G.restDays,usedKeys);
     for(let d=0;d<7;d++){
-      const dt=new Date(start);dt.setDate(start.getDate()+w*7+d);
-      const slot=tmpl[d];
-      const session=slot==='test'?{...LIB.test[0]}:pickSession(slot,w,used);
-      if(session&&session.key!=='2k-test')used.add(session.key);
-      // Primers fire on ALL hard days
-      const primer=slot==='hard'?pickPrimer(w):null;
-      G.plan.push({date:dt.toISOString().slice(0,10),slot,session,primer,status:'upcoming'});
+      const dt=new Date(py,pm-1,pd+w*7+d);
+      const dateStr=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+      const day=days[d];
+      G.plan.push({date:dateStr,slot:day.slot,session:day.session,primer:day.primer||null,status:'upcoming'});
     }
   }
   const today=new Date();G.viewYear=today.getFullYear();G.viewMonth=today.getMonth();
@@ -584,19 +803,22 @@ function renderPlanView(){
   const container=document.getElementById('plan-weeks');container.innerHTML='';
   for(let w=0;w<4;w++){
     const days=G.plan.slice(w*7,(w+1)*7);const isFinal=w===3;
+    const weekVol=days.reduce((sum,d)=>sum+(!d.session||d.slot==='rest'||d.slot==='test'?0:(d.session.dist||0)),0);
+    const volStr=weekVol>0?` <span style="font-weight:400;opacity:.7">· ${(weekVol/1000).toFixed(1)}k</span>`:'';
     const block=document.createElement('div');block.className='week-block';
-    block.innerHTML=`<div class="week-header${isFinal?' final':''}">Week ${w+1}${isFinal?' — Final week':''}</div>`;
+    block.innerHTML=`<div class="week-header${isFinal?' final':''}">Week ${w+1}${isFinal?' — Final week':''}${volStr}</div>`;
     days.forEach((day,di)=>{
       const row=document.createElement('div');row.className='day-row';
       const dt=new Date(day.date+'T00:00:00');
       const dateLabel=(dt.getMonth()+1)+'/'+dt.getDate();
+      const dayLabel=DAYS_SHORT[dt.getDay()===0?6:dt.getDay()-1]; // Mon=0...Sun=6
       if(!day.session){
-        row.innerHTML=`<span class="day-label">${DAYS_SHORT[di]}</span><span class="day-date">${dateLabel}</span><div><span class="rest-text">— Rest</span></div>`;
+        row.innerHTML=`<span class="day-label">${dayLabel}</span><span class="day-date">${dateLabel}</span><div><span class="rest-text">— Rest</span></div>`;
       } else {
         const cards=[];
         if(day.primer){cards.push(buildPlanCard(w,di,'primer',day.primer));cards.push(`<div class="primer-divider">↓ 5–6 min rest ↓</div>`);}
         cards.push(buildPlanCard(w,di,'main',day.session));
-        row.innerHTML=`<span class="day-label">${DAYS_SHORT[di]}</span><span class="day-date">${dateLabel}</span><div>${cards.join('')}</div>`;
+        row.innerHTML=`<span class="day-label">${dayLabel}</span><span class="day-date">${dateLabel}</span><div>${cards.join('')}</div>`;
       }
       block.appendChild(row);
     });
@@ -643,14 +865,15 @@ function goSetup(){
   document.getElementById('pb500').value=G.pb500||'';
   document.getElementById('pb2k').value=G.pb2k||'';
   document.getElementById('pb5k').value=G.pb5k||'';
-  if(G.planStart)document.getElementById('plan-start').value=G.planStart;
+  // Always default to today when starting a new plan — don't restore old start date
+  document.getElementById('plan-start').value=localToday();
   if(G.restDays)selRest(G.restDays);
   showScreen('screen-setup');
 }
 
 // ── STREAK ──
 function calcStreak(){
-  const todayStr=new Date().toISOString().slice(0,10);
+  const todayStr=localToday();
   const days=[...G.plan].filter(d=>d.date<=todayStr).reverse();
   let streak=0;
   for(const day of days){
@@ -661,7 +884,7 @@ function calcStreak(){
   return streak;
 }
 function streakDots(){
-  const todayStr=new Date().toISOString().slice(0,10);
+  const todayStr=localToday();
   return G.plan.filter(d=>d.date<=todayStr&&d.slot!=='rest'&&d.session).slice(-7).map(d=>({done:d.status==='done',today:d.date===todayStr}));
 }
 
@@ -693,6 +916,24 @@ function changeMonth(dir){
 }
 function planFor(dateStr){return G.plan.find(d=>d.date===dateStr)||null;}
 
+// Returns archived day + its parent archive entry, or null
+function archiveFor(dateStr){
+  for(const entry of(G.archive||[])){
+    const day=entry.plan.find(d=>d.date===dateStr);
+    if(day)return{day,entry};
+  }
+  return null;
+}
+
+// Returns archived log for a given date + session key
+function archiveLogFor(dateStr,sessionKey){
+  for(const entry of(G.archive||[])){
+    const logKey=dateStr+'_'+sessionKey;
+    if(entry.logs&&entry.logs[logKey])return entry.logs[logKey];
+  }
+  return null;
+}
+
 function renderCal(){
   const y=G.viewYear,m=G.viewMonth;
   document.getElementById('cal-month-label').textContent=MONTHS[m]+' '+y;
@@ -700,15 +941,18 @@ function renderCal(){
   DAYS_SHORT.forEach(d=>{const el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el);});
   const first=new Date(y,m,1);let startDow=first.getDay();startDow=startDow===0?6:startDow-1;
   const daysInMonth=new Date(y,m+1,0).getDate();
-  const todayStr=new Date().toISOString().slice(0,10);
+  const todayStr=localToday();
   for(let i=0;i<startDow;i++){const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);}
   for(let d=1;d<=daysInMonth;d++){
     const dateStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const isToday=dateStr===todayStr;const isPast=dateStr<todayStr;
     const plan=planFor(dateStr);
+    const archived=!plan?archiveFor(dateStr):null; // only check archive if not in current plan
     const el=document.createElement('div');el.className='cal-day'+(isToday?' is-today':'');el.onclick=()=>openDay(dateStr);
     const numEl=document.createElement('span');numEl.className='day-num';numEl.textContent=d;el.appendChild(numEl);
+
     if(plan&&plan.slot!=='rest'&&plan.session){
+      // Current plan day
       const s=plan.session;
       const pip=document.createElement('span');
       pip.className='pip '+(PIP_CLS[s.type]||'pip-end')+(plan.status==='done'?' done':plan.status==='skipped'?' skipped':'');
@@ -722,6 +966,19 @@ function renderCal(){
       el.appendChild(dot);
     } else if(plan&&plan.slot==='rest'){
       const re=document.createElement('span');re.style.cssText='font-size:10px;color:var(--text3);';re.textContent='Rest';el.appendChild(re);
+    } else if(archived&&archived.day.slot!=='rest'&&archived.day.session){
+      // Archived plan day — show with muted style
+      const s=archived.day.session;
+      const pip=document.createElement('span');
+      pip.className='pip '+(PIP_CLS[s.type]||'pip-end')+' done';
+      pip.style.opacity='.45';
+      pip.textContent=s.name;el.appendChild(pip);
+      const logKey=dateStr+'_'+s.key;
+      const log=archived.entry.logs&&archived.entry.logs[logKey];
+      if(log&&log.pace){const pe=document.createElement('span');pe.className='pace-mini';pe.textContent=log.pace+'/500';el.appendChild(pe);}
+      const dot=document.createElement('div');dot.className='status-dot dot-done';dot.style.opacity='.5';el.appendChild(dot);
+    } else if(archived&&archived.day.slot==='rest'){
+      const re=document.createElement('span');re.style.cssText='font-size:10px;color:var(--text3);opacity:.4;';re.textContent='Rest';el.appendChild(re);
     }
     grid.appendChild(el);
   }
@@ -730,7 +987,7 @@ function renderCal(){
 
 function renderTodaySection(){
   const section=document.getElementById('today-section');
-  const todayStr=new Date().toISOString().slice(0,10);
+  const todayStr=localToday();
   const streak=calcStreak();const dots=streakDots();
   const todayPlan=planFor(todayStr);const todaySession=todayPlan?.session;
   let streakHtml='';
@@ -808,13 +1065,56 @@ function rerenderErgSection(key){
   setTimeout(()=>{const i=document.getElementById('erg-input');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},30);
 }
 
+// ── DAY NAVIGATION ──
+function navigateDay(dir){
+  if(!G.currentDate)return;
+  const idx=G.plan.findIndex(d=>d.date===G.currentDate);
+  if(idx===-1)return;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=G.plan.length)return;
+  openDay(G.plan[newIdx].date);
+}
+
+function renderDayNav(){
+  // Nav works across current plan only — archived days show no nav
+  const idx=G.plan.findIndex(d=>d.date===G.currentDate);
+  const prev=document.getElementById('day-nav-prev');
+  const next=document.getElementById('day-nav-next');
+  const center=document.getElementById('day-nav-center');
+  const dayNav=document.getElementById('day-nav');
+  if(idx===-1){
+    // Archived day — hide nav
+    if(dayNav)dayNav.style.display='none';
+    return;
+  }
+  if(dayNav)dayNav.style.display='flex';
+  if(prev) prev.disabled=idx<=0;
+  if(next) next.disabled=idx>=G.plan.length-1;
+  if(center) center.textContent=`Day ${idx+1} of ${G.plan.length}`;
+}
+
 // ── DAILY VIEW ──
 function openDay(dateStr){
   G.currentDate=dateStr;G.currentEffort=null;G.editMode=false;G._ergEditMode=null;
   const plan=planFor(dateStr);
   const dt=new Date(dateStr+'T00:00:00');
   document.getElementById('daily-date-label').textContent=MONTHS[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear();
-  renderDaily(plan);showScreen('screen-daily');
+  renderDayNav();
+  if(plan){
+    renderDaily(plan);
+  } else {
+    // Check archive
+    const archived=archiveFor(dateStr);
+    if(archived){
+      renderArchivedDay(archived.day,archived.entry);
+    } else {
+      // Date exists but has no plan data
+      const body=document.getElementById('daily-body');
+      body.innerHTML=`<div style="padding:32px 0;text-align:center;color:var(--text3);font-size:14px;">No session recorded for this day.</div>`;
+      document.getElementById('save-bar').style.display='none';
+    }
+  }
+  showScreen('screen-daily');
 }
 
 function renderDaily(plan){
@@ -839,7 +1139,7 @@ function renderDaily(plan){
   }
   if(isTest){
     html+=`<div class="test-note-box"><div class="test-note-title">Month-end time trial</div>
-      <div class="test-note-text">Record your result to update benchmarks for next month's plan. All target paces recalculate automatically.</div></div>`;
+      <div class="test-note-text">Row for a genuine personal best. Enter your result below — if it's a new PB, the tracker will celebrate with you and take you straight to next month's plan with your updated benchmarks.</div></div>`;
   }
   html+=`<div class="workout-hero"><span class="sc-badge ${typeCls}" style="font-size:11px;padding:3px 10px;margin-bottom:10px;display:inline-block;">${typeLabel}</span>
     <div class="workout-name">${s.name}</div><div class="workout-meta-line">${s.meta}</div></div>`;
@@ -917,9 +1217,30 @@ function selEff(n){
 function saveLog(){
   const plan=planFor(G.currentDate);if(!plan)return;
   const logKey=plan.date+'_'+plan.session.key;
-  G.logs[logKey]={pace:document.getElementById('log-pace')?.value.trim(),effort:G.currentEffort,
-    reflect:document.getElementById('log-reflect')?.value.trim(),fwd:document.getElementById('log-fwd')?.value.trim()};
+  const pace=document.getElementById('log-pace')?.value.trim();
+  G.logs[logKey]={pace,effort:G.currentEffort,
+    reflect:document.getElementById('log-reflect')?.value.trim(),
+    fwd:document.getElementById('log-fwd')?.value.trim()};
   plan.status='done';G.editMode=false;
+
+  // Check email prompt
+  checkEmailPrompt(); with a result entered
+  const isTest=plan.session&&plan.session.type==='test';
+  if(isTest&&pace){
+    const newSecs=parseT(pace)*4; // pace/500m * 4 = 2k time
+    const oldSecs=parseT(G.pb2k);
+    if(newSecs&&(!oldSecs||newSecs<oldSecs)){
+      // New PB — save it and show celebration
+      const newPbStr=fmt(newSecs);
+      const oldPbStr=G.pb2k||null;
+      G.pb2k=newPbStr;
+      saveState();renderCal();
+      document.getElementById('save-bar').style.display='none';
+      showPbModal(oldPbStr,newPbStr,newSecs,oldSecs);
+      return;
+    }
+  }
+
   // Check milestone
   const streak=calcStreak();
   const ms=checkMilestone(streak);
@@ -928,12 +1249,105 @@ function saveLog(){
   document.getElementById('save-bar').style.display='none';
   showToast('Workout saved ✓');
 }
+// ── ARCHIVED DAY VIEW (read-only) ──
+function renderArchivedDay(day,entry){
+  const body=document.getElementById('daily-body');
+  const saveBar=document.getElementById('save-bar');
+  saveBar.style.display='none';
+
+  if(!day.session||day.slot==='rest'){
+    body.innerHTML=`<div style="padding:32px 0;text-align:center;"><div style="font-size:32px;margin-bottom:12px;color:var(--text3)">—</div><div style="font-size:20px;font-weight:600;margin-bottom:6px;">Rest day</div></div>`;
+    return;
+  }
+
+  const s=day.session;
+  const typeCls=TYPE_BADGE[s.type]||'b-end';
+  const typeLabel=TYPE_LABEL[s.type]||s.type;
+  const logKey=day.date+'_'+s.key;
+  const log=entry.logs&&entry.logs[logKey];
+
+  let html=`
+    <div style="background:var(--bg2);border:.5px solid var(--border2);border-radius:8px;padding:8px 14px;margin:12px 20px 0;font-size:11px;color:var(--text3);text-align:center;letter-spacing:.05em;text-transform:uppercase;">
+      Archived — ${MONTHS[new Date(entry.planStart+'T00:00:00').getMonth()]} plan · Read only
+    </div>
+    <div class="daily-body" style="padding-bottom:40px;">
+      <div class="workout-hero">
+        <span class="sc-badge ${typeCls}" style="font-size:11px;padding:3px 10px;margin-bottom:10px;display:inline-block;">${typeLabel}</span>
+        <div class="workout-name">${s.name}</div>
+        <div class="workout-meta-line">${s.meta}</div>
+      </div>`;
+
+  if(log){
+    html+=`<div class="prev-block" style="border-left-color:var(--green-border)">
+      <span class="prev-label">Your result</span>
+      <div class="prev-pace">${log.pace||'—'} <span style="font-size:13px;color:var(--text3)">/500m avg</span></div>
+      ${log.effort?`<div class="prev-sub">Effort ${log.effort}/4</div>`:''}
+      ${log.reflect?`<div class="prev-note">${log.reflect}</div>`:''}
+      ${log.fwd?`<div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic">Note for next time: "${log.fwd}"</div>`:''}
+    </div>`;
+  } else {
+    html+=`<div style="font-size:13px;color:var(--text3);padding:12px 0;font-style:italic;">No result logged for this session.</div>`;
+  }
+
+  // Show benchmarks that were active during this plan
+  html+=`<div style="margin-top:12px;padding:10px 12px;background:var(--bg2);border-radius:8px;border:.5px solid var(--border2);">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Benchmarks at time of plan</div>
+    <div style="font-size:13px;color:var(--text2);">${[entry.pb2k?'2k: '+entry.pb2k:'',entry.pb500?'500m: '+entry.pb500:'',entry.pb5k?'5k: '+entry.pb5k:''].filter(Boolean).join(' · ')||'—'}</div>
+  </div>`;
+
+  html+=`</div>`;
+  body.innerHTML=html;
+}
+
 function confirmSkip(){
   if(confirm('Mark this session as skipped? It will stay visible in your calendar.')){
     const plan=planFor(G.currentDate);
     if(plan){plan.status='skipped';delete G.logs[plan.date+'_'+plan.session?.key];}
     saveState();renderCal();openDay(G.currentDate);
   }
+}
+
+// ── PB CELEBRATION ──
+function showPbModal(oldPb, newPb, newSecs, oldSecs){
+  document.getElementById('pb-modal-old').textContent = oldPb ? oldPb : '—';
+  document.getElementById('pb-modal-new').textContent = newPb;
+
+  // Calculate improvement
+  if(oldSecs && newSecs){
+    const diffSecs = oldSecs - newSecs; // positive = faster
+    const mins = Math.floor(diffSecs / 60);
+    const secs = (diffSecs % 60).toFixed(1);
+    const diffStr = mins > 0 ? `-${mins}:${String(secs).padStart(4,'0')}` : `-${secs}s`;
+    document.getElementById('pb-modal-improvement').textContent = diffStr;
+    // Generate an encouraging message based on improvement size
+    const msg = diffSecs >= 10
+      ? `That's a serious improvement over ${oldPb}. A month of consistent work just showed up on the clock.`
+      : diffSecs >= 5
+      ? `${diffStr} off your previous best. Every second at this level is hard-earned.`
+      : `A new best is a new best. ${diffStr} faster than last time — keep the momentum going.`;
+    document.getElementById('pb-modal-sub').textContent = msg;
+  } else {
+    document.getElementById('pb-modal-improvement').textContent = newPb;
+    document.getElementById('pb-modal-sub').textContent = 'Your first 2k benchmark is set. All target paces will now calculate from this time.';
+  }
+  document.getElementById('pb-modal-overlay').classList.remove('hidden');
+}
+
+function dismissPbModal(e){
+  if(e&&e.target!==document.getElementById('pb-modal-overlay'))return;
+  document.getElementById('pb-modal-overlay').classList.add('hidden');
+}
+
+function pbModalStartNewPlan(){
+  document.getElementById('pb-modal-overlay').classList.add('hidden');
+  // Pre-fill setup with updated benchmarks and go to setup for next plan
+  document.getElementById('pb2k').value=G.pb2k||'';
+  document.getElementById('pb500').value=G.pb500||'';
+  document.getElementById('pb5k').value=G.pb5k||'';
+  document.getElementById('plan-start').value=localToday();
+  if(G.restDays)selRest(G.restDays);
+  showScreen('screen-setup');
+  showToast('Benchmarks updated — build your next plan!');
 }
 
 // ── EXPORT / IMPORT ──
@@ -944,15 +1358,27 @@ function buildExportString(){
     pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
     planStart:G.planStart,restDays:G.restDays,focus:G.focus,
     plan:G.plan,logs:G.logs,ergLinks:G.ergLinks,
+    archive:G.archive||[],
     activeMilestone:G.activeMilestone,
     viewYear:G.viewYear,viewMonth:G.viewMonth
   };
-  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const doneCount=(G.plan||[]).filter(d=>d.status==='done').length;
+  const archiveCount=(G.archive||[]).reduce((n,e)=>(e.plan||[]).filter(d=>d.status==='done').length+n,0);
+  const d=new Date();
+  const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const label=`TRT_v2 | 2k:${G.pb2k||'—'} | ${doneCount+archiveCount} sessions | ${dateStr}`;
+  return label+'|'+btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
 }
 
 function parseExportString(str){
   try{
-    const decoded=decodeURIComponent(escape(atob(str.trim())));
+    let s=str.trim();
+    // Strip human-readable label prefix if present (format: "TRT_v2 | ... |BASE64")
+    if(s.startsWith('TRT_')){
+      const lastPipe=s.lastIndexOf('|');
+      if(lastPipe>0)s=s.slice(lastPipe+1).trim();
+    }
+    const decoded=decodeURIComponent(escape(atob(s)));
     const parsed=JSON.parse(decoded);
     if(!parsed._version)throw new Error('Missing version');
     return{ok:true,data:parsed};
@@ -960,10 +1386,11 @@ function parseExportString(str){
 }
 
 function summariseExport(state){
-  const logCount=Object.keys(state.logs||{}).length;
   const ergCount=Object.keys(state.ergLinks||{}).length;
   const doneCount=(state.plan||[]).filter(d=>d.status==='done').length;
-  return{logCount,ergCount,doneCount,pb2k:state.pb2k||'—',version:state._version||'unknown'};
+  const archiveCount=(state.archive||[]).reduce((n,e)=>(e.plan||[]).filter(d=>d.status==='done').length+n,0);
+  const monthCount=(state.archive||[]).length+(state.plan&&state.plan.length?1:0);
+  return{ergCount,doneCount:doneCount+archiveCount,monthCount,pb2k:state.pb2k||'—',version:state._version||'unknown'};
 }
 
 function renderBackup(){
@@ -975,7 +1402,8 @@ function renderBackup(){
   const s=summariseExport(G);
   document.getElementById('backup-summary').innerHTML=`
     <div class="summary-row"><span class="summary-icon">🏋️</span><span class="summary-text">2k PB</span><span class="summary-val">${s.pb2k}</span></div>
-    <div class="summary-row"><span class="summary-icon">✓</span><span class="summary-text">Logged sessions</span><span class="summary-val">${s.doneCount}</span></div>
+    <div class="summary-row"><span class="summary-icon">✓</span><span class="summary-text">Logged sessions (all months)</span><span class="summary-val">${s.doneCount}</span></div>
+    <div class="summary-row"><span class="summary-icon">📅</span><span class="summary-text">Months of training</span><span class="summary-val">${s.monthCount}</span></div>
     <div class="summary-row"><span class="summary-icon">⎋</span><span class="summary-text">ErgData links</span><span class="summary-val">${s.ergCount}</span></div>
     <div class="summary-row"><span class="summary-icon">📦</span><span class="summary-text">Version</span><span class="summary-val">${s.version}</span></div>`;
   const el=document.getElementById('backup-code');
@@ -1037,7 +1465,7 @@ function doImport(){
   const d=_pendingImport;
   G.pb500=d.pb500||'';G.pb2k=d.pb2k||'';G.pb5k=d.pb5k||'';
   G.planStart=d.planStart||null;G.restDays=d.restDays||null;G.focus=d.focus||'2k';
-  G.plan=d.plan||[];G.logs=d.logs||{};G.ergLinks=d.ergLinks||{};
+  G.plan=d.plan||[];G.logs=d.logs||{};G.ergLinks=d.ergLinks||{};G.archive=d.archive||[];
   G.activeMilestone=d.activeMilestone||null;
   G.viewYear=d.viewYear||new Date().getFullYear();
   G.viewMonth=d.viewMonth!==undefined?d.viewMonth:new Date().getMonth();
@@ -1049,20 +1477,226 @@ function doImport(){
   showToast('Data imported successfully ✓');
 }
 
-// ── INIT ──
-document.getElementById('plan-start').value=new Date().toISOString().slice(0,10);
-const loaded=loadState();
-if(loaded&&G.plan&&G.plan.length){
-  const today=new Date();
-  G.viewYear=G.viewYear||today.getFullYear();G.viewMonth=G.viewMonth!==null?G.viewMonth:today.getMonth();
-  if(G.pb2k)document.getElementById('pb2k').value=G.pb2k;
-  if(G.pb500)document.getElementById('pb500').value=G.pb500;
-  if(G.pb5k)document.getElementById('pb5k').value=G.pb5k;
-  if(G.restDays)selRest(G.restDays);
-  renderCal();showScreen('screen-cal');
-} else {
-  showScreen('screen-setup');
+// ── SUPABASE INTEGRATION ──
+const SUPABASE_URL = 'https://njztyfjriaulahqgnmlz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_KbiEKVfkoqXkw6CDAuyEMg_50euUzoh';
+const sb = (typeof supabase !== 'undefined')
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null; // Supabase unavailable — app runs in localStorage-only mode
+
+let _syncTimer = null;
+let _isOnline = navigator.onLine;
+window.addEventListener('online',  () => { _isOnline = true;  syncToSupabase(); });
+window.addEventListener('offline', () => { _isOnline = false; });
+
+function showSyncIndicator(msg){
+  const el = document.getElementById('sync-indicator');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2000);
 }
+
+// Sign in anonymously on first load, or restore existing session
+async function initSupabase(){
+  if(!sb) return false;
+  try{
+    const { data: { session } } = await sb.auth.getSession();
+    if(session){
+      // Existing session — try to load from cloud first
+      const loaded = await loadFromSupabase();
+      if(loaded){
+        const today = new Date();
+        G.viewYear  = G.viewYear  || today.getFullYear();
+        G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
+        if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
+        if(G.pb500) document.getElementById('pb500').value = G.pb500;
+        if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
+        if(G.restDays) selRest(G.restDays);
+        renderCal(); showScreen('screen-cal');
+        return true;
+      }
+    } else {
+      // New user — sign in anonymously
+      const { error } = await sb.auth.signInAnonymously();
+      if(error) console.warn('Anon sign-in failed:', error.message);
+    }
+  } catch(e){
+    console.warn('Supabase init failed, running offline:', e.message);
+  }
+  return false;
+}
+
+// Save state to Supabase (debounced — batches rapid saves)
+function scheduleSyncToSupabase(){
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(syncToSupabase, 1500);
+}
+
+async function syncToSupabase(){
+  if(!sb || !_isOnline) return;
+  try{
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user) return;
+    const payload = {
+      user_id: user.id,
+      state: {
+        focus:G.focus, restDays:G.restDays, pb500:G.pb500, pb2k:G.pb2k, pb5k:G.pb5k,
+        planStart:G.planStart, plan:G.plan, logs:G.logs, ergLinks:G.ergLinks,
+        archive:G.archive||[], activeMilestone:G.activeMilestone,
+        viewYear:G.viewYear, viewMonth:G.viewMonth
+      },
+      email_claimed: !!user.email,
+      last_saved: new Date().toISOString()
+    };
+    const { error } = await sb.from('user_data').upsert(payload, { onConflict: 'user_id' });
+    if(error) throw error;
+    showSyncIndicator('✓ Saved');
+  } catch(e){
+    console.warn('Supabase sync failed:', e.message);
+    showSyncIndicator('⚠ Offline');
+  }
+}
+
+// Load state from Supabase, fall back to localStorage
+async function loadFromSupabase(){
+  if(!sb) return false;
+  try{
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user) return false;
+    const { data, error } = await sb.from('user_data').select('state').eq('user_id', user.id).single();
+    if(error || !data) return false;
+    const s = data.state;
+    if(s && s.plan && s.plan.length){
+      Object.assign(G, s);
+      G.ergLinks = G.ergLinks || {};
+      G.archive  = G.archive  || [];
+      return true;
+    }
+  } catch(e){
+    console.warn('Supabase load failed:', e.message);
+  }
+  return false;
+}
+
+// Override saveState to also sync to Supabase
+const _localSaveState = saveState;
+function saveState(){
+  _localSaveState();
+  scheduleSyncToSupabase();
+}
+
+// ── EMAIL PROMPT ──
+let _sessionsSincePrompt = 0;
+
+function checkEmailPrompt(){
+  if(!sb) return;
+  // Show after session 1, then every 5 sessions
+  _sessionsSincePrompt++;
+  const dismissed = localStorage.getItem('trt_email_dismissed');
+  if(dismissed && Date.now() - parseInt(dismissed) < 7 * 24 * 60 * 60 * 1000) return; // snoozed for 7 days
+  sb.auth.getUser().then(({ data: { user } }) => {
+    if(user && user.email) return; // already has email
+    if(_sessionsSincePrompt === 1 || _sessionsSincePrompt % 5 === 0){
+      setTimeout(() => {
+        document.getElementById('email-prompt-bar').classList.add('show');
+      }, 1500); // slight delay so it doesn't appear during save animation
+    }
+  });
+}
+
+function dismissEmailPrompt(){
+  document.getElementById('email-prompt-bar').classList.remove('show');
+  localStorage.setItem('trt_email_dismissed', Date.now().toString());
+}
+
+async function submitEmail(){
+  if(!sb) return;
+  const input = document.getElementById('email-input');
+  const email = input.value.trim();
+  if(!email || !email.includes('@')){ input.focus(); return; }
+  try{
+    const { error } = await sb.auth.updateUser({ email });
+    if(error) throw error;
+    document.getElementById('email-prompt-bar').classList.remove('show');
+    showToast('✓ Email saved — check your inbox to confirm');
+    localStorage.removeItem('trt_email_dismissed');
+  } catch(e){
+    showToast('Could not save email — try again');
+    console.warn('Email update failed:', e.message);
+  }
+}
+
+// ── DEVICE LINKING ──
+// Shows in setup screen — lets user sign in with their email on a new device
+async function linkDevice(){
+  if(!sb){ showToast('Supabase unavailable'); return; }
+  const email = prompt('Enter the email address linked to your account:');
+  if(!email || !email.includes('@')) return;
+  try{
+    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+    if(error) throw error;
+    showToast('✓ Magic link sent — check your email');
+  } catch(e){
+    showToast('No account found for that email');
+    console.warn('OTP failed:', e.message);
+  }
+}
+
+// Handle magic link on page load (Supabase redirects back with token in URL hash)
+async function handleMagicLink(){
+  if(!sb) return false;
+    const { data: { session }, error } = await sb.auth.getSession();
+    if(session && session.user.email){
+      // Successfully signed in via magic link — load their cloud data
+      const loaded = await loadFromSupabase();
+      if(loaded){
+        const today = new Date();
+        G.viewYear  = G.viewYear  || today.getFullYear();
+        G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
+        if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
+        if(G.pb500) document.getElementById('pb500').value = G.pb500;
+        if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
+        if(G.restDays) selRest(G.restDays);
+        renderCal(); showScreen('screen-cal');
+        showToast('✓ Account linked — your data is restored');
+        return true;
+      }
+    }
+  } catch(e){ console.warn('Magic link handling failed:', e.message); }
+  return false;
+}
+
+// ── INIT ──
+// Always set plan-start to today — goSetup also resets it, so old dates never leak in
+document.getElementById('plan-start').value=localToday();
+
+(async () => {
+  // 1. Handle magic link return (device linking)
+  const linkedViaEmail = await handleMagicLink();
+  if(linkedViaEmail) return; // already navigated
+
+  // 2. Init Supabase (sign in anon or restore session, load cloud data)
+  const cloudLoaded = await initSupabase();
+
+  // 3. Fall back to localStorage if cloud load didn't navigate us
+  if(!cloudLoaded){
+    const loaded = loadState();
+    if(loaded && G.plan && G.plan.length){
+      const today = new Date();
+      G.viewYear  = G.viewYear  || today.getFullYear();
+      G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
+      if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
+      if(G.pb500) document.getElementById('pb500').value = G.pb500;
+      if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
+      if(G.restDays) selRest(G.restDays);
+      renderCal(); showScreen('screen-cal');
+    } else {
+      showScreen('screen-setup');
+    }
+  }
+})();
 </script>
 </body>
 </html>
