@@ -327,7 +327,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <div class="screen active" id="screen-setup">
   <div class="nav">
     <span class="nav-title">Tom's rowing tracker v2.1</span>
-    <button class="btn btn-primary" onclick="buildPlan()">Generate plan →</button>
+    <button type="button" class="btn btn-primary" onclick="buildPlan()">Generate plan →</button>
   </div>
   <div class="setup-body">
     <div class="s-section">
@@ -349,8 +349,8 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     <div class="s-section">
       <span class="s-label">Rest days per week</span>
       <div class="week-grid">
-        <button class="week-btn" id="wb-1" onclick="selRest(1)"><span class="wk-title">1 rest day</span><span class="wk-seq">Hard · End · Thresh · End · Thresh · End · Rest</span></button>
-        <button class="week-btn" id="wb-2" onclick="selRest(2)"><span class="wk-title">2 rest days</span><span class="wk-seq">Hard · End · Thresh · Rest · Thresh · End · Rest</span></button>
+        <button type="button" class="week-btn" id="wb-1" onclick="selRest(1)"><span class="wk-title">1 rest day</span><span class="wk-seq">Hard · End · Thresh · End · Thresh · End · Rest</span></button>
+        <button type="button" class="week-btn" id="wb-2" onclick="selRest(2)"><span class="wk-title">2 rest days</span><span class="wk-seq">Hard · End · Thresh · Rest · Thresh · End · Rest</span></button>
       </div>
     </div>
     <div class="s-section">
@@ -360,7 +360,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     <div class="s-section">
       <span class="s-label">Using another device?</span>
       <span class="s-sublabel">If you've already set up an account on another device, link it here to restore your data.</span>
-      <button class="btn" style="width:100%" onclick="linkDevice()">🔗 Link this device to my account</button>
+      <button type="button" class="btn" style="width:100%" onclick="linkDevice()">🔗 Link this device to my account</button>
     </div>
   </div>
   <a class="data-link" onclick="showScreen('screen-backup')">⧉ <span>Export / Import data</span></a>
@@ -370,7 +370,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <div class="screen" id="screen-backup">
   <div class="nav">
     <div style="display:flex;align-items:center;gap:8px;">
-      <button class="btn btn-ghost btn-sm" id="backup-back-btn" onclick="showScreen('screen-setup')">← Back</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="backup-back-btn" onclick="showScreen('screen-setup')">← Back</button>
       <span class="nav-title">Export / Import</span>
     </div>
   </div>
@@ -380,7 +380,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
       <div class="backup-card">
         <div class="backup-summary" id="backup-summary"></div>
         <textarea class="backup-code" id="backup-code" rows="3" readonly></textarea>
-        <button class="copy-btn" id="copy-btn" onclick="copyExport()">⧉ Copy to clipboard</button>
+        <button type="button" class="copy-btn" id="copy-btn" onclick="copyExport()">⧉ Copy to clipboard</button>
         <div class="backup-hint">Paste this into the Import field on any version of the tracker to restore your data. Save it in Notes or email it to yourself as a backup.</div>
       </div>
     </div>
@@ -390,7 +390,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
         <div class="import-hint-text">Paste exported data below. Your current data will be replaced after you confirm.</div>
         <textarea class="import-input" id="import-input" placeholder="Paste your export code here..." oninput="parseImport()"></textarea>
         <div class="import-result" id="import-result"></div>
-        <button class="import-btn" id="import-btn" disabled onclick="confirmImport()">Import data</button>
+        <button type="button" class="import-btn" id="import-btn" disabled onclick="confirmImport()">Import data</button>
       </div>
     </div>
   </div>
@@ -403,8 +403,8 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     <div class="confirm-body" id="import-confirm-body"></div>
     <div class="confirm-warn">⚠ This will overwrite your current plan, logs, and ErgData links. Export your current data first if you want to keep it.</div>
     <div class="confirm-btns">
-      <button class="btn" onclick="dismissImportModal()">Cancel</button>
-      <button class="btn btn-danger" onclick="doImport()">Yes, import</button>
+      <button type="button" class="btn" onclick="dismissImportModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="doImport()">Yes, import</button>
     </div>
   </div>
 </div>
@@ -413,10 +413,10 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <div class="screen" id="screen-plan">
   <div class="nav">
     <div style="display:flex;align-items:center;gap:8px;">
-      <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-setup')">← Edit</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="showScreen('screen-setup')">← Edit</button>
       <span class="nav-title" id="plan-nav-title">Plan</span>
     </div>
-    <button class="btn btn-primary btn-sm" onclick="savePlan()">Save plan ✓</button>
+    <button type="button" class="btn btn-primary btn-sm" onclick="savePlan()">Save plan ✓</button>
   </div>
   <div class="plan-body">
     <div class="plan-meta">
@@ -432,13 +432,13 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <div class="screen" id="screen-cal">
   <div class="nav">
     <span class="nav-title">Tom's rowing tracker</span>
-    <button class="btn btn-ghost btn-sm" onclick="goSetup()">⚙ New plan</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="goSetup()">⚙ New plan</button>
   </div>
   <div class="cal-body">
     <div class="cal-month-nav">
-      <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">‹</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">‹</button>
       <span class="cal-month-label" id="cal-month-label"></span>
-      <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)">›</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="changeMonth(1)">›</button>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
     <div class="today-section" id="today-section"></div>
@@ -450,19 +450,19 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <div class="screen" id="screen-daily">
   <div class="nav">
     <div style="display:flex;align-items:center;gap:8px;">
-      <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-cal')">‹ Plan</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="showScreen('screen-cal')">‹ Plan</button>
       <span class="nav-title" id="daily-date-label"></span>
     </div>
   </div>
   <div class="day-nav" id="day-nav">
-    <button class="day-nav-btn" id="day-nav-prev" onclick="navigateDay(-1)">‹ Prev</button>
+    <button type="button" class="day-nav-btn" id="day-nav-prev" onclick="navigateDay(-1)">‹ Prev</button>
     <span class="day-nav-center" id="day-nav-center"></span>
-    <button class="day-nav-btn" id="day-nav-next" onclick="navigateDay(1)">Next ›</button>
+    <button type="button" class="day-nav-btn" id="day-nav-next" onclick="navigateDay(1)">Next ›</button>
   </div>
   <div class="daily-body" id="daily-body"></div>
   <div class="save-bar" id="save-bar" style="display:none;">
-    <button class="btn btn-primary" onclick="saveLog()">Save workout</button>
-    <button class="btn" onclick="showScreen('screen-cal')">Cancel</button>
+    <button type="button" class="btn btn-primary" onclick="saveLog()">Save workout</button>
+    <button type="button" class="btn" onclick="showScreen('screen-cal')">Cancel</button>
     <span class="skip-link" onclick="confirmSkip()">Mark as skipped</span>
   </div>
 </div>
@@ -485,8 +485,8 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     </div>
     <div class="pb-modal-improvement" id="pb-modal-improvement"></div>
     <div class="pb-modal-sub" id="pb-modal-sub"></div>
-    <button class="pb-modal-btn" onclick="pbModalStartNewPlan()">Start next month →</button>
-    <button class="pb-modal-skip" onclick="dismissPbModal()">Stay on calendar</button>
+    <button type="button" class="pb-modal-btn" onclick="pbModalStartNewPlan()">Start next month →</button>
+    <button type="button" class="pb-modal-skip" onclick="dismissPbModal()">Stay on calendar</button>
   </div>
 </div>
 
@@ -498,7 +498,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     <div class="modal-count-label" id="modal-count-label"></div>
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-message" id="modal-message"></div>
-    <button class="modal-btn" onclick="dismissModal()">Keep going →</button>
+    <button type="button" class="modal-btn" onclick="dismissModal()">Keep going →</button>
   </div>
 </div>
 
@@ -510,9 +510,9 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
   <div class="email-prompt-sub">Add your email to access your data on any device and protect against data loss.</div>
   <div class="email-prompt-row">
     <input class="email-input" type="email" id="email-input" placeholder="your@email.com">
-    <button class="email-submit-btn" onclick="submitEmail()">Save</button>
+    <button type="button" class="email-submit-btn" onclick="submitEmail()">Save</button>
   </div>
-  <button class="email-dismiss" onclick="dismissEmailPrompt()">Remind me later</button>
+  <button type="button" class="email-dismiss" onclick="dismissEmailPrompt()">Remind me later</button>
 </div>
 <div class="sync-indicator" id="sync-indicator">⟳ Syncing...</div>
 
@@ -654,7 +654,8 @@ function pickPrimer(weekIdx){const k=PRIMER_KEYS[weekIdx%PRIMER_KEYS.length];ret
 // Endurance: shorter when hard session is longer, longer when hard is shorter
 const THRESH_LIGHT=['hard-5k','2x12min','3x8min'];
 const THRESH_HEAVY=['5x1500','4x2000','3k-ladder','3x10min','3x2500m','5x6min'];
-const END_SHORT_POOL=['timed-30min','6x1000m','hard-5k','2x12min','3x8min']; // lighter end-of-week options
+const END_SHORT_END_POOL=['timed-30min','6x1000m']; // genuine endurance sessions for end-short slot
+const END_SHORT_THRESH_POOL=['hard-5k','2x12min','3x8min']; // thresh-light sessions usable as end-short
 
 function buildWeek(weekIdx,restDays,usedKeys){
   const isFinal=weekIdx===3;
@@ -712,9 +713,16 @@ function buildWeek(weekIdx,restDays,usedKeys){
   const end2=pickEnd(mainEndTarget,usedKeys,mainEndPool);
   usedKeys.add(end2.key);
 
-  // end-short: always the shortest of the three, from a constrained lighter pool
-  const endShortCandidates=LIB.end.filter(s=>END_SHORT_POOL.includes(s.key)&&!usedKeys.has(s.key));
-  const endShortSrc=endShortCandidates.length?endShortCandidates:LIB.end.filter(s=>END_SHORT_POOL.includes(s.key));
+  // end-short: shortest slot — draw from lightweight endurance + thresh-light pools
+  const endShortPool=[
+    ...LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key)&&!usedKeys.has(s.key)),
+    ...LIB.thresh.filter(s=>END_SHORT_THRESH_POOL.includes(s.key)&&!usedKeys.has(s.key)),
+  ];
+  const endShortFallback=[
+    ...LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key)),
+    ...LIB.thresh.filter(s=>END_SHORT_THRESH_POOL.includes(s.key)),
+  ];
+  const endShortSrc=endShortPool.length?endShortPool:endShortFallback;
   const endShortSorted=[...endShortSrc].sort((a,b)=>(a.dist||8000)-(b.dist||8000));
   const endShort={...endShortSorted[0]};
 
@@ -830,7 +838,7 @@ function buildPlanCard(wi,di,which,session){
   const tgt=getTgt(session);const dur=fmtDur(session.totalMins);const isTest=session.type==='test';
   const drawerId=`sd-${wi}-${di}-${which}`;
   const tgtHtml=tgt?`<span class="target-pill"><span class="tpill-label">${tgt.label}:</span>${tgt.val}</span>`:'';
-  const swapBtn=isTest?'':`<button class="swap-btn" onclick="toggleSwap(event,${wi},${di},'${which}')">swap ↕</button>`;
+  const swapBtn=isTest?'':`<button type="button" class="swap-btn" onclick="toggleSwap(event,${wi},${di},'${which}')">swap ↕</button>`;
   return `<div class="session-card${isTest?' test-card':''}">
     <div class="sc-top"><span class="sc-badge ${TYPE_BADGE[session.type]||'b-end'}">${TYPE_LABEL[session.type]||session.type}</span>
     <div class="sc-info"><div class="sc-name">${session.name}</div><div class="sc-meta">${session.meta}</div></div>${swapBtn}</div>
@@ -860,7 +868,7 @@ function doSwap(wi,di,which,newKey){
 }
 document.addEventListener('click',()=>document.querySelectorAll('.swap-drawer').forEach(d=>d.classList.remove('open')));
 
-function savePlan(){saveState();renderCal();showScreen('screen-cal');showToast('Plan saved — ready to row!');}
+function savePlan(){saveStateAndSync();renderCal();showScreen('screen-cal');showToast('Plan saved — ready to row!');}
 function goSetup(){
   document.getElementById('pb500').value=G.pb500||'';
   document.getElementById('pb2k').value=G.pb2k||'';
@@ -905,7 +913,7 @@ function dismissModal(e){
   if(e&&e.target!==document.getElementById('modal-overlay'))return;
   document.getElementById('modal-overlay').classList.add('hidden');
 }
-function dismissMilestoneNote(){G.activeMilestone=null;saveState();renderTodaySection();}
+function dismissMilestoneNote(){G.activeMilestone=null;saveStateAndSync();renderTodaySection();}
 
 // ── CALENDAR ──
 function changeMonth(dir){
@@ -994,7 +1002,7 @@ function renderTodaySection(){
   if(streak>0){
     const msg=streak>=90?'This is just what you do now.':streak>=60?'Two months of consistent training.':streak>=45?'Six weeks of compounding fitness.':streak>=30?'A full plan cycle, start to finish.':streak>=21?'This is a habit now.':streak>=14?'Two weeks — one more to make it a habit.':streak>=7?'A complete training cycle.':streak>=3?'You\'ve found your rhythm.':'Keep it going!';
     const dotsHtml=dots.map(d=>`<div class="sdot ${d.today?'sdot-today':d.done?'sdot-done':'sdot-up'}"></div>`).join('');
-    const msNote=G.activeMilestone?`<div class="milestone-note"><span class="milestone-note-icon">🏆</span><span class="milestone-note-text">${G.activeMilestone.note}</span><button class="milestone-dismiss" onclick="dismissMilestoneNote()">✕</button></div>`:'';
+    const msNote=G.activeMilestone?`<div class="milestone-note"><span class="milestone-note-icon">🏆</span><span class="milestone-note-text">${G.activeMilestone.note}</span><button type="button" class="milestone-dismiss" onclick="dismissMilestoneNote()">✕</button></div>`:'';
     streakHtml=`<div class="streak-card active"><div class="streak-flame">🔥</div>
       <div class="streak-main"><div class="streak-count">${streak} day${streak===1?'':'s'}</div>
       <div class="streak-label">${msg}</div><div class="streak-sub">Rest days don't count against your streak</div>${msNote}</div>
@@ -1032,7 +1040,7 @@ function renderErgSection(sessionKey){
         <div class="erg-saved-label">Opens in ErgData on your phone</div>
         <div class="erg-saved-url">${saved}</div>
       </div>
-      <button class="erg-edit-btn" onclick="ergStartEdit('${sessionKey}')">Edit</button>
+      <button type="button" class="erg-edit-btn" onclick="ergStartEdit('${sessionKey}')">Edit</button>
     </div>`;
   }
   const currentVal=saved||'';
@@ -1041,12 +1049,12 @@ function renderErgSection(sessionKey){
     <div class="erg-input-row">
       <textarea class="erg-input" id="erg-input" rows="2" placeholder="https://ergdata.com/shared/..."
         oninput="ergClearWarn()">${currentVal}</textarea>
-      <button class="erg-save-btn" onclick="ergSaveLink('${sessionKey}')">Save link</button>
+      <button type="button" class="erg-save-btn" onclick="ergSaveLink('${sessionKey}')">Save link</button>
     </div>
     <div class="erg-warn" id="erg-warn">Doesn't look like an ErgData share URL — double check it, or
-      <button onclick="ergSaveLink('${sessionKey}',true)" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text2);text-decoration:underline;font-family:inherit;">save anyway</button>
+      <button type="button" onclick="ergSaveLink('${sessionKey}',true)" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text2);text-decoration:underline;font-family:inherit;">save anyway</button>
     </div>
-    ${saved?'<div style="margin-top:8px;"><button class="erg-edit-btn" onclick="ergClearLink(\''+sessionKey+'\')" style="color:var(--text3)">Remove link</button></div>':''}
+    ${saved?'<div style="margin-top:8px;"><button type="button" class="erg-edit-btn" onclick="ergClearLink(\''+sessionKey+'\')" style="color:var(--text3)">Remove link</button></div>':''}
   </div>`;
 }
 function ergStartEdit(key){G._ergEditMode=key;rerenderErgSection(key);}
@@ -1056,9 +1064,9 @@ function ergSaveLink(key,force){
   const val=input.value.trim();
   if(!val){G._ergEditMode=null;rerenderErgSection(key);return;}
   if(!force&&!val.includes('ergdata.com/shared/')){input.classList.add('warn');document.getElementById('erg-warn').classList.add('show');return;}
-  G.ergLinks[key]=val;G._ergEditMode=null;saveState();rerenderErgSection(key);
+  G.ergLinks[key]=val;G._ergEditMode=null;saveStateAndSync();rerenderErgSection(key);
 }
-function ergClearLink(key){delete G.ergLinks[key];G._ergEditMode=null;saveState();rerenderErgSection(key);}
+function ergClearLink(key){delete G.ergLinks[key];G._ergEditMode=null;saveStateAndSync();rerenderErgSection(key);}
 function rerenderErgSection(key){
   const el=document.getElementById('erg-section-content');
   if(el)el.innerHTML=renderErgSection(key);
@@ -1135,7 +1143,7 @@ function renderDaily(plan){
     html+=`<div class="complete-banner"><div style="font-size:20px">✓</div>
       <div><div class="complete-text">Workout logged</div>
       <div class="complete-sub">${log.pace?log.pace+' /500m avg':''} ${log.effort?'· Effort '+log.effort+'/4':''}</div></div>
-      <button class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(planFor(G.currentDate))">Edit</button></div>`;
+      <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(planFor(G.currentDate))">Edit</button></div>`;
   }
   if(isTest){
     html+=`<div class="test-note-box"><div class="test-note-title">Month-end time trial</div>
@@ -1181,10 +1189,10 @@ function renderDaily(plan){
       <span class="pace-unit">/ 500m</span></div></div>
       <div class="log-section"><span class="log-label">Effort</span>
       <div class="effort-grid">
-        <button class="eff-btn" id="e1" onclick="selEff(1)"><span class="eff-label">Easy</span><span class="eff-sub">held back</span></button>
-        <button class="eff-btn" id="e2" onclick="selEff(2)"><span class="eff-label">Solid</span><span class="eff-sub">on target</span></button>
-        <button class="eff-btn" id="e3" onclick="selEff(3)"><span class="eff-label">Hard</span><span class="eff-sub">stretched</span></button>
-        <button class="eff-btn" id="e4" onclick="selEff(4)"><span class="eff-label">Max</span><span class="eff-sub">everything</span></button>
+        <button type="button" class="eff-btn" id="e1" onclick="selEff(1)"><span class="eff-label">Easy</span><span class="eff-sub">held back</span></button>
+        <button type="button" class="eff-btn" id="e2" onclick="selEff(2)"><span class="eff-label">Solid</span><span class="eff-sub">on target</span></button>
+        <button type="button" class="eff-btn" id="e3" onclick="selEff(3)"><span class="eff-label">Hard</span><span class="eff-sub">stretched</span></button>
+        <button type="button" class="eff-btn" id="e4" onclick="selEff(4)"><span class="eff-label">Max</span><span class="eff-sub">everything</span></button>
       </div></div>
       <div class="log-section"><span class="log-label">Reflection</span>
       <textarea class="txt-in" id="log-reflect" rows="3" placeholder="How did it feel? What worked, what didn't?">${log.reflect||''}</textarea></div>
@@ -1224,7 +1232,8 @@ function saveLog(){
   plan.status='done';G.editMode=false;
 
   // Check email prompt
-  checkEmailPrompt(); with a result entered
+  checkEmailPrompt();
+  // Check if this is a 2k test with a result entered
   const isTest=plan.session&&plan.session.type==='test';
   if(isTest&&pace){
     const newSecs=parseT(pace)*4; // pace/500m * 4 = 2k time
@@ -1234,7 +1243,7 @@ function saveLog(){
       const newPbStr=fmt(newSecs);
       const oldPbStr=G.pb2k||null;
       G.pb2k=newPbStr;
-      saveState();renderCal();
+      saveStateAndSync();renderCal();
       document.getElementById('save-bar').style.display='none';
       showPbModal(oldPbStr,newPbStr,newSecs,oldSecs);
       return;
@@ -1245,7 +1254,7 @@ function saveLog(){
   const streak=calcStreak();
   const ms=checkMilestone(streak);
   if(ms){G.activeMilestone=ms;showMilestoneModal(ms);}
-  saveState();renderCal();renderDaily(plan);
+  saveStateAndSync();renderCal();renderDaily(plan);
   document.getElementById('save-bar').style.display='none';
   showToast('Workout saved ✓');
 }
@@ -1303,7 +1312,7 @@ function confirmSkip(){
   if(confirm('Mark this session as skipped? It will stay visible in your calendar.')){
     const plan=planFor(G.currentDate);
     if(plan){plan.status='skipped';delete G.logs[plan.date+'_'+plan.session?.key];}
-    saveState();renderCal();openDay(G.currentDate);
+    saveStateAndSync();renderCal();openDay(G.currentDate);
   }
 }
 
@@ -1471,7 +1480,7 @@ function doImport(){
   G.viewMonth=d.viewMonth!==undefined?d.viewMonth:new Date().getMonth();
   _pendingImport=null;
   dismissImportModal();
-  saveState();
+  saveStateAndSync();
   if(G.plan&&G.plan.length){renderCal();showScreen('screen-cal');}
   else showScreen('screen-setup');
   showToast('Data imported successfully ✓');
@@ -1580,10 +1589,9 @@ async function loadFromSupabase(){
   return false;
 }
 
-// Override saveState to also sync to Supabase
-const _localSaveState = saveState;
-function saveState(){
-  _localSaveState();
+// Wrap saveState to also sync to Supabase — use a different name to avoid hoisting collision
+function saveStateAndSync(){
+  saveState();
   scheduleSyncToSupabase();
 }
 
@@ -1647,6 +1655,7 @@ async function linkDevice(){
 // Handle magic link on page load (Supabase redirects back with token in URL hash)
 async function handleMagicLink(){
   if(!sb) return false;
+  try{
     const { data: { session }, error } = await sb.auth.getSession();
     if(session && session.user.email){
       // Successfully signed in via magic link — load their cloud data
