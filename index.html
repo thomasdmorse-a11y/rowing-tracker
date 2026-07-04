@@ -536,39 +536,39 @@ const MILESTONE_DAYS=new Set(MILESTONES.map(m=>m.days));
 // ── SESSION LIBRARY ──
 const LIB={
   max:[
-    {key:'8x500',dist:4000,type:'max',name:'8 × 500m',meta:'4000m · 3:30 rest',totalMins:28,pt:p=>fmt(p-3),pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
-    {key:'pyramid',dist:4000,type:'max',name:'Speed pyramid',meta:'4000m · scaled rest',totalMins:32,pt:p=>fmt(p),pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
-    {key:'4x1000',dist:4000,type:'max',name:'4 × 1000m',meta:'4000m · 5:00 rest',totalMins:42,pt:p=>fmt(p+1),pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
-    {key:'10x400m',dist:4000,type:'max',name:'10 × 400m',meta:'4000m · 2:00 rest',totalMins:35,pt:p=>fmt(p-4),pl:'Target pace',desc:'10 reps of 400m with 2:00 rest. Total: 4000m. Shorter, faster intervals targeting top-end speed above 2k race pace.',notes:['Warm up generously — minimum 15 minutes easy rowing plus a few 10-stroke pickups at target pace.','Target pace is faster than 2k pace — these develop the speed ceiling above race pace.','2:00 rest after ~1:40 of work is roughly equal work-to-rest.','Focus on consistent pace across all 10 reps rather than going out hard and fading.']},
-    {key:'12x300m',dist:3600,type:'max',name:'12 × 300m',meta:'3600m · 2:00 rest',totalMins:34,pt:p=>fmt(p-4),pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
-    {key:'6x3min',dist:3600,type:'max',name:'6 × 3 min',meta:'~3600m · 3:00 rest',totalMins:36,pt:p=>fmt(p),pl:'Target pace',desc:'6 reps of 3 minutes at 2k pace with 3:00 rest. ~3600m total. A VO2max interval session targeting the aerobic ceiling that limits 2k performance.',notes:['Warm up thoroughly — minimum 15–20 minutes easy rowing building into 2–3 short pieces at target pace.','Based on Norwegian interval research, 3-minute pieces at 85–100% effort with equal rest is one of the most effective VO2max development formats.','Target pace is 2k race pace — this is sustained maximum aerobic effort, not a sprint.','The effort should feel like your absolute aerobic limit by rep 4–5. If it feels manageable throughout, you are not at the right intensity.']},
+    {key:'8x500',dist:4000,type:'max',reps:8,repDist:500,restSecs:210,name:'8 × 500m',meta:'4000m · 3:30 rest',pt:p=>fmt(p-3),pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
+    {key:'pyramid',dist:4000,type:'max',reps:1,repDist:4000,restSecs:0,name:'Speed pyramid',meta:'4000m · scaled rest',pt:p=>fmt(p),pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
+    {key:'4x1000',dist:4000,type:'max',reps:4,repDist:1000,restSecs:300,name:'4 × 1000m',meta:'4000m · 5:00 rest',pt:p=>fmt(p+1),pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
+    {key:'10x400m',dist:4000,type:'max',reps:10,repDist:400,restSecs:120,name:'10 × 400m',meta:'4000m · 2:00 rest',pt:p=>fmt(p-4),pl:'Target pace',desc:'10 reps of 400m with 2:00 rest. Total: 4000m. Shorter, faster intervals targeting top-end speed above 2k race pace.',notes:['Warm up generously — minimum 15 minutes easy rowing plus a few 10-stroke pickups at target pace.','Target pace is faster than 2k pace — these develop the speed ceiling above race pace.','2:00 rest after ~1:40 of work is roughly equal work-to-rest.','Focus on consistent pace across all 10 reps rather than going out hard and fading.']},
+    {key:'12x300m',dist:3600,type:'max',reps:12,repDist:300,restSecs:120,name:'12 × 300m',meta:'3600m · 2:00 rest',pt:p=>fmt(p-4),pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
+    {key:'6x3min',dist:3600,type:'max',timed:true,workMins:18,restSecs:180,restCount:5,name:'6 × 3 min',meta:'~3600m · 3:00 rest',totalMins:33,pt:p=>fmt(p),pl:'Target pace',desc:'6 reps of 3 minutes at 2k pace with 3:00 rest. ~3600m total. A VO2max interval session targeting the aerobic ceiling that limits 2k performance.',notes:['Warm up thoroughly — minimum 15–20 minutes easy rowing building into 2–3 short pieces at target pace.','Based on Norwegian interval research, 3-minute pieces at 85–100% effort with equal rest is one of the most effective VO2max development formats.','Target pace is 2k race pace — this is sustained maximum aerobic effort, not a sprint.','The effort should feel like your absolute aerobic limit by rep 4–5. If it feels manageable throughout, you are not at the right intensity.']},
   ],
   thresh:[
-    {key:'5x1500',dist:7500,type:'thresh',name:'5 × 1500m',meta:'7500m · 5:00 rest',totalMins:55,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
-    {key:'4x2000',dist:8000,type:'thresh',name:'4 × 2000m',meta:'8000m · 5:00 rest',totalMins:60,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'4 reps of 2000m at threshold pace with 5:00 rest. The landmark Pete Plan threshold session.',notes:['Go out too hard on rep 1 and rep 4 will be a fight. Rep 1 should feel almost easy.','Rest fully for all 5:00 between reps.','All four reps within 2 sec/500m of each other is an excellent session.']},
-    {key:'3k-ladder',dist:7500,type:'thresh',name:'3k / 2.5k / 2k',meta:'7500m · 5:00 rest',totalMins:47,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Descending distance: 3000m · 2500m · 2000m with 5:00 rest. Same target pace throughout.',notes:['Decreasing distance compensates for fatigue — the pace should feel the same on every piece.','Don\'t treat the final 2k as a race. Hold threshold pace.']},
-    {key:'3x10min',dist:7100,type:'thresh',name:'3 × 10 min',meta:'Timed · 5:00 rest',totalMins:40,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 10-minute pieces at threshold effort with 5:00 rest.',notes:['5:00 rest gives genuine recovery — you should hold true threshold pace across all three.','Note your total meters for each piece — improving meters/piece over weeks is your progress signal.','Treat each 10-minute block as its own piece. Don\'t hold back in piece 1.']},
-    {key:'3x2500m',dist:7500,type:'thresh',name:'3 × 2500m',meta:'7500m · 6:00 rest',totalMins:50,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'3 reps of 2500m at threshold pace with 6:00 rest. 7500m total.',notes:['6:00 rest on a ~10:30 rep is about 57% of work time — good threshold quality rest.','Only three reps but 2500m is long — pacing discipline matters from the first stroke.','Even splits across all three. Rep 3 should feel hard but not a pace collapse.']},
-    {key:'5x6min',dist:7125,type:'thresh',name:'5 × 6 min',meta:'~7125m · 3:00 rest',totalMins:45,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Five 6-minute pieces at threshold pace with 3:00 rest. ~7125m total.',notes:['3:00 rest on a 6-minute piece is 50% of work time — exactly the threshold quality standard.','Five reps means more opportunities to dial in pace consistency.','Don\'t let the shorter reps tempt you into going out too hard. Hold target pace from rep 1.']},
-    {key:'hard-5k',dist:5000,type:'thresh',name:'Hard 5k',meta:'5000m · rate free',totalMins:20,pt:p=>fmt(p*1.12),pl:'Target pace',desc:'One hard continuous 5000m effort. No rate cap. A sustained push above steady pace.',notes:['The one session where you lift above the 25 spm rate cap.','Pete Plan: rotate through 5k, 6k, and 2k as ranking distances over successive weeks.','Your time here is a direct ranking benchmark — record and compare across months.']},
-    {key:'2x12min',type:'thresh',name:'2 × 12 min',meta:'Timed · 5:00 rest',totalMins:29,dist:5680,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Two 12-minute pieces at threshold effort with 5:00 rest. ~5700m total — a lighter threshold session that pairs well with a heavier threshold day earlier in the week.',notes:['5:00 rest after a 12-minute piece is 42% of work time — enough to hold genuine threshold quality on piece 2.','Record meters for each piece. Consistency between piece 1 and piece 2 is the goal.','A good lighter threshold option for weeks that already include 4×2000m or 5×1500m.','If piece 2 drops significantly below piece 1, you went out too hard.']},
-    {key:'3x8min',type:'thresh',name:'3 × 8 min',meta:'Timed · 4:00 rest',totalMins:28,dist:5685,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 8-minute pieces at threshold effort with 4:00 rest. ~5700m total — more reps than the 2×12min at the same total volume.',notes:['4:00 rest on an 8-minute piece is 50% of work time — solid threshold quality rest.','Three pieces means more opportunities to calibrate pace — use piece 1 to find the right effort level.','Record meters per piece. All three should be within a few meters of each other.','A good lighter threshold option that pairs with heavier sessions like 4×2000m or 5×1500m.']},
+    {key:'5x1500',dist:7500,type:'thresh',reps:5,repDist:1500,restSecs:300,name:'5 × 1500m',meta:'7500m · 5:00 rest',pt:p=>fmt(p*1.08),pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
+    {key:'4x2000',dist:8000,type:'thresh',reps:4,repDist:2000,restSecs:300,name:'4 × 2000m',meta:'8000m · 5:00 rest',pt:p=>fmt(p*1.08),pl:'Target pace',desc:'4 reps of 2000m at threshold pace with 5:00 rest. The landmark Pete Plan threshold session.',notes:['Go out too hard on rep 1 and rep 4 will be a fight. Rep 1 should feel almost easy.','Rest fully for all 5:00 between reps.','All four reps within 2 sec/500m of each other is an excellent session.']},
+    {key:'3k-ladder',dist:7500,type:'thresh',reps:3,repDist:2500,restSecs:300,name:'3k / 2.5k / 2k',meta:'7500m · 5:00 rest',pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Descending distance: 3000m · 2500m · 2000m with 5:00 rest. Same target pace throughout.',notes:['Decreasing distance compensates for fatigue — the pace should feel the same on every piece.','Don\'t treat the final 2k as a race. Hold threshold pace.']},
+    {key:'3x10min',dist:7100,type:'thresh',timed:true,workMins:30,restSecs:300,restCount:2,name:'3 × 10 min',meta:'Timed · 5:00 rest',totalMins:40,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 10-minute pieces at threshold effort with 5:00 rest.',notes:['5:00 rest gives genuine recovery — you should hold true threshold pace across all three.','Note your total meters for each piece — improving meters/piece over weeks is your progress signal.','Treat each 10-minute block as its own piece. Don\'t hold back in piece 1.']},
+    {key:'3x2500m',dist:7500,type:'thresh',reps:3,repDist:2500,restSecs:360,name:'3 × 2500m',meta:'7500m · 6:00 rest',pt:p=>fmt(p*1.08),pl:'Target pace',desc:'3 reps of 2500m at threshold pace with 6:00 rest. 7500m total.',notes:['6:00 rest on a ~10:30 rep is about 57% of work time — good threshold quality rest.','Only three reps but 2500m is long — pacing discipline matters from the first stroke.','Even splits across all three. Rep 3 should feel hard but not a pace collapse.']},
+    {key:'5x6min',dist:7125,type:'thresh',timed:true,workMins:30,restSecs:180,restCount:4,name:'5 × 6 min',meta:'~7125m · 3:00 rest',totalMins:42,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Five 6-minute pieces at threshold pace with 3:00 rest. ~7125m total.',notes:['3:00 rest on a 6-minute piece is 50% of work time — exactly the threshold quality standard.','Five reps means more opportunities to dial in pace consistency.','Don\'t let the shorter reps tempt you into going out too hard. Hold target pace from rep 1.']},
+    {key:'hard-5k',dist:5000,type:'thresh',reps:1,repDist:5000,restSecs:0,name:'Hard 5k',meta:'5000m · rate free',pt:p=>fmt(p*1.12),pl:'Target pace',desc:'One hard continuous 5000m effort. No rate cap. A sustained push above steady pace.',notes:['The one session where you lift above the 25 spm rate cap.','Pete Plan: rotate through 5k, 6k, and 2k as ranking distances over successive weeks.','Your time here is a direct ranking benchmark — record and compare across months.']},
+    {key:'2x12min',dist:5680,type:'thresh',timed:true,workMins:24,restSecs:300,restCount:1,name:'2 × 12 min',meta:'Timed · 5:00 rest',totalMins:29,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Two 12-minute pieces at threshold effort with 5:00 rest. ~5700m total — a lighter threshold session that pairs well with a heavier threshold day earlier in the week.',notes:['5:00 rest after a 12-minute piece is 42% of work time — enough to hold genuine threshold quality on piece 2.','Record meters for each piece. Consistency between piece 1 and piece 2 is the goal.','A good lighter threshold option for weeks that already include 4×2000m or 5×1500m.','If piece 2 drops significantly below piece 1, you went out too hard.']},
+    {key:'3x8min',dist:5685,type:'thresh',timed:true,workMins:24,restSecs:240,restCount:2,name:'3 × 8 min',meta:'Timed · 4:00 rest',totalMins:32,pt:p=>fmt(p*1.08),pl:'Target pace',desc:'Three 8-minute pieces at threshold effort with 4:00 rest. ~5700m total — more reps than the 2×12min at the same total volume.',notes:['4:00 rest on an 8-minute piece is 50% of work time — solid threshold quality rest.','Three pieces means more opportunities to calibrate pace — use piece 1 to find the right effort level.','Record meters per piece. All three should be within a few meters of each other.','A good lighter threshold option that pairs with heavier sessions like 4×2000m or 5×1500m.']},
   ],
   end:[
-    {key:'steady-8k',dist:8000,type:'end',name:'Steady 8k',meta:'8000m · 22–25 spm',totalMins:40,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 8000m at steady aerobic pace, 22–25 spm.',notes:['Rate cap: 22–25 spm. Non-negotiable.','Should feel genuinely easy — full conversation pace.','Use this to focus on technique: long strokes, clean catches, controlled recovery.']},
-    {key:'steady-10k',dist:10000,type:'end',name:'Steady 10k',meta:'10000m · 22–25 spm',totalMins:50,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
-    {key:'steady-12k',dist:12000,type:'end',name:'Steady 12k',meta:'12000m · 22–25 spm',totalMins:60,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
-    {key:'timed-30min',dist:9000,type:'end',name:'30 min steady',meta:'Timed · 22–25 spm',totalMins:30,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 30-minute row at steady aerobic pace.',notes:['Record total meters each time. Meters/30min is a reliable aerobic benchmark.']},
-    {key:'2x20min',dist:8000,type:'end',name:'2 × 20 min',meta:'~8k · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 20-minute pieces with 90 seconds rest. More volume, not more intensity.',notes:['The 90s rest is a sip of water and a breath — your heart rate won\'t drop much.','Same pace target as steady rows. Aerobic work, not threshold.']},
-    {key:'3x15min',dist:9000,type:'end',name:'3 × 15 min',meta:'~9k · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Three 15-minute pieces with 90 seconds rest.',notes:['90s rest keeps the aerobic system fully engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
-    {key:'3x3000m',dist:9000,type:'end',name:'3 × 3000m',meta:'9000m · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'3 reps of 3000m with 90 seconds rest at endurance pace.',notes:['90s rest — just enough to reset mentally, not enough for genuine recovery.','Steady rate throughout: 22–25 spm. If rate is creeping up, pace is too fast.']},
-    {key:'4x2500m',dist:10000,type:'end',name:'4 × 2500m',meta:'10000m · 90s rest',totalMins:54,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'4 reps of 2500m with 90 seconds rest. 10k total volume.',notes:['Four pieces at steady pace — equivalent to a steady 10k.','With four pieces, pacing consistency is easier to track than on a continuous row.']},
-    {key:'5x1500m-end',dist:7500,type:'end',name:'5 × 1500m (endurance)',meta:'7500m · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 1500m at endurance pace with 90 seconds rest.',notes:['Pace target is × 1.16 — significantly slower than the threshold 5×1500m (× 1.08).','Good lighter endurance day option.']},
-    {key:'6x1000m',dist:6000,type:'end',name:'6 × 1000m',meta:'6000m · 90s rest',totalMins:35,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'6 reps of 1000m at endurance pace with 90 seconds rest. Lighter total volume.',notes:['Lowest total volume endurance session — 6k. Use on lighter days.','The short rep length makes this mentally easy. Good when motivation is lower.']},
-    {key:'8x1000m',dist:8000,type:'end',name:'8 × 1000m',meta:'8000m · 90s rest',totalMins:46,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'8 reps of 1000m at endurance pace with 90 seconds rest.',notes:['8k total — equivalent to the steady 8k but broken into eight pieces.','Rate cap still applies: 22–25 spm per rep.']},
-    {key:'5x2000m',dist:10000,type:'end',name:'5 × 2000m',meta:'10000m · 90s rest',totalMins:55,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 2000m with 90 seconds rest at endurance pace. 10k total.',notes:['2000m per rep — you will naturally focus on form over the full rep.','Record your split for each rep. Watching consistency improve reflects aerobic adaptation.']},
-    {key:'4x20min',dist:12000,type:'end',name:'4 × 20 min',meta:'~12k · 90s rest',totalMins:82,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Four 20-minute pieces with 90 seconds rest. High-volume endurance session, ~12k total.',notes:['Reserve for endurance-focused months or high-volume weeks.','At 82 minutes, nutrition and hydration before you start are important.']},
-    {key:'2x30min',dist:12000,type:'end',name:'2 × 30 min',meta:'~12k · 90s rest',totalMins:62,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 30-minute pieces with 90 seconds rest. ~12k total.',notes:['Treat this as a 60-minute continuous row with a very brief pause in the middle.','Record meters for each piece. Matching them is the goal.']},
+    {key:'steady-8k',dist:8000,type:'end',reps:1,repDist:8000,restSecs:0,name:'Steady 8k',meta:'8000m · 22–25 spm',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 8000m at steady aerobic pace, 22–25 spm.',notes:['Rate cap: 22–25 spm. Non-negotiable.','Should feel genuinely easy — full conversation pace.','Use this to focus on technique: long strokes, clean catches, controlled recovery.']},
+    {key:'steady-10k',dist:10000,type:'end',reps:1,repDist:10000,restSecs:0,name:'Steady 10k',meta:'10000m · 22–25 spm',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
+    {key:'steady-12k',dist:12000,type:'end',reps:1,repDist:12000,restSecs:0,name:'Steady 12k',meta:'12000m · 22–25 spm',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
+    {key:'timed-30min',dist:9000,type:'end',timed:true,workMins:30,restSecs:0,restCount:0,name:'30 min steady',meta:'Timed · 22–25 spm',totalMins:30,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Continuous 30-minute row at steady aerobic pace.',notes:['Record total meters each time. Meters/30min is a reliable aerobic benchmark.']},
+    {key:'2x20min',dist:8000,type:'end',timed:true,workMins:40,restSecs:90,restCount:1,name:'2 × 20 min',meta:'~8k · 90s rest',totalMins:42,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 20-minute pieces with 90 seconds rest. More volume, not more intensity.',notes:['The 90s rest is a sip of water and a breath — your heart rate won\'t drop much.','Same pace target as steady rows. Aerobic work, not threshold.']},
+    {key:'3x15min',dist:9000,type:'end',timed:true,workMins:45,restSecs:90,restCount:2,name:'3 × 15 min',meta:'~9k · 90s rest',totalMins:48,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Three 15-minute pieces with 90 seconds rest.',notes:['90s rest keeps the aerobic system fully engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
+    {key:'3x3000m',dist:9000,type:'end',reps:3,repDist:3000,restSecs:90,name:'3 × 3000m',meta:'9000m · 90s rest',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'3 reps of 3000m with 90 seconds rest at endurance pace.',notes:['90s rest — just enough to reset mentally, not enough for genuine recovery.','Steady rate throughout: 22–25 spm. If rate is creeping up, pace is too fast.']},
+    {key:'4x2500m',dist:10000,type:'end',reps:4,repDist:2500,restSecs:90,name:'4 × 2500m',meta:'10000m · 90s rest',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'4 reps of 2500m with 90 seconds rest. 10k total volume.',notes:['Four pieces at steady pace — equivalent to a steady 10k.','With four pieces, pacing consistency is easier to track than on a continuous row.']},
+    {key:'5x1500m-end',dist:7500,type:'end',reps:5,repDist:1500,restSecs:90,name:'5 × 1500m (endurance)',meta:'7500m · 90s rest',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 1500m at endurance pace with 90 seconds rest.',notes:['Pace target is × 1.16 — significantly slower than the threshold 5×1500m (× 1.08).','Good lighter endurance day option.']},
+    {key:'6x1000m',dist:6000,type:'end',reps:6,repDist:1000,restSecs:90,name:'6 × 1000m',meta:'6000m · 90s rest',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'6 reps of 1000m at endurance pace with 90 seconds rest. Lighter total volume.',notes:['Lowest total volume endurance session — 6k. Use on lighter days.','The short rep length makes this mentally easy. Good when motivation is lower.']},
+    {key:'8x1000m',dist:8000,type:'end',reps:8,repDist:1000,restSecs:90,name:'8 × 1000m',meta:'8000m · 90s rest',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'8 reps of 1000m at endurance pace with 90 seconds rest.',notes:['8k total — equivalent to the steady 8k but broken into eight pieces.','Rate cap still applies: 22–25 spm per rep.']},
+    {key:'5x2000m',dist:10000,type:'end',reps:5,repDist:2000,restSecs:90,name:'5 × 2000m',meta:'10000m · 90s rest',pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'5 reps of 2000m with 90 seconds rest at endurance pace. 10k total.',notes:['2000m per rep — you will naturally focus on form over the full rep.','Record your split for each rep. Watching consistency improve reflects aerobic adaptation.']},
+    {key:'4x20min',dist:12000,type:'end',timed:true,workMins:80,restSecs:90,restCount:3,name:'4 × 20 min',meta:'~12k · 90s rest',totalMins:85,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Four 20-minute pieces with 90 seconds rest. High-volume endurance session, ~12k total.',notes:['Reserve for endurance-focused months or high-volume weeks.','At 82 minutes, nutrition and hydration before you start are important.']},
+    {key:'2x30min',dist:12000,type:'end',timed:true,workMins:60,restSecs:90,restCount:1,name:'2 × 30 min',meta:'~12k · 90s rest',totalMins:62,pt:p=>fmt(p*1.16),pl:'Steady pace',desc:'Two 30-minute pieces with 90 seconds rest. ~12k total.',notes:['Treat this as a 60-minute continuous row with a very brief pause in the middle.','Record meters for each piece. Matching them is the goal.']},
   ],
   speed:[
     {key:'spr-3stroke',dist:75,type:'speed',name:'5 × 3-stroke sprint',meta:'~75m · 3+ min rest',totalMins:16,pt:()=>null,pl:'Max effort',desc:'5 reps of 3 strokes at maximum force. Pure neuromuscular activation — primer before the main session.',notes:['Nervous system session. Goal: peak force on every stroke.','Take 3+ minutes between every rep — full recovery is essential.','Rest 5–6 minutes after the final sprint before starting the main piece.']},
@@ -603,6 +603,51 @@ function pace2k(){return G.pb2k?parseT(G.pb2k)/4:null;}
 function getTgt(s){if(!s)return null;const p=pace2k();if(!p)return null;const v=s.pt?s.pt(p):null;return v?{label:s.pl||'Target pace',val:v+' /500m'}:null;}
 function fmtDur(m){return m<60?'~'+m+' min':'~'+Math.floor(m/60)+'h '+(m%60)+'m';}
 function getByKey(k){return ALL.find(s=>s.key===k)||null;}
+
+// ── DYNAMIC SESSION CALCULATIONS ──
+// Returns actual distance in metres, personalised to athlete's pace
+function sessionDist(s){
+  if(!s) return 0;
+  const p = pace2k();
+  if(!p) return s.dist||0; // fallback to hardcoded if no PB set
+  if(s.timed){
+    // Timed session: distance = work time × pace
+    const paceMult = s.type==='max'?1 : s.type==='thresh'?1.08 : 1.16;
+    const athletePace = p * paceMult; // secs/500m
+    return Math.round((s.workMins * 60) / (athletePace / 500));
+  }
+  // Distance-based: dist is fixed
+  return s.dist || 0;
+}
+
+// Returns estimated total duration in minutes, personalised to athlete's pace
+function sessionMins(s){
+  if(!s) return 0;
+  const p = pace2k();
+  if(!p) return s.totalMins||0; // fallback to hardcoded if no PB set
+  if(s.timed){
+    // Timed: work time is fixed, just add rest
+    const restMins = s.restCount ? Math.round((s.restSecs * s.restCount) / 60) : 0;
+    return (s.workMins||0) + restMins;
+  }
+  if(s.reps && s.repDist){
+    // Distance-based: calculate from pace
+    const paceMult = s.type==='max'?1 : s.type==='thresh'?1.08 : 1.16;
+    // Max effort uses specific offsets from pt() - approximate here
+    const athletePace = s.type==='max' ? p : p * paceMult;
+    const repSecs = (s.repDist / 500) * athletePace;
+    const totalWorkSecs = repSecs * s.reps;
+    const totalRestSecs = s.restSecs * (s.reps - 1);
+    return Math.round((totalWorkSecs + totalRestSecs) / 60);
+  }
+  return s.totalMins||0;
+}
+
+// Wrapper for display - returns "~Xmin" or "~Xh Ym"
+function fmtSessionDur(s){
+  const m = sessionMins(s);
+  return m < 60 ? '~'+m+' min' : '~'+Math.floor(m/60)+'h '+(m%60)+'m';
+}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='screen-backup')renderBackup();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function localToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -654,7 +699,7 @@ function pickPrimer(weekIdx){const k=PRIMER_KEYS[weekIdx%PRIMER_KEYS.length];ret
 // Endurance: shorter when hard session is longer, longer when hard is shorter
 const THRESH_LIGHT=['hard-5k','2x12min','3x8min'];
 const THRESH_HEAVY=['5x1500','4x2000','3k-ladder','3x10min','3x2500m','5x6min'];
-const END_SHORT_END_POOL=['timed-30min','6x1000m']; // genuine endurance sessions for end-short slot
+const END_SHORT_END_POOL=['timed-30min','6x1000m','steady-8k','8x1000m','5x1500m-end']; // lighter endurance for end-short slot
 const END_SHORT_THRESH_POOL=['hard-5k','2x12min','3x8min']; // thresh-light sessions usable as end-short
 
 function buildWeek(weekIdx,restDays,usedKeys){
@@ -665,7 +710,7 @@ function buildWeek(weekIdx,restDays,usedKeys){
   const hardSrc=hardPool.length?hardPool:LIB.max;
   const hard={...hardSrc[weekIdx%hardSrc.length]};
   usedKeys.add(hard.key);
-  const hardDist=hard.dist||4000;
+  const hardDist=sessionDist(hard)||4000;
 
   // 2. Pick heavy threshold session
   const heavyPool=LIB.thresh.filter(s=>THRESH_HEAVY.includes(s.key)&&!usedKeys.has(s.key));
@@ -674,12 +719,12 @@ function buildWeek(weekIdx,restDays,usedKeys){
   usedKeys.add(thresh1.key);
 
   // 3. Pick light threshold session to pair — target total 10,500–14,000m
-  const thresh1Dist=thresh1.dist||7500;
+  const thresh1Dist=sessionDist(thresh1)||7500;
   const lightPool=LIB.thresh.filter(s=>THRESH_LIGHT.includes(s.key)&&!usedKeys.has(s.key));
   const lightSrc=lightPool.length?lightPool:LIB.thresh.filter(s=>THRESH_LIGHT.includes(s.key));
   const thresh2={...lightSrc[weekIdx%lightSrc.length]};
   usedKeys.add(thresh2.key);
-  const threshTotal=thresh1Dist+(thresh2.dist||5000);
+  const threshTotal=thresh1Dist+(sessionDist(thresh2)||5000);
 
   // 4. Calculate endurance budget
   // Target weekly total: 50,000m midpoint
@@ -703,7 +748,7 @@ function buildWeek(weekIdx,restDays,usedKeys){
     const candidates=pool.filter(s=>!used.has(s.key));
     const src=candidates.length?candidates:pool;
     // Sort by proximity to target distance
-    const sorted=[...src].sort((a,b)=>Math.abs((a.dist||8000)-t)-Math.abs((b.dist||8000)-t));
+    const sorted=[...src].sort((a,b)=>Math.abs(sessionDist(a)-t)-Math.abs(sessionDist(b)-t));
     return{...sorted[0]};
   }
 
@@ -713,17 +758,13 @@ function buildWeek(weekIdx,restDays,usedKeys){
   const end2=pickEnd(mainEndTarget,usedKeys,mainEndPool);
   usedKeys.add(end2.key);
 
-  // end-short: shortest slot — draw from lightweight endurance + thresh-light pools
-  const endShortPool=[
-    ...LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key)&&!usedKeys.has(s.key)),
-    ...LIB.thresh.filter(s=>END_SHORT_THRESH_POOL.includes(s.key)&&!usedKeys.has(s.key)),
-  ];
-  const endShortFallback=[
-    ...LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key)),
-    ...LIB.thresh.filter(s=>END_SHORT_THRESH_POOL.includes(s.key)),
-  ];
-  const endShortSrc=endShortPool.length?endShortPool:endShortFallback;
-  const endShortSorted=[...endShortSrc].sort((a,b)=>(a.dist||8000)-(b.dist||8000));
+  // end-short: genuinely short endurance session only — NOT threshold sessions
+  // thresh-light sessions already appear in the thresh2 slot; don't duplicate here
+  const endShortCandidates=LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key)&&!usedKeys.has(s.key));
+  const endShortSrc=endShortCandidates.length
+    ?endShortCandidates
+    :LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key));
+  const endShortSorted=[...endShortSrc].sort((a,b)=>sessionDist(a)-sessionDist(b));
   const endShort={...endShortSorted[0]};
 
   // 6. Assemble week according to template
@@ -811,7 +852,7 @@ function renderPlanView(){
   const container=document.getElementById('plan-weeks');container.innerHTML='';
   for(let w=0;w<4;w++){
     const days=G.plan.slice(w*7,(w+1)*7);const isFinal=w===3;
-    const weekVol=days.reduce((sum,d)=>sum+(!d.session||d.slot==='rest'||d.slot==='test'?0:(d.session.dist||0)),0);
+    const weekVol=days.reduce((sum,d)=>sum+(!d.session||d.slot==='rest'||d.slot==='test'?0:sessionDist(d.session)),0);
     const volStr=weekVol>0?` <span style="font-weight:400;opacity:.7">· ${(weekVol/1000).toFixed(1)}k</span>`:'';
     const block=document.createElement('div');block.className='week-block';
     block.innerHTML=`<div class="week-header${isFinal?' final':''}">Week ${w+1}${isFinal?' — Final week':''}${volStr}</div>`;
@@ -835,7 +876,7 @@ function renderPlanView(){
 }
 
 function buildPlanCard(wi,di,which,session){
-  const tgt=getTgt(session);const dur=fmtDur(session.totalMins);const isTest=session.type==='test';
+  const tgt=getTgt(session);const dur=fmtSessionDur(session);const isTest=session.type==='test';
   const drawerId=`sd-${wi}-${di}-${which}`;
   const tgtHtml=tgt?`<span class="target-pill"><span class="tpill-label">${tgt.label}:</span>${tgt.val}</span>`:'';
   const swapBtn=isTest?'':`<button type="button" class="swap-btn" onclick="toggleSwap(event,${wi},${di},'${which}')">swap ↕</button>`;
@@ -857,7 +898,7 @@ function toggleSwap(e,wi,di,which){
   drawer.innerHTML=pool.map(s=>{const t=getTgt(s);const tv=t&&!t.isText?t.val:'';
     return `<div class="swap-opt${s.key===current.key?' cur':''}" onclick="doSwap(${wi},${di},'${which}','${s.key}')">
       <div class="swap-opt-top"><span class="swap-opt-name">${s.name}</span><span class="swap-opt-tgt">${tv}</span></div>
-      <div class="swap-opt-sub">${s.meta} · ${fmtDur(s.totalMins)}</div></div>`;}).join('');
+      <div class="swap-opt-sub">${s.meta} · ${fmtSessionDur(s)}</div></div>`;}).join('');
   drawer.classList.add('open');
 }
 function doSwap(wi,di,which,newKey){
@@ -1159,7 +1200,7 @@ function renderDaily(plan){
   }
   const chips=[];
   if(tgt)chips.push(`<div class="target-chip"><span class="tc-label">${tgt.label}</span><span class="tc-val">${tgt.val}</span></div>`);
-  chips.push(`<div class="target-chip"><span class="tc-label">Est. duration</span><span class="tc-val">~${s.totalMins} min</span></div>`);
+  chips.push(`<div class="target-chip"><span class="tc-label">Est. duration</span><span class="tc-val">${fmtSessionDur(s)}</span></div>`);
   html+=`<div class="target-row">${chips.join('')}</div>`;
   if(prev&&prevLog){
     const pd=new Date(prev.date+'T00:00:00');
