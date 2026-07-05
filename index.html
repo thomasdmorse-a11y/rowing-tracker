@@ -2093,14 +2093,32 @@ async function submitEmail(){
   const email = input.value.trim();
   if(!email || !email.includes('@')){ input.focus(); return; }
   try{
+    // If anonymous sign-in failed at load (e.g. it was disabled in Supabase at the
+    // time), there's no session to attach the email to — recover by signing in now.
+    let { data: { session } } = await sb.auth.getSession();
+    if(!session){
+      const { error: anonErr } = await sb.auth.signInAnonymously();
+      if(anonErr) throw anonErr;
+      // A brand-new session has no data yet — push current state up immediately
+      syncToSupabase();
+    }
     const { error } = await sb.auth.updateUser({ email });
     if(error) throw error;
     document.getElementById('email-prompt-bar').classList.remove('show');
     showToast('✓ Email saved — check your inbox to confirm');
     localStorage.removeItem('trt_email_dismissed');
   } catch(e){
-    showToast('Could not save email — try again');
     console.warn('Email update failed:', e.message);
+    const msg=(e.message||'').toLowerCase();
+    if(msg.includes('anonymous')&&msg.includes('disabled')){
+      showToast('⚠ Enable anonymous sign-ins in Supabase first');
+    } else if(msg.includes('rate limit')){
+      showToast('⚠ Email limit reached — try again in an hour');
+    } else if(msg.includes('already') && msg.includes('registered')){
+      showToast('⚠ That email is already registered — use "Link this device" in setup instead');
+    } else {
+      showToast('⚠ '+(e.message||'Could not save email'));
+    }
   }
 }
 
