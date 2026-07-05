@@ -1962,6 +1962,8 @@ function doImport(){
 // ── SUPABASE INTEGRATION ──
 const SUPABASE_URL = 'https://njztyfjriaulahqgnmlz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_KbiEKVfkoqXkw6CDAuyEMg_50euUzoh';
+// Where auth emails should send people back to — wherever this app is hosted
+const APP_URL = location.origin + location.pathname;
 const sb = (typeof supabase !== 'undefined')
   ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null; // Supabase unavailable — app runs in localStorage-only mode
@@ -2102,7 +2104,7 @@ async function submitEmail(){
       // A brand-new session has no data yet — push current state up immediately
       syncToSupabase();
     }
-    const { error } = await sb.auth.updateUser({ email });
+    const { error } = await sb.auth.updateUser({ email }, { emailRedirectTo: APP_URL });
     if(error) throw error;
     document.getElementById('email-prompt-bar').classList.remove('show');
     showToast('✓ Email saved — check your inbox to confirm');
@@ -2129,7 +2131,7 @@ async function linkDevice(){
   const email = prompt('Enter the email address linked to your account:');
   if(!email || !email.includes('@')) return;
   try{
-    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: APP_URL } });
     if(error) throw error;
     showToast('✓ Magic link sent — check your email');
   } catch(e){
