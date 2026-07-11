@@ -739,19 +739,73 @@ function parseT(s){if(!s||!s.trim())return null;const p=s.replace(',','.').trim(
 function fmt(s){if(!s||s<=0||!isFinite(s))return null;const m=Math.floor(s/60),r=s%60;return m+':'+r.toFixed(1).padStart(4,'0');}
 function p2w(p){return p?Math.round(2.80/Math.pow(p/500,3)):null;}
 function pace2k(){return G.pb2k?parseT(G.pb2k)/4:null;}
-// ── PACE: single source of truth ──
+// ── PACE: single source of truth + adaptive category references ──
 // Every session declares paceOffset (secs vs 2k pace) OR paceMult (multiplier).
-// These are plain data, so they survive JSON serialization (localStorage/Supabase/export).
-function sessionPace(s){
+// Max and threshold targets adapt over the month via a per-category REFERENCE
+// pace that learns from every logged effort in the category — so a strong
+// 4×2000m tightens tomorrow's 2×12min too. Endurance and first principles:
+//  - Formula reference: max ref = 2k pace; thresh ref = 2k pace × 1.08.
+//  - Each session maps ref → target: max adds its offset; thresh scales by
+//    (paceMult / 1.08), so standard thresh = ref and hard 5k = ref × 1.12/1.08.
+//  - A logged effort implies a reference (same mapping in reverse). It blends
+//    with the formula ref by a weight from effort × beat-vs-miss:
+//      beat formula:  easy 100% / solid 75% / hard 50% / max 25% of implied
+//      miss formula:  easy   0% / solid 25% / hard 50% / max 75% of implied
+//    (an easy beat is proof; an easy miss earns nothing; a max miss is met
+//    most of the way but keeps a 25% anchor to the standard)
+//  - Unrated efforts count as hard (50/50). Implied refs clamp to ±10% of
+//    formula to shrug off typos. Endurance never adapts. References derive
+//    from current-plan logs only, so a new month resets them.
+const THRESH_BASE=1.08;
+function formulaRef(type){
+  const p=pace2k();if(!p)return null;
+  return type==='max'?p:type==='thresh'?p*THRESH_BASE:null;
+}
+function impliedRef(s,obsSecs){
+  if(s.type==='max'&&typeof s.paceOffset==='number')return obsSecs-s.paceOffset;
+  if(s.type==='thresh'&&typeof s.paceMult==='number')return obsSecs/(s.paceMult/THRESH_BASE);
+  return null;
+}
+// Most recent logged effort of a category before a given date (exclusive).
+// beforeDate null → all logged efforts in the current plan.
+function adaptedRef(type,beforeDate){
+  const f=formulaRef(type);if(!f)return null;
+  const cands=G.plan.filter(d=>d.session&&d.session.type===type&&d.status==='done'
+    &&(!beforeDate||d.date<beforeDate));
+  for(let i=cands.length-1;i>=0;i--){
+    const d=cands[i];
+    const log=G.logs[d.date+'_'+d.session.key];
+    const obs=log&&parseT(log.pace);
+    if(!obs)continue;
+    let imp=impliedRef(d.session,obs);
+    if(imp===null)continue;
+    imp=Math.max(f*0.9,Math.min(f*1.1,imp)); // typo guardrail
+    const e=Math.max(1,Math.min(4,log.effort||3));
+    const beat=imp<f;
+    const w=beat?[1,.75,.5,.25][e-1]:[0,.25,.5,.75][e-1];
+    return{ref:w*imp+(1-w)*f,fromName:d.session.name,fromDate:d.date};
+  }
+  return null;
+}
+// beforeDate (optional): compute the target as it stood entering that day
+function sessionPace(s,beforeDate){
   if(!s)return null;
   const p=pace2k();if(!p)return null;
+  if(s.type==='max'||s.type==='thresh'){
+    const a=adaptedRef(s.type,beforeDate);
+    const ref=a?a.ref:formulaRef(s.type);
+    if(s.type==='max'&&typeof s.paceOffset==='number')return ref+s.paceOffset;
+    if(s.type==='thresh'&&typeof s.paceMult==='number')return ref*(s.paceMult/THRESH_BASE);
+  }
   if(typeof s.paceOffset==='number')return p+s.paceOffset;
   if(typeof s.paceMult==='number')return p*s.paceMult;
   return null; // primers, test — no pace target
 }
-function getTgt(s){
-  const v=sessionPace(s);
-  return v?{label:(s&&s.pl)||'Target pace',val:fmt(v)+' /500m'}:null;
+function getTgt(s,beforeDate){
+  const v=sessionPace(s,beforeDate);
+  if(!v)return null;
+  const a=(s.type==='max'||s.type==='thresh')?adaptedRef(s.type,beforeDate):null;
+  return{label:(s&&s.pl)||'Target pace',val:fmt(v)+' /500m',adapted:a?{fromName:a.fromName,fromDate:a.fromDate}:null};
 }
 function fmtDur(m){return m<60?'~'+m+' min':'~'+Math.floor(m/60)+'h '+(m%60)+'m';}
 function getByKey(k){return ALL.find(s=>s.key===k)||null;}
@@ -1111,16 +1165,66 @@ function goSetup(){
 }
 
 // ── STREAK ──
+// Streak = calendar days in continuous agreement with the plan, walking back
+// from today. Every day must be a completed workout or a planned rest day.
+// Rules (locked with Tom):
+//  - A workout counts only if logged by the end of the following day (loggedAt
+//    grace); working back to old sessions later marks them done but never
+//    repairs the streak. Logs without loggedAt (pre-feature) get the benefit
+//    of the doubt.
+//  - Skipped sessions and silently missed sessions break the chain.
+//  - Unscheduled dates inside a plan's range (e.g. holes left by shifting)
+//    break the chain. Unscheduled dates BETWEEN plans (month transitions)
+//    are exempt.
+//  - Today unlogged is pending, not broken; same for yesterday while its
+//    logging grace is still open.
+function addDaysStr(dateStr,n){
+  const[y,m,d]=dateStr.split('-').map(Number);
+  const dt=new Date(y,m-1,d+n);
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+}
 function calcStreak(){
   const todayStr=localToday();
-  const days=[...G.plan].filter(d=>d.date<=todayStr).reverse();
+  // Assemble every known day across current plan + archives: date → info
+  const byDate={};
+  const ranges=[]; // [min,max] per source, for the inside-a-plan gap test
+  const addSource=(days,logs)=>{
+    if(!days||!days.length)return;
+    let min=null,max=null;
+    days.forEach(d=>{
+      if(min===null||d.date<min)min=d.date;
+      if(max===null||d.date>max)max=d.date;
+      byDate[d.date]={isRest:d.slot==='rest'||!d.session,status:d.status,
+        log:d.session?(logs||{})[d.date+'_'+d.session.key]:null};
+    });
+    ranges.push([min,max]);
+  };
+  addSource(G.plan,G.logs);
+  (G.archive||[]).forEach(e=>addSource(e.plan,e.logs));
+  if(!ranges.length)return 0;
+  const globalMin=ranges.reduce((m,r)=>r[0]<m?r[0]:m,ranges[0][0]);
+  const yesterday=addDaysStr(todayStr,-1);
   let streak=0;
-  for(const day of days){
-    if(day.slot==='rest'||!day.session)continue;
-    // Today isn't over yet — an unlogged session today doesn't break the streak
-    if(day.date===todayStr&&day.status!=='done')continue;
-    if(day.status==='done'){streak++;continue;}
-    break;
+  let date=todayStr;
+  while(date>=globalMin){
+    const info=byDate[date];
+    if(!info){
+      // Unscheduled date: break if it falls inside any plan's range, exempt otherwise
+      const insidePlan=ranges.some(r=>date>=r[0]&&date<=r[1]);
+      if(insidePlan)break;
+      date=addDaysStr(date,-1);continue;
+    }
+    if(info.isRest){date=addDaysStr(date,-1);continue;}
+    if(info.status==='done'){
+      // Grace check: logged by end of the day after the session
+      const la=info.log&&info.log.loggedAt;
+      const valid=!la||la.slice(0,10)<=addDaysStr(date,1);
+      if(!valid)break; // worked back later — honest record, broken streak
+      streak++;date=addDaysStr(date,-1);continue;
+    }
+    // Not done: today and yesterday are still pending inside the grace window
+    if((date===todayStr||date===yesterday)&&info.status!=='skipped'){date=addDaysStr(date,-1);continue;}
+    break; // skipped or silently missed
   }
   return streak;
 }
@@ -1398,7 +1502,7 @@ function renderDaily(plan){
     body.innerHTML=`<div style="padding:32px 0;text-align:center;"><div style="font-size:32px;margin-bottom:12px;color:var(--text3)">—</div><div style="font-size:20px;font-weight:600;margin-bottom:6px;">Rest day</div><div style="font-size:14px;color:var(--text2);">Recovery is part of training.</div></div>`;
     saveBar.style.display='none';return;
   }
-  const s=plan.session;const primer=plan.primer||null;const tgt=getTgt(s);
+  const s=plan.session;const primer=plan.primer||null;const tgt=getTgt(s,plan.date);
   const typeCls=TYPE_BADGE[s.type]||'b-end';const typeLabel=TYPE_LABEL[s.type]||s.type;
   const isLogged=plan.status==='done';const isTest=s.type==='test';
   const isSkipped=plan.status==='skipped';
@@ -1431,11 +1535,16 @@ function renderDaily(plan){
   // 1. Hero — badge + name + one combined target line
   const tgtLine=[s.meta,fmtSessionDur(s)];
   if(tgt)tgtLine.push('target <span class="mono-t">'+tgt.val+'</span>');
+  let adaptedNote='';
+  if(tgt&&tgt.adapted){
+    const ad=new Date(tgt.adapted.fromDate+'T00:00:00');
+    adaptedNote='<div style="font-size:11px;color:var(--text3);margin-top:3px;">↝ adapted from your '+tgt.adapted.fromName+' ('+MONTHS[ad.getMonth()].slice(0,3)+' '+ad.getDate()+')</div>';
+  }
   html+=`<div class="workout-hero">
     <div class="hero-top"><span class="sc-badge ${typeCls}" style="font-size:11px;padding:3px 10px;">${typeLabel}</span>
     ${canSwap?'<button type="button" class="daily-swap-btn" onclick="toggleDailySwap()">swap session ↕</button>':''}</div>
     <div class="workout-name">${s.name}</div>
-    <div class="hero-tgt">${tgtLine.join(' · ')}</div></div>`;
+    <div class="hero-tgt">${tgtLine.join(' · ')}${adaptedNote}</div></div>`;
   if(canSwap)html+=`<div class="daily-swap-panel" id="daily-swap-panel"></div>`;
 
   // 2. Send to erg — the pre-row action, right where the pre-row visit needs it
@@ -1527,7 +1636,11 @@ function saveLog(){
   const plan=planFor(G.currentDate);if(!plan)return;
   const logKey=plan.date+'_'+plan.session.key;
   const pace=document.getElementById('log-pace')?.value.trim();
+  // loggedAt: set once on first save, preserved through edits — the streak's
+  // no-retroactive-repair rule depends on knowing when the log was created
+  const existingLoggedAt=G.logs[logKey]&&G.logs[logKey].loggedAt;
   G.logs[logKey]={pace,effort:G.currentEffort,
+    loggedAt:existingLoggedAt||new Date().toISOString(),
     reflect:document.getElementById('log-reflect')?.value.trim(),
     fwd:document.getElementById('log-fwd')?.value.trim()};
   plan.status='done';G.editMode=false;
