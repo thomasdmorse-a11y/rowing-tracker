@@ -358,6 +358,20 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 .reflect-link{font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:2px;display:inline-block;padding:2px 0;}
 .reflect-link:hover{color:var(--text2);}
 
+
+/* PROGRESS CHART */
+.prog-card{background:var(--bg2);border-radius:11px;padding:12px 12px 8px;margin-top:12px;}
+.pg-hd{display:flex;gap:18px;margin-bottom:8px;}
+.pg-lbl{font-size:11px;color:var(--text2);}
+.pg-val{font-family:var(--mono);font-size:17px;font-weight:500;}
+.pg-d{font-size:11px;font-family:var(--mono);}
+
+.pg-strip{border-top:0.5px solid var(--border);margin-top:8px;padding-top:8px;}
+.pg-srow{display:flex;align-items:baseline;margin-bottom:3px;}
+.pg-scat{font-size:10px;width:44px;flex-shrink:0;color:var(--text3);}
+.pg-scol{flex:1;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2);}
+.pg-smon{font-family:var(--font,inherit);font-size:9px;color:var(--text3);}
+
 /* ERG LINK */
 .erg-paste-wrap{background:var(--bg2);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;}
 .erg-paste-hint{font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5;}
@@ -515,6 +529,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     </div>
     <div class="cal-grid" id="cal-grid"></div>
     <div class="today-section" id="today-section"></div>
+    <div id="progress-chart"></div>
     <a class="data-link" onclick="showScreen('screen-backup');renderBackup()">⧉ <span>Export / Import data</span></a>
   </div>
 </div>
@@ -1322,6 +1337,7 @@ function renderCal(){
     grid.appendChild(el);
   }
   renderTodaySection();
+  renderProgressChart();
 }
 
 function renderTodaySection(){
@@ -1728,6 +1744,140 @@ function confirmSkip(){
     if(plan){plan.status='skipped';delete G.logs[plan.date+'_'+plan.session?.key];}
     commit({cal:true});openDay(G.currentDate);
   }
+}
+
+// ── PROGRESS CHART ──
+// Rolling form: the last 10 logged efforts per category (max / threshold),
+// normalized to implied category references, plotted on a real-date axis that
+// crosses plan boundaries. Implied refs are absolute paces, so months compare
+// honestly; only the dashed plan lines are month-bound, so we draw the CURRENT
+// plan's standard only. Headline delta = latest vs first-in-window (rolling
+// form, allowed to go the wrong way). Below: a month-over-month strip with the
+// closing reference of each completed plan — the long arc across plan rounds.
+const PROG_WINDOW=10;
+function formulaRefFor(pb2kStr,type){
+  const t=parseT(pb2kStr);if(!t)return null;
+  const p=t/4;
+  return type==='max'?p:type==='thresh'?p*THRESH_BASE:null;
+}
+function collectProgressPoints(days,logs,pb2k,out){
+  (days||[]).forEach(d=>{
+    if(!d.session||d.status!=='done')return;
+    const lib=getByKey(d.session.key);if(!lib)return;
+    if(lib.type!=='max'&&lib.type!=='thresh')return;
+    const log=(logs||{})[d.date+'_'+d.session.key];
+    const obs=log&&parseT(log.pace);if(!obs)return;
+    let imp=impliedRef(lib,obs);if(imp===null)return;
+    const f=formulaRefFor(pb2k,lib.type);
+    if(f)imp=Math.max(f*0.9,Math.min(f*1.1,imp));
+    out.push({date:d.date,sec:imp,type:lib.type});
+  });
+}
+function allProgressPoints(){
+  const pts=[];
+  (G.archive||[]).forEach(e=>collectProgressPoints(e.plan,e.logs,e.pb2k||G.pb2k,pts));
+  collectProgressPoints(G.plan,G.logs,G.pb2k,pts);
+  return pts.sort((a,b)=>a.date<b.date?-1:1);
+}
+function dateNum(ds){const[y,m,d]=ds.split('-').map(Number);return new Date(y,m-1,d).getTime();}
+function renderProgressChart(){
+  const el=document.getElementById('progress-chart');
+  if(!el)return;
+  const all=allProgressPoints();
+  const CATS=[
+    {type:'thresh',label:'Threshold',short:'Thresh',line:'var(--green-border)',dot:'#60c8a0'},
+    {type:'max',label:'Max effort',short:'Max',line:'var(--red-border)',dot:'#f09090'},
+  ];
+  const windows={};
+  CATS.forEach(c=>{windows[c.type]=all.filter(p=>p.type===c.type).slice(-PROG_WINDOW);});
+  const winPts=[...windows.thresh,...windows.max];
+  if(!winPts.length){el.innerHTML='';return;}
+  // Date span across both windows
+  const t0=Math.min(...winPts.map(p=>dateNum(p.date)));
+  const t1=Math.max(...winPts.map(p=>dateNum(p.date)));
+  const span=Math.max(1,t1-t0);
+  const X=(ds)=>24+(dateNum(ds)-t0)/span*260;
+  // Y domain: window points + current plan refs for categories present
+  const secs=[...winPts.map(p=>p.sec)];
+  CATS.forEach(c=>{
+    if(windows[c.type].length){
+      const f=formulaRefFor(G.pb2k,c.type);
+      if(f){c.plan=f;secs.push(f);}
+    }
+  });
+  let lo=Math.min(...secs)-0.8,hi=Math.max(...secs)+0.8;
+  if(hi-lo<4){const c=(hi+lo)/2;lo=c-2;hi=c+2;}
+  const Y=(sec)=>14+(hi-sec)/(hi-lo)*132;
+  let svg='';
+  svg+='<text x="20" y="18" font-size="9" fill="var(--text3)">'+fmt(hi-0.8)+'</text>';
+  svg+='<text x="20" y="150" font-size="9" fill="var(--text3)">'+fmt(lo+0.8)+'</text>';
+  // Month boundary ticks inside the span
+  {
+    const d=new Date(t0);
+    let tick=new Date(d.getFullYear(),d.getMonth()+1,1);
+    while(tick.getTime()<=t1){
+      const ds=tick.getFullYear()+'-'+String(tick.getMonth()+1).padStart(2,'0')+'-01';
+      const x=X(ds).toFixed(1);
+      svg+='<line x1="'+x+'" y1="12" x2="'+x+'" y2="148" stroke="var(--text3)" stroke-width="1" opacity=".18"/>';
+      svg+='<text x="'+x+'" y="158" font-size="9" fill="var(--text3)" text-anchor="middle">'+MONTHS[tick.getMonth()].slice(0,3)+'</text>';
+      tick=new Date(tick.getFullYear(),tick.getMonth()+1,1);
+    }
+  }
+  let head='';
+  CATS.forEach(c=>{
+    const cp=windows[c.type];
+    if(!cp.length)return;
+    if(c.plan!==undefined){
+      const py=Y(c.plan);
+      svg+='<line x1="24" y1="'+py.toFixed(1)+'" x2="284" y2="'+py.toFixed(1)+'" stroke="'+c.line+'" stroke-width="1" stroke-dasharray="4,4" opacity=".45"/>';
+      svg+='<text x="304" y="'+(py+3).toFixed(1)+'" font-size="9" fill="var(--text3)" text-anchor="end">plan</text>';
+    }
+    if(cp.length>1){
+      svg+='<polyline points="'+cp.map(p=>X(p.date).toFixed(1)+','+Y(p.sec).toFixed(1)).join(' ')+'" fill="none" stroke="'+c.line+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    }
+    cp.forEach(p=>{svg+='<circle cx="'+X(p.date).toFixed(1)+'" cy="'+Y(p.sec).toFixed(1)+'" r="3.5" fill="'+c.dot+'"/>';});
+    const last=cp[cp.length-1];
+    svg+='<text x="'+Math.min(292,X(last.date)+8).toFixed(1)+'" y="'+(Y(last.sec)+3).toFixed(1)+'" font-size="10" fill="'+c.dot+'">'+c.short+'</text>';
+    const delta=cp[0].sec-last.sec;
+    head+='<div><div class="pg-lbl">'+c.label+'</div><div style="display:flex;align-items:baseline;gap:6px;">'
+      +'<span class="pg-val" style="color:'+c.dot+'">'+fmt(last.sec)+'</span>'
+      +(cp.length>1?'<span class="pg-d" style="color:'+(delta>=0?c.dot:'var(--text3)')+'">'+(delta>=0?'▼ ':'▲ ')+Math.abs(delta).toFixed(1)+'s</span>':'')
+      +'</div></div>';
+  });
+  const d0=new Date(t0),d1=new Date(t1);
+  svg+='<text x="24" y="158" font-size="9" fill="var(--text3)">'+MONTHS[d0.getMonth()].slice(0,3)+' '+d0.getDate()+'</text>';
+  if(t1>t0)svg+='<text x="304" y="158" font-size="9" fill="var(--text3)" text-anchor="end">'+MONTHS[d1.getMonth()].slice(0,3)+' '+d1.getDate()+'</text>';
+  // Month-over-month strip: closing reference per plan round, per category
+  const rounds=[];
+  const roundOf=(days,logs,pb2k)=>{
+    const pts=[];collectProgressPoints(days,logs,pb2k,pts);
+    if(!pts.length)return null;
+    pts.sort((a,b)=>a.date<b.date?-1:1);
+    const r={};
+    ['thresh','max'].forEach(tp=>{
+      const c=pts.filter(p=>p.type===tp);
+      if(c.length)r[tp]=c[c.length-1].sec;
+    });
+    const ld=pts[pts.length-1].date;
+    const[yy,mm]=ld.split('-').map(Number);
+    r.label=MONTHS[mm-1].slice(0,3);
+    return r;
+  };
+  (G.archive||[]).forEach(e=>{const r=roundOf(e.plan,e.logs,e.pb2k||G.pb2k);if(r)rounds.push(r);});
+  {const r=roundOf(G.plan,G.logs,G.pb2k);if(r)rounds.push(r);}
+  let strip='';
+  if(rounds.length>=2){
+    const show=rounds.slice(-5);
+    strip='<div class="pg-strip"><div class="pg-srow"><span class="pg-scat"></span>'
+      +show.map(r=>'<span class="pg-scol pg-smon">'+r.label+'</span>').join('')+'</div>'
+      +'<div class="pg-srow"><span class="pg-scat" style="color:#60c8a0">Thresh</span>'
+      +show.map(r=>'<span class="pg-scol">'+(r.thresh!==undefined?fmt(r.thresh):'—')+'</span>').join('')+'</div>'
+      +'<div class="pg-srow"><span class="pg-scat" style="color:#f09090">Max</span>'
+      +show.map(r=>'<span class="pg-scol">'+(r.max!==undefined?fmt(r.max):'—')+'</span>').join('')+'</div></div>';
+  }
+  el.innerHTML='<div class="prog-card"><div class="pg-hd">'+head+'</div>'
+    +'<svg viewBox="0 0 320 164" width="100%" role="img" aria-label="Reference pace trend across the last '+PROG_WINDOW+' efforts per category; lower is faster">'+svg+'</svg>'
+    +strip+'</div>';
 }
 
 // ── DAILY SWAP (swap today's session for anything in the library) ──
