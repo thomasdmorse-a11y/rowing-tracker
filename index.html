@@ -1540,8 +1540,10 @@ function renderDaily(plan){
       <div class="complete-sub">Ended up doing it anyway? Log a result below and it comes off the skipped list.</div></div></div>`;
   }
   if(isTest){
+    const proj=projected2k();
     html+=`<div class="test-note-box"><div class="test-note-title">Month-end time trial</div>
-      <div class="test-note-text">Row for a genuine personal best. Enter your result below — if it's a new PB, the tracker will celebrate with you and take you straight to next month's plan with your updated benchmarks.</div></div>`;
+      <div class="test-note-text">Row for a genuine personal best. Enter your result below — if it's a new PB, the tracker will celebrate with you and take you straight to next month's plan with your updated benchmarks.</div>
+      ${proj?`<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--amber-border);font-size:13px;color:var(--amber);">Goal: <span style="font-family:var(--mono);font-weight:600;">${fmt(proj.time)}</span> <span style="font-size:11px;color:var(--text3);">(${fmt(proj.pace)} /500m) — from your recent max + threshold work</span></div>`:''}</div>`;
   }
   const canSwap=!isLogged&&!isTest;
   // Repeat session? (done before under this key, in current plan or archive)
@@ -1597,8 +1599,9 @@ function renderDaily(plan){
   // 6. Log form
   if(!isLogged||G.editMode){
     const hasReflect=!!(log.reflect&&log.reflect.length);
+    const paceHint=tgt?tgt.val.replace(' /500m',''):'m:ss.t';
     html+=`<div class="log-section" style="margin-top:16px;"><span class="log-label">Avg pace / 500m</span>
-      <div class="pace-wrap"><input class="pace-in" id="log-pace" type="text" inputmode="decimal" placeholder="2:05.0" value="${log.pace||''}">
+      <div class="pace-wrap"><input class="pace-in" id="log-pace" type="text" inputmode="decimal" onblur="this.value=normalizePace(this.value)" placeholder="${paceHint}" value="${log.pace||''}">
       <span class="pace-unit">/ 500m</span></div></div>
       <div class="log-section"><span class="log-label">Effort</span>
       <div class="effort-grid">
@@ -1648,10 +1651,28 @@ function selEff(n){
   G.currentEffort=n;
   [1,2,3,4].forEach(k=>{const el=document.getElementById('e'+k);if(el)el.className='eff-btn'+(k===n?' sel-'+k:'');});
 }
+// Number pads have no ":" — accept what they CAN type and normalize:
+//   2.04.5 → 2:04.5   ·   2.04 / 2.045 → 2:04.0 / 2:04.5
+//   204 → 2:04.0   ·   2045 → 2:04.5  (PM5 convention m:ss.t)
+// Anything already containing ":" or too ambiguous passes through untouched.
+function normalizePace(raw){
+  if(!raw)return '';
+  const s=raw.trim();
+  if(!s||s.includes(':'))return s;
+  if(/^[0-9]+$/.test(s)){
+    if(s.length===3)return s[0]+':'+s.slice(1)+'.0';
+    if(s.length===4)return s[0]+':'+s.slice(1,3)+'.'+s[3];
+    return s;
+  }
+  const parts=s.split('.');
+  if(parts.length===3&&parts[0]&&parts[1])return parts[0]+':'+parts[1]+'.'+(parts[2]||'0');
+  if(parts.length===2&&parts[1].length>=2)return parts[0]+':'+parts[1].slice(0,2)+'.'+(parts[1][2]||'0');
+  return s;
+}
 function saveLog(){
   const plan=planFor(G.currentDate);if(!plan)return;
   const logKey=plan.date+'_'+plan.session.key;
-  const pace=document.getElementById('log-pace')?.value.trim();
+  const pace=normalizePace(document.getElementById('log-pace')?.value.trim());
   // loggedAt: set once on first save, preserved through edits — the streak's
   // no-retroactive-repair rule depends on knowing when the log was created
   const existingLoggedAt=G.logs[logKey]&&G.logs[logKey].loggedAt;
@@ -1780,6 +1801,32 @@ function allProgressPoints(){
   return pts.sort((a,b)=>a.date<b.date?-1:1);
 }
 function dateNum(ds){const[y,m,d]=ds.split('-').map(Number);return new Date(y,m-1,d).getTime();}
+
+// Projected 2k: both references are defined in 2k currency (max ref = 2k pace,
+// thresh ref = 2k pace × 1.08), so recent efforts convert to independent 2k
+// estimates. Window: the last 7 days; a category absent from the window falls
+// back to its most recent effort. Blend favors max 60/40 — more 2k-specific.
+function projected2k(){
+  const all=allProgressPoints();
+  if(!all.length)return null;
+  const todayStr=localToday();
+  const cutoff=addDaysStr(todayStr,-6);
+  const est={};
+  ['max','thresh'].forEach(tp=>{
+    let pts=all.filter(p=>p.type===tp&&p.date>=cutoff&&p.date<=todayStr);
+    if(!pts.length){const c=all.filter(p=>p.type===tp);if(c.length)pts=[c[c.length-1]];}
+    if(pts.length){
+      const mean=pts.reduce((s,p)=>s+p.sec,0)/pts.length;
+      est[tp]=tp==='max'?mean:mean/THRESH_BASE;
+    }
+  });
+  let pace;
+  if(est.max!==undefined&&est.thresh!==undefined)pace=est.max*0.6+est.thresh*0.4;
+  else if(est.max!==undefined)pace=est.max;
+  else if(est.thresh!==undefined)pace=est.thresh;
+  else return null;
+  return{pace,time:pace*4};
+}
 function renderProgressChart(){
   const el=document.getElementById('progress-chart');
   if(!el)return;
@@ -1844,6 +1891,16 @@ function renderProgressChart(){
       +(cp.length>1?'<span class="pg-d" style="color:'+(delta>=0?c.dot:'var(--text3)')+'">'+(delta>=0?'▼ ':'▲ ')+Math.abs(delta).toFixed(1)+'s</span>':'')
       +'</div></div>';
   });
+  const proj=projected2k();
+  if(proj){
+    const pb=parseT(G.pb2k);
+    const dv=pb?pb-proj.time:null;
+    head+='<div style="margin-left:auto;text-align:right;"><div class="pg-lbl">Projected 2k</div>'
+      +'<div style="display:flex;align-items:baseline;gap:6px;justify-content:flex-end;">'
+      +'<span class="pg-val">'+fmt(proj.time)+'</span>'
+      +(dv!==null?'<span class="pg-d" style="color:'+(dv>=0?'#40d060':'var(--text3)')+'">'+(dv>=0?'▼ ':'▲ ')+Math.abs(dv).toFixed(1)+'s vs PB</span>':'')
+      +'</div></div>';
+  }
   const d0=new Date(t0),d1=new Date(t1);
   svg+='<text x="24" y="158" font-size="9" fill="var(--text3)">'+MONTHS[d0.getMonth()].slice(0,3)+' '+d0.getDate()+'</text>';
   if(t1>t0)svg+='<text x="304" y="158" font-size="9" fill="var(--text3)" text-anchor="end">'+MONTHS[d1.getMonth()].slice(0,3)+' '+d1.getDate()+'</text>';
