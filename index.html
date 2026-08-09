@@ -372,6 +372,34 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 .pg-scol{flex:1;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2);}
 .pg-smon{font-family:var(--font,inherit);font-size:9px;color:var(--text3);}
 
+
+/* SUGGESTION MENU */
+.menu-intro{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+.sug-card{background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:9px;cursor:pointer;transition:background .12s,border-color .12s;}
+.sug-card:hover{background:var(--bg3);}
+.sug-card.primary{border-color:var(--blue-border);}
+.sug-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.sug-name{font-size:15px;font-weight:600;}
+.sug-meta{font-size:12px;color:var(--text3);}
+.sug-reason{font-size:12px;color:var(--text2);margin-top:6px;}
+.sug-warn{font-size:11px;color:var(--amber);margin-top:6px;}
+.menu-actions{margin-top:16px;}
+.empty-day{text-align:center;color:var(--text3);font-size:14px;padding:40px 20px;}
+.empty-sub{font-size:12px;margin-top:8px;color:var(--border2);}
+
+/* STRUCTURE CHIPS */
+.st-chips{display:flex;gap:12px;margin-top:7px;}
+.st-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
+.st-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* MONTH STATS */
+.mstats{background:var(--bg2);border-radius:11px;padding:12px;margin-top:12px;}
+.ms-row{display:flex;}
+.ms-cell{flex:1;text-align:center;}
+.ms-val{display:block;font-family:var(--mono);font-size:19px;font-weight:500;}
+.ms-lbl{display:block;font-size:10px;color:var(--text3);margin-top:2px;}
+.ms-break{text-align:center;font-size:11px;color:var(--text3);margin-top:9px;padding-top:9px;border-top:0.5px solid var(--border);}
+
 /* ERG LINK */
 .erg-paste-wrap{background:var(--bg2);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;}
 .erg-paste-hint{font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5;}
@@ -411,20 +439,13 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <!-- SETUP -->
 <div class="screen active" id="screen-setup">
   <div class="nav">
-    <span class="nav-title">Tom's rowing tracker v2.1</span>
-    <button type="button" class="btn btn-primary" onclick="buildPlan()">Generate plan →</button>
+    <span class="nav-title">Tom's rowing tracker</span>
+    <button type="button" class="btn btn-primary" onclick="finishSetup()">Start →</button>
   </div>
   <div class="setup-body">
     <div class="s-section">
-      <span class="s-label">Monthly focus</span>
-      <div class="focus-card sel-2k" id="fc-2k" onclick="selFocus('2k')">
-        <div class="focus-name">2k training</div>
-        <div class="focus-sub">Max effort · Threshold · Endurance</div>
-      </div>
-    </div>
-    <div class="s-section">
       <span class="s-label">Benchmarks</span>
-      <span class="s-sublabel">All pacing targets derive from your 2k PB — enter at least that one</span>
+      <span class="s-sublabel">All pacing targets derive from your 2k PB — enter at least that one. Everything else the tracker learns from your training.</span>
       <div class="pb-grid">
         <div class="pb-field"><label>500m PB</label><input type="text" id="pb500" placeholder="1:28.5"><div class="pb-hint">m:ss.t</div></div>
         <div class="pb-field"><label>2k PB <span style="color:var(--red);font-size:11px">★</span></label><input type="text" id="pb2k" placeholder="7:48.0"><div class="pb-hint">mm:ss.t</div></div>
@@ -432,15 +453,8 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
       </div>
     </div>
     <div class="s-section">
-      <span class="s-label">Rest days per week</span>
-      <div class="week-grid">
-        <button type="button" class="week-btn" id="wb-1" onclick="selRest(1)"><span class="wk-title">1 rest day</span><span class="wk-seq">Hard · End · Thresh · End · Thresh · End · Rest</span></button>
-        <button type="button" class="week-btn" id="wb-2" onclick="selRest(2)"><span class="wk-title">2 rest days</span><span class="wk-seq">Hard · End · Thresh · Rest · Thresh · End · Rest</span></button>
-      </div>
-    </div>
-    <div class="s-section">
-      <span class="s-label">Plan start</span>
-      <input type="date" id="plan-start">
+      <span class="s-label">How it works</span>
+      <span class="s-sublabel">There's no fixed month plan. Each day the tracker suggests what to row based on your last 7 days, aiming for roughly 1 hard, 2 threshold and 3 endurance sessions a week. Targets adapt to what you actually do — and you can always pick something else.</span>
     </div>
     <div class="s-section">
       <span class="s-label">Using another device?</span>
@@ -495,29 +509,10 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 </div>
 
 <!-- PLAN -->
-<div class="screen" id="screen-plan">
-  <div class="nav">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="showScreen('screen-setup')">← Edit</button>
-      <span class="nav-title" id="plan-nav-title">Plan</span>
-    </div>
-    <button type="button" class="btn btn-primary btn-sm" onclick="savePlan()">Save plan ✓</button>
-  </div>
-  <div class="plan-body">
-    <div class="plan-meta">
-      <span class="plan-badge badge-2k">2k Training</span>
-      <span class="plan-stat" id="plan-stat-sessions"></span>
-      <span class="plan-stat" id="plan-stat-paces"></span>
-    </div>
-    <div id="plan-weeks"></div>
-  </div>
-</div>
-
-<!-- CALENDAR -->
 <div class="screen" id="screen-cal">
   <div class="nav">
     <span class="nav-title">Tom's rowing tracker</span>
-    <button type="button" class="btn btn-ghost btn-sm" onclick="openPlanMenu()">⚙ Plan</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="showScreen('screen-setup')">⚙ Settings</button>
   </div>
   <div class="cal-body">
     <div id="today-compact"></div>
@@ -538,7 +533,7 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <div class="screen" id="screen-daily">
   <div class="nav">
     <div style="display:flex;align-items:center;gap:8px;">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="showScreen('screen-cal')">‹ Plan</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="showScreen('screen-cal')">‹ Back</button>
       <span class="nav-title" id="daily-date-label"></span>
     </div>
   </div>
@@ -551,7 +546,6 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
   <div class="save-bar" id="save-bar" style="display:none;">
     <button type="button" class="btn btn-primary" onclick="saveLog()">Save workout</button>
     <button type="button" class="btn" onclick="showScreen('screen-cal')">Cancel</button>
-    <span class="skip-link" id="skip-link" onclick="confirmSkip()">Mark as skipped</span>
   </div>
 </div>
 
@@ -579,83 +573,6 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 </div>
 
 <!-- MILESTONE MODAL -->
-<div class="modal-overlay hidden" id="modal-overlay" onclick="dismissModal(event)">
-  <div class="milestone-modal">
-    <span class="modal-flame" id="modal-flame">🔥</span>
-    <div class="modal-count" id="modal-count"></div>
-    <div class="modal-count-label" id="modal-count-label"></div>
-    <div class="modal-title" id="modal-title"></div>
-    <div class="modal-message" id="modal-message"></div>
-    <button type="button" class="modal-btn" onclick="dismissModal()">Keep going →</button>
-  </div>
-</div>
-
-
-<!-- PLAN MENU MODAL -->
-<div class="modal-overlay hidden" id="plan-menu-overlay" onclick="if(event.target===this)this.classList.add('hidden')">
-  <div class="confirm-modal">
-    <div class="confirm-title">Plan options</div>
-    <div style="margin-top:12px;">
-      <button type="button" class="pm-opt" onclick="closePlanMenu();goSetup()">
-        <span class="pm-opt-title">⚙ New plan</span>
-        <span class="pm-opt-sub">Archive this month and build a fresh 4-week plan</span>
-      </button>
-      <button type="button" class="pm-opt" onclick="closePlanMenu();openShiftModal()">
-        <span class="pm-opt-title">↦ Shift remaining days</span>
-        <span class="pm-opt-sub">Push every unlogged session back — nothing is lost, the plan just ends later</span>
-      </button>
-      <button type="button" class="pm-opt" onclick="closePlanMenu();openRestructureModal()">
-        <span class="pm-opt-title">⟲ Restructure remaining weeks</span>
-        <span class="pm-opt-sub">Rebuild the road to your test date — logged sessions and the test stay put</span>
-      </button>
-    </div>
-    <div class="confirm-btns" style="margin-top:6px;">
-      <button type="button" class="btn" onclick="closePlanMenu()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- SHIFT MODAL -->
-<div class="modal-overlay hidden" id="shift-overlay" onclick="if(event.target===this)this.classList.add('hidden')">
-  <div class="confirm-modal">
-    <div class="confirm-title">Shift remaining days</div>
-    <div class="confirm-body">Every unlogged session moves back by this many days. Logged and skipped sessions keep their dates. Your test day shifts with the plan.</div>
-    <div class="stepper">
-      <button type="button" class="stepper-btn" onclick="shiftAdjust(-1)">−</button>
-      <span class="stepper-val" id="shift-val">3</span>
-      <button type="button" class="stepper-btn" onclick="shiftAdjust(1)">+</button>
-    </div>
-    <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:14px;" id="shift-preview"></div>
-    <div class="confirm-btns">
-      <button type="button" class="btn" onclick="document.getElementById('shift-overlay').classList.add('hidden')">Cancel</button>
-      <button type="button" class="btn btn-primary" onclick="doShift()">Shift plan</button>
-    </div>
-  </div>
-</div>
-
-<!-- RESTRUCTURE MODAL -->
-<div class="modal-overlay hidden" id="restructure-overlay" onclick="if(event.target===this)this.classList.add('hidden')">
-  <div class="confirm-modal">
-    <div class="confirm-title">Restructure remaining weeks</div>
-    <div class="rs-preserve" id="rs-preserve"></div>
-    <span class="rs-label">Rest days per week</span>
-    <div class="rs-row">
-      <button type="button" class="rs-opt" id="rs-rest-1" onclick="rsSetRest(1)"><span class="rs-opt-title">1 rest day</span></button>
-      <button type="button" class="rs-opt" id="rs-rest-2" onclick="rsSetRest(2)"><span class="rs-opt-title">2 rest days</span></button>
-    </div>
-    <span class="rs-label">Volume</span>
-    <div class="rs-row">
-      <button type="button" class="rs-opt" id="rs-vol-standard" onclick="rsSetVol('standard')"><span class="rs-opt-title">Standard</span><span class="rs-opt-sub">48–52k weekly</span></button>
-      <button type="button" class="rs-opt" id="rs-vol-lighter" onclick="rsSetVol('lighter')"><span class="rs-opt-title">Lighter</span><span class="rs-opt-sub">~40–44k weekly</span></button>
-      <button type="button" class="rs-opt" id="rs-vol-ramp" onclick="rsSetVol('ramp')"><span class="rs-opt-title">Ramp back</span><span class="rs-opt-sub">First week easy, no hard day</span></button>
-    </div>
-    <div class="confirm-btns">
-      <button type="button" class="btn" onclick="document.getElementById('restructure-overlay').classList.add('hidden')">Cancel</button>
-      <button type="button" class="btn btn-primary" onclick="doRestructure()">Rebuild plan</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <!-- EMAIL PROMPT BAR -->
@@ -672,21 +589,6 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 
 
 <script>
-// ── MILESTONES ──
-const MILESTONES=[
-  {days:3,title:"You've found your rhythm.",message:"Three sessions in a row is where it starts. Your body is already adapting — and you're building something more important than fitness right now. You're building a habit.",note:"3 days in — you've found your rhythm. Keep it going."},
-  {days:5,title:"A full working week.",message:"Five consecutive sessions. Most people quit before they get here. The hardest part of any streak is the beginning — and you're past it. This is real momentum.",note:"5 days straight. The hard part is behind you."},
-  {days:7,title:"One week straight.",message:"Seven days. That's a full cycle of the plan, every session logged. Your body has had one of each — a hard day, threshold work, steady rows. This is what consistent training feels like.",note:"One week straight. You've completed a full training cycle."},
-  {days:10,title:"Ten sessions. Double figures.",message:"Double figures. Ten sessions means ten separate decisions to show up. On some of those days, you probably didn't feel like it. That's the whole point.",note:"10 sessions logged. Double figures."},
-  {days:14,title:"Two full weeks.",message:"Fourteen days of consistent training. The research says habit formation takes around 21 days — you're two thirds of the way there. This is starting to become who you are.",note:"Two weeks down. One more to make it a habit."},
-  {days:21,title:"Three weeks. This is a habit now.",message:"Twenty-one days. Most habit research puts the formation threshold somewhere around here. You haven't just been training — you've been rewiring how you spend your time.",note:"21 days — you've crossed the habit threshold."},
-  {days:30,title:"One month of consistent training.",message:"Thirty days. You've been through a full plan cycle — hard sessions, threshold work, steady rows, and a time trial. Whatever your 2k showed at the end of that month, you earned it.",note:"One month. A full plan cycle, start to finish."},
-  {days:45,title:"Forty-five days.",message:"Six weeks of showing up. Your fitness gains compound the same way a streak does — slowly, then all at once. By now you're a different rower than you were at day one.",note:"45 days. Six weeks of compounding fitness."},
-  {days:60,title:"Two months straight.",message:"Sixty days. The athletes who make the biggest gains aren't necessarily the most talented — they're the most consistent. You're proving that right now.",note:"Two months. Consistency is its own kind of talent."},
-  {days:90,title:"Ninety days. This is who you are now.",message:"Three months of consistent training. You don't need motivation to show up anymore — you need a reason not to. This isn't a streak. It's just your life now.",note:"90 days. This isn't a streak anymore — it's just what you do."},
-];
-const MILESTONE_DAYS=new Set(MILESTONES.map(m=>m.days));
-
 // ── SESSION LIBRARY ──
 const LIB={
   max:[
@@ -734,6 +636,13 @@ const LIB={
 };
 const ALL=[...LIB.max,...LIB.thresh,...LIB.end,...LIB.speed,...LIB.test];
 const PRIMER_KEYS=['spr-3stroke','spr-60m'];
+// Rotate primers so hard days don't always open the same way
+function pickPrimer(seed){
+  const pool=PRIMER_KEYS.map(k=>getByKey(k)).filter(Boolean);
+  if(!pool.length)return null;
+  const n=Object.keys(G.history||{}).length;
+  return pool[(n+(seed||0))%pool.length];
+}
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS_SHORT=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const TYPE_BADGE={max:'b-max',thresh:'b-thresh',end:'b-end',speed:'b-speed',test:'b-test'};
@@ -741,13 +650,25 @@ const TYPE_LABEL={max:'Max effort',thresh:'Threshold',end:'Endurance',speed:'Spe
 const PIP_CLS={max:'pip-max',thresh:'pip-thresh',end:'pip-end',speed:'pip-speed',test:'pip-test'};
 
 // ── STATE ──
+// v3.0: no dated plan. History is a date-keyed record of what actually
+// happened; the app suggests the next session rather than scheduling a month.
+//   history['2026-07-03'] = {kind:'session', key, pace, effort, loggedAt, reflect, fwd, primerKey}
+//   history['2026-07-04'] = {kind:'rest', loggedAt}
+// nextUp pins tomorrow's suggestion (set when you log, swappable in the morning).
+// targets adapt to what the athlete is actually accomplishing.
 let G={
-  focus:'2k',restDays:null,pb500:'',pb2k:'',pb5k:'',planStart:null,
-  plan:[],logs:{},ergLinks:{},archive:[],
+  pb500:'',pb2k:'',pb5k:'',startedAt:null,lastTest:null,
+  history:{},ergLinks:{},
+  nextUp:null,
+  targets:{sessions:6,volume:50000,updatedAt:null},
+  testPromptSnoozed:null,
   viewYear:null,viewMonth:null,
-  currentDate:null,currentEffort:null,editMode:false,
-  activeMilestone:null
+  currentDate:null,currentEffort:null,editMode:false
 };
+const RATIO={max:1/6,thresh:2/6,end:3/6};   // 1 hard : 2 threshold : 3 endurance
+const TARGET_FLOOR={sessions:3,volume:25000};
+const TARGET_CEIL={sessions:7,volume:60000};
+const REF_WINDOW_DAYS=28;                   // rolling pace-reference window
 
 // ── HELPERS ──
 function parseT(s){if(!s||!s.trim())return null;const p=s.replace(',','.').trim().split(':');if(p.length!==2)return null;const m=parseFloat(p[0]),sec=parseFloat(p[1]);return isNaN(m)||isNaN(sec)?null:m*60+sec;}
@@ -783,22 +704,25 @@ function impliedRef(s,obsSecs){
 }
 // Most recent logged effort of a category before a given date (exclusive).
 // beforeDate null → all logged efforts in the current plan.
+// Most recent qualifying effort of a category within the rolling reference
+// window. Pure rolling 28 days — test dates are ignored, so a new PB simply
+// changes the formula anchor while recent training keeps its say.
 function adaptedRef(type,beforeDate){
   const f=formulaRef(type);if(!f)return null;
-  const cands=G.plan.filter(d=>d.session&&d.session.type===type&&d.status==='done'
-    &&(!beforeDate||d.date<beforeDate));
+  const upTo=beforeDate?addDaysStr(beforeDate,-1):localToday();
+  const from=addDaysStr(upTo,-(REF_WINDOW_DAYS-1));
+  const cands=sessionsInRange(from,upTo).filter(x=>x.lib.type===type);
   for(let i=cands.length-1;i>=0;i--){
     const d=cands[i];
-    const log=G.logs[d.date+'_'+d.session.key];
-    const obs=log&&parseT(log.pace);
+    const obs=parseT(d.pace);
     if(!obs)continue;
-    let imp=impliedRef(d.session,obs);
+    let imp=impliedRef(d.lib,obs);
     if(imp===null)continue;
     imp=Math.max(f*0.9,Math.min(f*1.1,imp)); // typo guardrail
-    const e=Math.max(1,Math.min(4,log.effort||3));
+    const e=Math.max(1,Math.min(4,d.effort||3));
     const beat=imp<f;
     const w=beat?[1,.75,.5,.25][e-1]:[0,.25,.5,.75][e-1];
-    return{ref:w*imp+(1-w)*f,fromName:d.session.name,fromDate:d.date};
+    return{ref:w*imp+(1-w)*f,fromName:d.lib.name,fromDate:d.date};
   }
   return null;
 }
@@ -868,33 +792,51 @@ function localToday(){const d=new Date();return d.getFullYear()+'-'+String(d.get
 // Schema version history:
 //   1 — original shape (implicit, no version field)
 //   2 — ergLinks + archive added
-//   3 — declarative pace fields (paceOffset/paceMult/timed/workMins/reps/repDist/restSecs)
-//       on sessions; plan sessions re-hydrated from library on load
-const SCHEMA_VERSION=3;
+//   3 — declarative pace fields on sessions; plan re-hydrated from library
+//   4 — v3.0 rebuild: dated plan + archive collapse into one date-keyed
+//       history store; suggestion model replaces the month planner
+const SCHEMA_VERSION=4;
 
 // Bring any older saved blob up to the current schema. Runs on every load; idempotent.
 function migrateState(s){
   if(!s)return s;
   const from=s._schema||1;
-  // v1 -> v2: ensure containers exist
   s.ergLinks=s.ergLinks||{};
-  s.archive=s.archive||[];
-  // v2 -> v3: plan sessions saved under older schemas lack pace fields (pt() functions
-  // never survived JSON.stringify). Re-hydrate each planned session from the library
-  // by key, preserving day-level fields (date/slot/status).
-  if(from<3&&Array.isArray(s.plan)){
-    s.plan.forEach(d=>{
-      if(d.session&&d.session.key){
-        const lib=getByKey(d.session.key);
-        if(lib)d.session={...lib};
-      }
-      if(d.primer&&d.primer.key){
-        const lib=getByKey(d.primer.key);
-        if(lib)d.primer={...lib};
-      }
-    });
+  // v3 -> v4: fold every completed day (current plan + all archives) into
+  // history. Undated future plan days are discarded — they were a schedule,
+  // and schedules no longer exist. Planned-but-unlogged rest days are dropped
+  // too: we only know a rest day happened if it was logged.
+  if(from<4){
+    const hist=s.history||{};
+    const fold=(plan,logs)=>{
+      (plan||[]).forEach(d=>{
+        if(!d.session||d.status!=='done')return;
+        const log=(logs||{})[d.date+'_'+d.session.key];
+        if(!log)return;
+        hist[d.date]={kind:'session',key:d.session.key,pace:log.pace||'',
+          effort:log.effort||null,loggedAt:log.loggedAt||null,
+          reflect:log.reflect||'',fwd:log.fwd||'',
+          primerKey:d.primer&&d.primer.key||null};
+      });
+    };
+    (s.archive||[]).forEach(e=>fold(e.plan,e.logs));
+    fold(s.plan,s.logs);
+    s.history=hist;
+    // Last test = most recent completed 2k test in the folded history
+    const testDates=Object.keys(hist).filter(k=>{
+      const lib=getByKey(hist[k].key);return lib&&lib.type==='test';
+    }).sort();
+    s.lastTest=s.lastTest||(testDates.length?testDates[testDates.length-1]:null);
+    const allDates=Object.keys(hist).sort();
+    s.startedAt=s.startedAt||s.planStart||(allDates.length?allDates[0]:localToday());
+    s.targets=s.targets||{sessions:6,volume:50000,updatedAt:null};
+    s.nextUp=null;
+    delete s.plan;delete s.logs;delete s.archive;
+    delete s.planStart;delete s.focus;delete s.restDays;delete s.activeMilestone;
   }
-  // Archive entries are intentionally NOT re-hydrated — they are historical snapshots.
+  s.history=s.history||{};
+  s.targets=s.targets||{sessions:6,volume:50000,updatedAt:null};
+  s.startedAt=s.startedAt||localToday();
   s._schema=SCHEMA_VERSION;
   return s;
 }
@@ -903,10 +845,11 @@ function saveState(){
   try{
     localStorage.setItem('trt_v2',JSON.stringify({
       _schema:SCHEMA_VERSION,
-      focus:G.focus,restDays:G.restDays,pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
-      planStart:G.planStart,plan:G.plan,logs:G.logs,ergLinks:G.ergLinks,
-      archive:G.archive,
-      viewYear:G.viewYear,viewMonth:G.viewMonth,activeMilestone:G.activeMilestone
+      pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
+      startedAt:G.startedAt,lastTest:G.lastTest,
+      history:G.history,ergLinks:G.ergLinks,nextUp:G.nextUp,
+      targets:G.targets,testPromptSnoozed:G.testPromptSnoozed,
+      viewYear:G.viewYear,viewMonth:G.viewMonth
     }));
   }catch(e){console.warn('saveState failed:',e);}
 }
@@ -923,497 +866,318 @@ function loadState(){
 }
 
 // ── COMMIT: single path for state changes ──
-// Every mutation should end with commit(). Guarantees order:
 // persist locally -> schedule cloud sync -> re-render requested views.
-// opts: {cal:true, daily:true, plan:true, today:true}
 function commit(opts={}){
   saveState();
   scheduleSyncToSupabase();
-  if(opts.plan)renderPlanView();
-  if(opts.cal)renderCal();          // renderCal also refreshes the today section
-  else if(opts.today)renderTodaySection();
-  if(opts.daily)renderDaily(planFor(G.currentDate));
+  if(opts.cal)renderCal();
+  if(opts.daily)renderDaily(G.currentDate);
+}
+
+// ── HISTORY HELPERS ──
+function histFor(dateStr){return dateStr?(G.history[dateStr]||null):null;}
+function histSession(dateStr){
+  const h=histFor(dateStr);
+  if(!h||h.kind!=='session')return null;
+  const lib=getByKey(h.key);
+  return lib?{...lib}:null;
+}
+function daysBetween(a,b){return Math.round((dateNum(b)-dateNum(a))/86400000);}
+// Every logged session in [fromDate, toDate], oldest first
+function sessionsInRange(fromDate,toDate){
+  return Object.keys(G.history)
+    .filter(d=>d>=fromDate&&d<=toDate&&G.history[d].kind==='session')
+    .sort()
+    .map(d=>({date:d,...G.history[d],lib:getByKey(G.history[d].key)}))
+    .filter(x=>x.lib);
+}
+function recentSessions(days){
+  const today=localToday();
+  return sessionsInRange(addDaysStr(today,-(days-1)),today);
 }
 
 // ── SETUP ──
-function selFocus(f){G.focus=f;}
-function selRest(n){G.restDays=n;document.getElementById('wb-1').classList.remove('sel');document.getElementById('wb-2').classList.remove('sel');document.getElementById('wb-'+n).classList.add('sel');}
 
-// ── PLAN GENERATION ──
-function weekTemplate(restDays,weekIdx){
-  const isFinal=weekIdx===3;
-  // Final week is the same regardless of rest day count:
-  // Hard · End · Thresh · End · Rest · Test · Rest
-  if(isFinal) return['hard','end','thresh','end','rest','test','rest'];
-  if(restDays===1) return['hard','end','thresh','end','thresh','end-short','rest'];
-  return['hard','end','thresh','rest','thresh','end','rest'];
-}
-function pickPrimer(weekIdx){const k=PRIMER_KEYS[weekIdx%PRIMER_KEYS.length];return{...LIB.speed.find(s=>s.key===k)};}
 
-// ── VOLUME-BALANCED WEEK BUILDER ──
-// Weekly targets: 48,000–52,000m total, 10,500–14,000m threshold
-// Light threshold pool: hard-5k, 2x12min, 3x8min (~5000–5700m each)
-// Heavy threshold pool: 5x1500, 4x2000, 3k-ladder, 3x10min, 3x2500m, 5x6min (~7100–8000m each)
-// Endurance: shorter when hard session is longer, longer when hard is shorter
-const THRESH_LIGHT=['hard-5k','2x12min','3x8min'];
-const THRESH_HEAVY=['5x1500','4x2000','3k-ladder','3x10min','3x2500m','5x6min'];
-const END_SHORT_END_POOL=['timed-30min','6x1000m','steady-8k','8x1000m','5x1500m-end']; // lighter endurance for end-short slot
-const END_SHORT_THRESH_POOL=['hard-5k','2x12min','3x8min']; // thresh-light sessions usable as end-short
-
-function buildWeek(weekIdx,restDays,usedKeys){
-  const isFinal=weekIdx===3;
-
-  // 1. Pick hard session first — drives the rest of the volume decisions
-  const hardPool=LIB.max.filter(s=>!usedKeys.has(s.key));
-  const hardSrc=hardPool.length?hardPool:LIB.max;
-  const hard={...hardSrc[weekIdx%hardSrc.length]};
-  usedKeys.add(hard.key);
-  const hardDist=sessionDist(hard)||4000;
-
-  // 2. Pick heavy threshold session
-  const heavyPool=LIB.thresh.filter(s=>THRESH_HEAVY.includes(s.key)&&!usedKeys.has(s.key));
-  const heavySrc=heavyPool.length?heavyPool:LIB.thresh.filter(s=>THRESH_HEAVY.includes(s.key));
-  const thresh1={...heavySrc[weekIdx%heavySrc.length]};
-  usedKeys.add(thresh1.key);
-
-  // 3. Pick light threshold session to pair — target total 10,500–14,000m
-  const thresh1Dist=sessionDist(thresh1)||7500;
-  const lightPool=LIB.thresh.filter(s=>THRESH_LIGHT.includes(s.key)&&!usedKeys.has(s.key));
-  const lightSrc=lightPool.length?lightPool:LIB.thresh.filter(s=>THRESH_LIGHT.includes(s.key));
-  const thresh2={...lightSrc[weekIdx%lightSrc.length]};
-  usedKeys.add(thresh2.key);
-  const threshTotal=thresh1Dist+(sessionDist(thresh2)||5000);
-
-  // 4. Calculate endurance budget
-  // Target weekly total: 50,000m midpoint
-  const weeklyTarget=50000;
-  const endBudget=weeklyTarget-hardDist-threshTotal;
-  // Distribute across endurance slots
-  // 1-rest: 3 end slots (end, end, end-short); 2-rest: 2 end slots (end, end)
-  const endSlots=restDays===1?3:2;
-  const endShortTarget=Math.round(endBudget*(endSlots===3?0.22:0)); // end-short ~22% of end budget
-  const mainEndTarget=endSlots===3
-    ?Math.round((endBudget-endShortTarget)/2)
-    :Math.round(endBudget/2);
-
-  // 5. Pick endurance sessions closest to target distances
-  // Harder hard day → shorter end sessions; lighter hard day → longer end sessions
-  // hardDist 4000 → bias toward shorter end; hardDist 3600 → bias toward longer end
-  const endBias=hardDist>=4000?-500:+500; // adjust target by ±500m based on hard session length
-
-  function pickEnd(target,used,pool){
-    const t=target+endBias;
-    const candidates=pool.filter(s=>!used.has(s.key));
-    const src=candidates.length?candidates:pool;
-    // Sort by proximity to target distance
-    const sorted=[...src].sort((a,b)=>Math.abs(sessionDist(a)-t)-Math.abs(sessionDist(b)-t));
-    return{...sorted[0]};
-  }
-
-  const mainEndPool=LIB.end.filter(s=>!THRESH_LIGHT.includes(s.key));
-  const end1=pickEnd(mainEndTarget,usedKeys,mainEndPool);
-  usedKeys.add(end1.key);
-  const end2=pickEnd(mainEndTarget,usedKeys,mainEndPool);
-  usedKeys.add(end2.key);
-
-  // end-short: genuinely short endurance session only — NOT threshold sessions
-  // thresh-light sessions already appear in the thresh2 slot; don't duplicate here
-  const endShortCandidates=LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key)&&!usedKeys.has(s.key));
-  const endShortSrc=endShortCandidates.length
-    ?endShortCandidates
-    :LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key));
-  const endShortSorted=[...endShortSrc].sort((a,b)=>sessionDist(a)-sessionDist(b));
-  const endShort={...endShortSorted[0]};
-
-  // 6. Assemble week according to template
-  // 1-rest: Hard · End · Thresh(heavy) · End · Thresh(light) · End-short · Rest
-  // 2-rest: Hard · End · Thresh(heavy) · Rest · Thresh(light) · End · Rest
-  // Final: Hard · End · Thresh(heavy) · End · Rest · Test · Rest
-  if(isFinal){
-    return[
-      {slot:'hard',session:hard,primer:pickPrimer(weekIdx)},
-      {slot:'end',session:end1},
-      {slot:'thresh',session:thresh1},
-      {slot:'end',session:end2},
-      {slot:'rest',session:null},
-      {slot:'test',session:{...LIB.test[0]}},
-      {slot:'rest',session:null},
-    ];
-  }
-  if(restDays===1){
-    return[
-      {slot:'hard',session:hard,primer:pickPrimer(weekIdx)},
-      {slot:'end',session:end1},
-      {slot:'thresh',session:thresh1},
-      {slot:'end',session:end2},
-      {slot:'thresh',session:thresh2},
-      {slot:'end-short',session:endShort},
-      {slot:'rest',session:null},
-    ];
-  }
-  // 2 rest days
-  return[
-    {slot:'hard',session:hard,primer:pickPrimer(weekIdx)},
-    {slot:'end',session:end1},
-    {slot:'thresh',session:thresh1},
-    {slot:'rest',session:null},
-    {slot:'thresh',session:thresh2},
-    {slot:'end',session:end2},
-    {slot:'rest',session:null},
-  ];
-}
-
-function buildPlan(){
-  if(!G.restDays){alert('Choose rest days per week.');return;}
-  const v2k=document.getElementById('pb2k').value.trim();
-  const v500=document.getElementById('pb500').value.trim();
-  const v5k=document.getElementById('pb5k').value.trim();
-  if(!v2k&&!v500&&!v5k){alert('Enter at least your 2k PB to calculate target paces.');return;}
-  // Archive the outgoing plan FIRST — with the benchmarks and start date that
-  // were active while it was trained, not the new month's values
-  if(G.plan&&G.plan.length&&Object.keys(G.logs).length>0){
-    G.archive=G.archive||[];
-    G.archive.push({
-      planStart:G.planStart,
-      completedAt:localToday(),
-      pb2k:G.pb2k,pb500:G.pb500,pb5k:G.pb5k,
-      plan:G.plan.map(d=>({date:d.date,slot:d.slot,session:d.session?{key:d.session.key,type:d.session.type,name:d.session.name,meta:d.session.meta,dist:d.session.dist}:null,status:d.status})),
-      logs:{...G.logs},
-    });
-  }
-
-  G.pb2k=v2k;G.pb500=v500;G.pb5k=v5k;
-  G.planStart=document.getElementById('plan-start').value||localToday();
-  const [py,pm,pd]=G.planStart.split('-').map(Number);
-
-  G.plan=[];G.logs={};
-  const usedKeys=new Set(); // track across full month for variety
-  for(let w=0;w<4;w++){
-    const days=buildWeek(w,G.restDays,usedKeys);
-    for(let d=0;d<7;d++){
-      const dt=new Date(py,pm-1,pd+w*7+d);
-      const dateStr=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-      const day=days[d];
-      G.plan.push({date:dateStr,slot:day.slot,session:day.session,primer:day.primer||null,status:'upcoming'});
-    }
-  }
-  const today=new Date();G.viewYear=today.getFullYear();G.viewMonth=today.getMonth();
-  renderPlanView();showScreen('screen-plan');
-}
-
-function renderPlanView(){
-  const d0=new Date(G.planStart+'T00:00:00');
-  document.getElementById('plan-nav-title').textContent=MONTHS[d0.getMonth()]+' plan';
-  const total=G.plan.filter(d=>d.session).length;
-  document.getElementById('plan-stat-sessions').textContent=total+' sessions';
-  const parts=[];if(G.pb500)parts.push('500m: '+G.pb500);if(G.pb2k)parts.push('2k: '+G.pb2k);if(G.pb5k)parts.push('5k: '+G.pb5k);
-  document.getElementById('plan-stat-paces').textContent=parts.join(' · ');
-  const container=document.getElementById('plan-weeks');container.innerHTML='';
-  for(let w=0;w<4;w++){
-    const days=G.plan.slice(w*7,(w+1)*7);const isFinal=w===3;
-    const weekVol=days.reduce((sum,d)=>sum+(!d.session||d.slot==='rest'||d.slot==='test'?0:sessionDist(d.session)),0);
-    const volStr=weekVol>0?` <span style="font-weight:400;opacity:.7">· ${(weekVol/1000).toFixed(1)}k</span>`:'';
-    const block=document.createElement('div');block.className='week-block';
-    block.innerHTML=`<div class="week-header${isFinal?' final':''}">Week ${w+1}${isFinal?' — Final week':''}${volStr}</div>`;
-    days.forEach((day,di)=>{
-      const row=document.createElement('div');row.className='day-row';
-      const dt=new Date(day.date+'T00:00:00');
-      const dateLabel=(dt.getMonth()+1)+'/'+dt.getDate();
-      const dayLabel=DAYS_SHORT[dt.getDay()===0?6:dt.getDay()-1]; // Mon=0...Sun=6
-      if(!day.session){
-        row.innerHTML=`<span class="day-label">${dayLabel}</span><span class="day-date">${dateLabel}</span><div><span class="rest-text">— Rest</span></div>`;
-      } else {
-        const cards=[];
-        if(day.primer){cards.push(buildPlanCard(w,di,'primer',day.primer));cards.push(`<div class="primer-divider">↓ 5–6 min rest ↓</div>`);}
-        cards.push(buildPlanCard(w,di,'main',day.session));
-        row.innerHTML=`<span class="day-label">${dayLabel}</span><span class="day-date">${dateLabel}</span><div>${cards.join('')}</div>`;
-      }
-      block.appendChild(row);
-    });
-    container.appendChild(block);
-  }
-}
-
-function buildPlanCard(wi,di,which,session){
-  const tgt=getTgt(session);const dur=fmtSessionDur(session);const isTest=session.type==='test';
-  const drawerId=`sd-${wi}-${di}-${which}`;
-  const tgtHtml=tgt?`<span class="target-pill"><span class="tpill-label">${tgt.label}:</span>${tgt.val}</span>`:'';
-  const swapBtn=isTest?'':`<button type="button" class="swap-btn" onclick="toggleSwap(event,${wi},${di},'${which}')">swap ↕</button>`;
-  return `<div class="session-card${isTest?' test-card':''}">
-    <div class="sc-top"><span class="sc-badge ${TYPE_BADGE[session.type]||'b-end'}">${TYPE_LABEL[session.type]||session.type}</span>
-    <div class="sc-info"><div class="sc-name">${session.name}</div><div class="sc-meta">${session.meta}</div></div>${swapBtn}</div>
-    <div class="sc-bottom">${tgtHtml}<span class="dur-pill">⏱ ${dur}</span></div>
-    <div class="swap-drawer" id="${drawerId}"></div></div>`;
-}
-
-function toggleSwap(e,wi,di,which){
-  e.stopPropagation();
-  const drawerId=`sd-${wi}-${di}-${which}`;const drawer=document.getElementById(drawerId);
-  const isOpen=drawer.classList.contains('open');
-  document.querySelectorAll('.swap-drawer').forEach(d=>d.classList.remove('open'));
-  if(isOpen)return;
-  const day=G.plan[wi*7+di];const current=which==='primer'?day.primer:day.session;
-  const pool=which==='primer'?LIB.speed:(LIB[day.session.type]||[]);
-  drawer.innerHTML=pool.map(s=>{const t=getTgt(s);const tv=t&&!t.isText?t.val:'';
-    return `<div class="swap-opt${s.key===current.key?' cur':''}" onclick="doSwap(${wi},${di},'${which}','${s.key}')">
-      <div class="swap-opt-top"><span class="swap-opt-name">${s.name}</span><span class="swap-opt-tgt">${tv}</span></div>
-      <div class="swap-opt-sub">${s.meta} · ${fmtSessionDur(s)}</div></div>`;}).join('');
-  drawer.classList.add('open');
-}
-function doSwap(wi,di,which,newKey){
-  const day=G.plan[wi*7+di];const pool=which==='primer'?LIB.speed:(LIB[day.session.type]||[]);
-  const s=pool.find(x=>x.key===newKey);if(!s)return;
-  if(which==='primer')day.primer={...s};else day.session={...s};
-  document.querySelectorAll('.swap-drawer').forEach(d=>d.classList.remove('open'));renderPlanView();
-}
-document.addEventListener('click',()=>document.querySelectorAll('.swap-drawer').forEach(d=>d.classList.remove('open')));
-
-function savePlan(){commit({cal:true});showScreen('screen-cal');showToast('Plan saved — ready to row!');}
-function goSetup(){
-  document.getElementById('pb500').value=G.pb500||'';
-  document.getElementById('pb2k').value=G.pb2k||'';
-  document.getElementById('pb5k').value=G.pb5k||'';
-  // Always default to today when starting a new plan — don't restore old start date
-  document.getElementById('plan-start').value=localToday();
-  if(G.restDays)selRest(G.restDays);
-  showScreen('screen-setup');
-}
-
-// ── STREAK ──
-// Streak = calendar days in continuous agreement with the plan, walking back
-// from today. Every day must be a completed workout or a planned rest day.
-// Rules (locked with Tom):
-//  - A workout counts only if logged by the end of the following day (loggedAt
-//    grace); working back to old sessions later marks them done but never
-//    repairs the streak. Logs without loggedAt (pre-feature) get the benefit
-//    of the doubt.
-//  - Skipped sessions and silently missed sessions break the chain.
-//  - Unscheduled dates inside a plan's range (e.g. holes left by shifting)
-//    break the chain. Unscheduled dates BETWEEN plans (month transitions)
-//    are exempt.
-//  - Today unlogged is pending, not broken; same for yesterday while its
-//    logging grace is still open.
+// ── DATE HELPERS ──
 function addDaysStr(dateStr,n){
   const[y,m,d]=dateStr.split('-').map(Number);
   const dt=new Date(y,m-1,d+n);
   return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
 }
-function calcStreak(){
-  const todayStr=localToday();
-  // Assemble every known day across current plan + archives: date → info
-  const byDate={};
-  const ranges=[]; // [min,max] per source, for the inside-a-plan gap test
-  const addSource=(days,logs)=>{
-    if(!days||!days.length)return;
-    let min=null,max=null;
-    days.forEach(d=>{
-      if(min===null||d.date<min)min=d.date;
-      if(max===null||d.date>max)max=d.date;
-      byDate[d.date]={isRest:d.slot==='rest'||!d.session,status:d.status,
-        log:d.session?(logs||{})[d.date+'_'+d.session.key]:null};
-    });
-    ranges.push([min,max]);
+
+// ── ADAPTIVE TARGETS ──
+// Sessions/week and volume/week drift toward what the athlete is actually
+// accomplishing, recomputed weekly over a rolling 4 weeks. Deliberately
+// asymmetric: targets rise readily (50% of the gap) but fall slowly (25%),
+// so a rough fortnight doesn't quietly lower the bar for good.
+function updateTargets(){
+  const today=localToday();
+  const t=G.targets;
+  if(t.updatedAt&&daysBetween(t.updatedAt,today)<7)return;
+  const age=daysBetween(G.startedAt||today,today);
+  if(age<14){t.updatedAt=today;return;} // too early to judge
+  const sess=recentSessions(28).filter(x=>x.lib.type!=='test');
+  const weeks=Math.max(1,Math.min(4,age/7));
+  const obsSessions=sess.length/weeks;
+  const obsVolume=sess.reduce((s,x)=>s+sessionDist(x.lib),0)/weeks;
+  const adj=(cur,obs,floor,ceil)=>{
+    const rate=obs>cur?0.5:0.25;
+    return Math.max(floor,Math.min(ceil,cur+(obs-cur)*rate));
   };
-  addSource(G.plan,G.logs);
-  (G.archive||[]).forEach(e=>addSource(e.plan,e.logs));
-  if(!ranges.length)return 0;
-  const globalMin=ranges.reduce((m,r)=>r[0]<m?r[0]:m,ranges[0][0]);
-  const yesterday=addDaysStr(todayStr,-1);
-  let streak=0;
-  let date=todayStr;
-  while(date>=globalMin){
-    const info=byDate[date];
-    if(!info){
-      // Unscheduled date: break if it falls inside any plan's range, exempt otherwise
-      const insidePlan=ranges.some(r=>date>=r[0]&&date<=r[1]);
-      if(insidePlan)break;
-      date=addDaysStr(date,-1);continue;
-    }
-    if(info.isRest){date=addDaysStr(date,-1);continue;}
-    if(info.status==='done'){
-      // Grace check: logged by end of the day after the session
-      const la=info.log&&info.log.loggedAt;
-      const valid=!la||la.slice(0,10)<=addDaysStr(date,1);
-      if(!valid)break; // worked back later — honest record, broken streak
-      streak++;date=addDaysStr(date,-1);continue;
-    }
-    // Not done: today and yesterday are still pending inside the grace window
-    if((date===todayStr||date===yesterday)&&info.status!=='skipped'){date=addDaysStr(date,-1);continue;}
-    break; // skipped or silently missed
+  t.sessions=Math.round(adj(t.sessions,obsSessions,TARGET_FLOOR.sessions,TARGET_CEIL.sessions)*10)/10;
+  t.volume=Math.round(adj(t.volume,obsVolume,TARGET_FLOOR.volume,TARGET_CEIL.volume)/500)*500;
+  t.updatedAt=today;
+}
+
+// ── ROLLING STATUS (last 7 days) ──
+function ratioStatus(){
+  const sess=recentSessions(7).filter(x=>x.lib.type!=='test');
+  const counts={max:0,thresh:0,end:0};
+  sess.forEach(x=>{if(counts[x.lib.type]!==undefined)counts[x.lib.type]++;});
+  const N=G.targets.sessions;
+  const targets={max:N*RATIO.max,thresh:N*RATIO.thresh,end:N*RATIO.end};
+  const deficit={};
+  Object.keys(targets).forEach(k=>deficit[k]=targets[k]-counts[k]);
+  return{counts,targets,deficit,total:sess.length,targetTotal:N};
+}
+function volumeStatus(){
+  const done=recentSessions(7).reduce((s,x)=>s+sessionDist(x.lib),0);
+  return{done,target:G.targets.volume,gap:G.targets.volume-done};
+}
+function lastUsedMap(){
+  const m={};
+  Object.keys(G.history).forEach(d=>{
+    const h=G.history[d];
+    if(h.kind==='session'&&(!m[h.key]||d>m[h.key]))m[h.key]=d;
+  });
+  return m;
+}
+
+// ── SUGGESTION ENGINE ──
+// Category deficit picks the session TYPE; the volume gap picks its SIZE.
+// Max and threshold rotate least-recently-used (variety); endurance fits the
+// remaining volume. Suggestions are always soft — every option is offered,
+// nothing is blocked.
+function pickSessionForCategory(cat,targetDist){
+  const pool=(LIB[cat]||[]).filter(s=>!s.beginnerOnly);
+  if(!pool.length)return null;
+  const used=lastUsedMap();
+  if(cat==='end'&&targetDist>0){
+    // Prefer a good volume fit, but break ties toward least-recently-used
+    return[...pool].sort((a,b)=>{
+      const fa=Math.abs(sessionDist(a)-targetDist),fb=Math.abs(sessionDist(b)-targetDist);
+      if(Math.abs(fa-fb)>600)return fa-fb;
+      return(used[a.key]||'')<(used[b.key]||'')?-1:1;
+    })[0];
   }
-  return streak;
+  return[...pool].sort((a,b)=>(used[a.key]||'')<(used[b.key]||'')?-1:1)[0];
 }
-function streakDots(){
-  const todayStr=localToday();
-  return G.plan.filter(d=>d.date<=todayStr&&d.slot!=='rest'&&d.session).slice(-7).map(d=>({done:d.status==='done',today:d.date===todayStr}));
+function reasonFor(cat,rs,vs){
+  const short=rs.deficit[cat];
+  const label={max:'hard',thresh:'threshold',end:'endurance'}[cat];
+  if(short>=1.5)return'You\'re well short on '+label+' work this week';
+  if(short>=0.5)return'You\'re due a '+label+' session';
+  if(cat==='end'&&vs.gap>6000)return'Endurance would close the volume gap';
+  return'Keeps your week balanced';
 }
-
-// ── MILESTONE ──
-function checkMilestone(streak){
-  if(!MILESTONE_DAYS.has(streak))return null;
-  return MILESTONES.find(m=>m.days===streak)||null;
-}
-function showMilestoneModal(ms){
-  document.getElementById('modal-flame').textContent='🔥';
-  document.getElementById('modal-count').textContent=ms.days;
-  document.getElementById('modal-count-label').textContent='day streak';
-  document.getElementById('modal-title').textContent=ms.title;
-  document.getElementById('modal-message').textContent=ms.message;
-  document.getElementById('modal-overlay').classList.remove('hidden');
-}
-function dismissModal(e){
-  if(e&&e.target!==document.getElementById('modal-overlay'))return;
-  document.getElementById('modal-overlay').classList.add('hidden');
-}
-function dismissMilestoneNote(){G.activeMilestone=null;commit({today:true});}
-
-// ── CALENDAR ──
-function changeMonth(dir){
-  G.viewMonth+=dir;
-  if(G.viewMonth>11){G.viewMonth=0;G.viewYear++;}
-  if(G.viewMonth<0){G.viewMonth=11;G.viewYear--;}
-  renderCal();
-}
-function planFor(dateStr){return G.plan.find(d=>d.date===dateStr)||null;}
-
-// Returns archived day + its parent archive entry, or null
-function archiveFor(dateStr){
-  for(const entry of(G.archive||[])){
-    const day=entry.plan.find(d=>d.date===dateStr);
-    if(day)return{day,entry};
+function suggestSessions(){
+  const rs=ratioStatus(),vs=volumeStatus();
+  const out=[];
+  // A due test outranks everything
+  if(testDue()){
+    const test=LIB.test&&LIB.test[0];
+    if(test)out.push({session:test,cat:'test',primary:true,
+      reason:'It\'s been four weeks — time to retest your 2k'});
   }
-  return null;
-}
-
-// Returns archived log for a given date + session key
-function archiveLogFor(dateStr,sessionKey){
-  for(const entry of(G.archive||[])){
-    const logKey=dateStr+'_'+sessionKey;
-    if(entry.logs&&entry.logs[logKey])return entry.logs[logKey];
+  const order=['max','thresh','end'].sort((a,b)=>rs.deficit[b]-rs.deficit[a]);
+  const remaining=Math.max(1,Math.ceil(rs.targetTotal-rs.total));
+  const perSession=Math.max(5000,Math.round(vs.gap/remaining));
+  order.slice(0,2).forEach(cat=>{
+    const s=pickSessionForCategory(cat,cat==='end'?perSession:0);
+    if(!s||out.some(o=>o.session.key===s.key))return;
+    out.push({session:s,cat,primary:out.length===0,reason:reasonFor(cat,rs,vs)});
+  });
+  // Easy fallback — always available, keeps the habit alive on a rough morning
+  const easy=[...(LIB.end||[])].sort((a,b)=>sessionDist(a)-sessionDist(b))[0];
+  if(easy&&!out.some(o=>o.session.key===easy.key)){
+    out.push({session:easy,cat:'end',primary:false,easy:true,
+      reason:'Short and easy — something is better than nothing'});
   }
-  return null;
+  // Soft guard: back-to-back max efforts are allowed, but flagged
+  const yest=histFor(addDaysStr(localToday(),-1));
+  if(yest&&yest.kind==='session'){
+    const yl=getByKey(yest.key);
+    if(yl&&yl.type==='max')out.forEach(o=>{if(o.cat==='max')o.warn='You went hard yesterday — two in a row is a big ask';});
+  }
+  return out;
 }
 
+// ── TEST CADENCE ──
+// Four weeks after the last test (or first use), then re-asked weekly.
+function testDue(){
+  const today=localToday();
+  const anchor=G.lastTest||G.startedAt;
+  if(!anchor)return false;
+  if(daysBetween(anchor,today)<28)return false;
+  if(G.testPromptSnoozed&&daysBetween(G.testPromptSnoozed,today)<7)return false;
+  return true;
+}
+function snoozeTest(){G.testPromptSnoozed=localToday();commit({cal:true,daily:true});}
+
+// ── MONTH STATS ──
+function monthStats(yr,mo){
+  const prefix=yr+'-'+String(mo+1).padStart(2,'0');
+  const dates=Object.keys(G.history).filter(d=>d.startsWith(prefix));
+  const sess=dates.filter(d=>G.history[d].kind==='session')
+    .map(d=>({...G.history[d],lib:getByKey(G.history[d].key)})).filter(x=>x.lib);
+  const byType={max:0,thresh:0,end:0,test:0};
+  sess.forEach(x=>{if(byType[x.lib.type]!==undefined)byType[x.lib.type]++;});
+  return{sessions:sess.length,
+    rest:dates.filter(d=>G.history[d].kind==='rest').length,
+    volume:sess.reduce((s,x)=>s+sessionDist(x.lib),0),byType};
+}
+
+// ── CALENDAR (a record of what happened, not a schedule) ──
+// dayState is the single lens every view uses to ask "what is this date?"
+function dayState(dateStr){
+  const today=localToday();
+  const h=histFor(dateStr);
+  if(h)return{date:dateStr,kind:h.kind,rec:h,session:histSession(dateStr)};
+  if(dateStr===today)return{date:dateStr,kind:'today',rec:null,session:pinnedFor(today)};
+  if(dateStr>today)return{date:dateStr,kind:'future',rec:null,session:pinnedFor(dateStr)};
+  return{date:dateStr,kind:'empty',rec:null,session:pinnedFor(dateStr)}; // past, nothing logged yet
+}
+function pinnedFor(dateStr){
+  return(G.nextUp&&G.nextUp.date===dateStr)?getByKey(G.nextUp.key):null;
+}
+// After logging, line up tomorrow so there's something waiting. Pinned, not
+// committed — the morning menu still offers alternatives.
+function pinNext(){
+  const tomorrow=addDaysStr(localToday(),1);
+  const sug=suggestSessions();
+  if(sug.length)G.nextUp={date:tomorrow,key:sug[0].session.key};
+}
+
+function changeMonth(delta){
+  let m=G.viewMonth+delta,y=G.viewYear;
+  if(m<0){m=11;y--;}else if(m>11){m=0;y++;}
+  G.viewMonth=m;G.viewYear=y;
+  commit({cal:true});
+}
 function renderCal(){
-  const y=G.viewYear,m=G.viewMonth;
-  document.getElementById('cal-month-label').textContent=MONTHS[m]+' '+y;
-  const grid=document.getElementById('cal-grid');grid.innerHTML='';
-  DAYS_SHORT.forEach(d=>{const el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el);});
-  const first=new Date(y,m,1);let startDow=first.getDay();startDow=startDow===0?6:startDow-1;
-  const daysInMonth=new Date(y,m+1,0).getDate();
-  const todayStr=localToday();
-  for(let i=0;i<startDow;i++){const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);}
-  for(let d=1;d<=daysInMonth;d++){
-    const dateStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const isToday=dateStr===todayStr;const isPast=dateStr<todayStr;
-    const plan=planFor(dateStr);
-    const archived=!plan?archiveFor(dateStr):null; // only check archive if not in current plan
-    const el=document.createElement('div');el.className='cal-day'+(isToday?' is-today':'');el.onclick=()=>openDay(dateStr);
-    const numEl=document.createElement('span');numEl.className='day-num';numEl.textContent=d;el.appendChild(numEl);
-
-    const BAR_COLOR={max:'var(--red-border)',thresh:'var(--green-border)',end:'var(--blue-border)',speed:'var(--orange-border)',test:'var(--amber-border)'};
-    if(plan&&plan.slot!=='rest'&&plan.session){
-      const s=plan.session;
-      const done=plan.status==='done';const skipped=plan.status==='skipped';
+  updateTargets();
+  const today=localToday();
+  if(G.viewYear===null){const[y,m]=today.split('-').map(Number);G.viewYear=y;G.viewMonth=m-1;}
+  const yr=G.viewYear,mo=G.viewMonth;
+  document.getElementById('cal-month-label').textContent=MONTHS[mo]+' '+yr;
+  const grid=document.getElementById('cal-grid');
+  grid.innerHTML='';
+  ['M','T','W','T','F','S','S'].forEach(d=>{
+    const h=document.createElement('div');h.className='cal-dow';h.textContent=d;grid.appendChild(h);
+  });
+  const first=new Date(yr,mo,1);
+  const lead=(first.getDay()+6)%7; // Monday-first
+  const dim=new Date(yr,mo+1,0).getDate();
+  for(let i=0;i<lead;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  const BAR={max:'var(--red-border)',thresh:'var(--green-border)',end:'var(--blue-border)',speed:'var(--orange-border)',test:'var(--amber-border)'};
+  for(let d=1;d<=dim;d++){
+    const dateStr=yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const st=dayState(dateStr);
+    const el=document.createElement('div');
+    el.className='cal-day'+(dateStr===today?' is-today':'');
+    el.onclick=()=>openDay(dateStr);
+    const num=document.createElement('span');num.className='day-num';num.textContent=d;el.appendChild(num);
+    if(st.kind==='session'&&st.session){
       const bar=document.createElement('span');
-      bar.className='cell-bar'+(done?'':skipped?' skip':' up');
-      bar.style.background=BAR_COLOR[s.type]||BAR_COLOR.end;
+      bar.className='cell-bar';bar.style.background=BAR[st.session.type]||BAR.end;
       el.appendChild(bar);
-      const logKey=plan.date+'_'+s.key;const log=G.logs[logKey];
-      if(done&&log&&log.pace){const pe=document.createElement('span');pe.className='cell-pace';pe.textContent=log.pace;el.appendChild(pe);}
-      if(!done&&!skipped&&isPast){const dot=document.createElement('div');dot.className='status-dot dot-due';el.appendChild(dot);}
-    } else if(plan&&plan.slot==='rest'){
-      const re=document.createElement('span');re.className='cell-rest';re.textContent='·';el.appendChild(re);
-    } else if(archived&&archived.day.slot!=='rest'&&archived.day.session){
-      const s=archived.day.session;
+      if(st.rec.pace){const p=document.createElement('span');p.className='cell-pace';p.textContent=st.rec.pace;el.appendChild(p);}
+    } else if(st.kind==='rest'){
+      const r=document.createElement('span');r.className='cell-rest';r.textContent='·';el.appendChild(r);
+    } else if(st.session){
       const bar=document.createElement('span');
-      bar.className='cell-bar';bar.style.background=BAR_COLOR[s.type]||BAR_COLOR.end;bar.style.opacity='.45';
+      bar.className='cell-bar up';bar.style.background=BAR[st.session.type]||BAR.end;
       el.appendChild(bar);
-      const log=archived.entry.logs&&archived.entry.logs[dateStr+'_'+s.key];
-      if(log&&log.pace){const pe=document.createElement('span');pe.className='cell-pace';pe.style.opacity='.6';pe.textContent=log.pace;el.appendChild(pe);}
-    } else if(archived&&archived.day.slot==='rest'){
-      const re=document.createElement('span');re.className='cell-rest';re.style.opacity='.4';re.textContent='·';el.appendChild(re);
     }
     grid.appendChild(el);
   }
-  renderTodaySection();
+  renderTodayCard();
+  renderStructureCard();
+  renderMonthStats();
   renderProgressChart();
 }
 
-function renderTodaySection(){
-  renderTodayCompact();
-  renderWeekStrip();
-  renderStreakRow();
-}
-
-// Two-line today card at the very top of the calendar screen
-function renderTodayCompact(){
-  const el=document.getElementById('today-compact');
-  if(!el)return;
-  const todayStr=localToday();
-  const plan=planFor(todayStr);
-  if(!plan||plan.slot==='rest'||!plan.session){
-    el.innerHTML=`<div class="tc2-rest">Rest day — recovery is part of training</div>`;
+// Top of the calendar: what today is, in two lines
+function renderTodayCard(){
+  const el=document.getElementById('today-compact');if(!el)return;
+  const today=localToday();
+  const st=dayState(today);
+  if(st.kind==='rest'){
+    el.innerHTML='<div class="tc2-rest" onclick="openDay(\''+today+'\')">Rest day logged — recovery is part of training</div>';
     return;
   }
-  const s=plan.session;
-  const tgt=getTgt(s);
-  const isDone=plan.status==='done';const isTest=s.type==='test';
-  const statusColor=isDone?'var(--green)':'#e06020';
-  const statusLabel=isDone?'✓ Logged':'Due today';
-  const l2=[s.meta,fmtSessionDur(s)];
-  if(tgt)l2.push('target <span class="mono-t">'+tgt.val.replace(' /500m','')+'</span> /500m');
-  el.innerHTML=`<div class="tc2${isDone?'':' due'}${isTest?'':''}" onclick="openDay('${todayStr}')"${isTest?' style="border-color:var(--amber-border)"':''}>
-    <div class="tc2-l1"><span class="sc-badge ${TYPE_BADGE[s.type]||'b-end'}">${TYPE_LABEL[s.type]||s.type}</span>
-    <span class="tc2-name">${s.name}</span>
-    <span class="tc2-status" style="color:${statusColor}">${statusLabel}</span></div>
-    <div class="tc2-l2">${l2.join(' · ')}</div></div>`;
-}
-
-// Current plan week: volume progress + sessions remaining
-function renderWeekStrip(){
-  const el=document.getElementById('week-strip');
-  if(!el)return;
-  const todayStr=localToday();
-  if(!G.plan||!G.plan.length){el.innerHTML='';return;}
-  // Position-based week: plan entries are one per date, sorted
-  let idx=G.plan.findIndex(d=>d.date>=todayStr);
-  if(idx===-1){el.innerHTML='';return;} // plan is entirely in the past
-  const weekNum=Math.floor(idx/7);
-  const week=G.plan.slice(weekNum*7,weekNum*7+7);
-  if(!week.length){el.innerHTML='';return;}
-  const sessions=week.filter(d=>d.session&&d.slot!=='rest');
-  const planned=sessions.reduce((s,d)=>s+sessionDist(d.session),0);
-  const done=sessions.filter(d=>d.status==='done').reduce((s,d)=>s+sessionDist(d.session),0);
-  const left=sessions.filter(d=>d.status!=='done'&&d.status!=='skipped').length;
-  const pct=planned>0?Math.min(100,Math.round(done/planned*100)):0;
-  const d0=new Date(week[0].date+'T00:00:00'),d1=new Date(week[week.length-1].date+'T00:00:00');
-  const range=MONTHS[d0.getMonth()].slice(0,3)+' '+d0.getDate()+'–'+(d0.getMonth()===d1.getMonth()?'':MONTHS[d1.getMonth()].slice(0,3)+' ')+d1.getDate();
-  el.innerHTML=`<div class="wstrip">
-    <div class="wstrip-top"><span>Week ${weekNum+1} · ${range}</span>
-    <span class="wstrip-vol">${(done/1000).toFixed(1)}k / ${(planned/1000).toFixed(1)}k</span></div>
-    <div class="wstrip-bar"><span class="wstrip-fill" style="width:${pct}%"></span></div>
-    <div class="wstrip-sub">${left===0?'Week complete':left+' session'+(left===1?'':'s')+' left'}</div></div>`;
-}
-
-// Condensed streak row below the grid
-function renderStreakRow(){
-  const section=document.getElementById('today-section');
-  if(!section)return;
-  const streak=calcStreak();const dots=streakDots();
-  if(streak>0){
-    const msg=streak>=90?'This is just what you do now.':streak>=60?'Two months of consistent training.':streak>=45?'Six weeks of compounding fitness.':streak>=30?'A full plan cycle, start to finish.':streak>=21?'This is a habit now.':streak>=14?'Two weeks — one more to make it a habit.':streak>=7?'A complete training cycle.':streak>=3?'You\'ve found your rhythm.':'Keep it going!';
-    const dotsHtml=dots.map(d=>`<div class="sdot ${d.today?'sdot-today':d.done?'sdot-done':'sdot-up'}"></div>`).join('');
-    const msNote=G.activeMilestone?`<div class="sr-note"><div class="milestone-note"><span class="milestone-note-icon">🏆</span><span class="milestone-note-text">${G.activeMilestone.note}</span><button type="button" class="milestone-dismiss" onclick="dismissMilestoneNote()">✕</button></div></div>`:'';
-    section.innerHTML=`<div class="streak-row"><span style="font-size:18px">🔥</span>
-      <span class="sr-count">${streak} day${streak===1?'':'s'}</span>
-      <span class="sr-msg">${msg}</span>
-      <div class="sr-dots">${dotsHtml}</div>${msNote}</div>`;
-  } else {
-    section.innerHTML=`<div class="streak-row"><span style="font-size:18px;opacity:.3">🔥</span>
-      <span class="sr-count zero">0 days</span>
-      <span class="sr-msg">Log today's session to start your streak</span></div>`;
+  if(st.kind==='session'&&st.session){
+    const line2=[st.session.meta,st.rec.pace?'<span class="mono-t">'+st.rec.pace+'</span> /500m':''].filter(Boolean);
+    el.innerHTML='<div class="tc2" onclick="openDay(\''+today+'\')"><div class="tc2-l1">'
+      +'<span class="sc-badge '+(TYPE_BADGE[st.session.type]||'b-end')+'">'+(TYPE_LABEL[st.session.type]||st.session.type)+'</span>'
+      +'<span class="tc2-name">'+st.session.name+'</span>'
+      +'<span class="tc2-status" style="color:var(--green)">✓ Logged</span></div>'
+      +'<div class="tc2-l2">'+line2.join(' · ')+'</div></div>';
+    return;
   }
+  // Nothing logged yet today
+  if(st.session){
+    const tgt=getTgt(st.session);
+    const l2=[st.session.meta,fmtSessionDur(st.session)];
+    if(tgt)l2.push('target <span class="mono-t">'+tgt.val.replace(' /500m','')+'</span> /500m');
+    el.innerHTML='<div class="tc2 due" onclick="openDay(\''+today+'\')"><div class="tc2-l1">'
+      +'<span class="sc-badge '+(TYPE_BADGE[st.session.type]||'b-end')+'">'+(TYPE_LABEL[st.session.type]||st.session.type)+'</span>'
+      +'<span class="tc2-name">'+st.session.name+'</span>'
+      +'<span class="tc2-status" style="color:#e06020">Ready</span></div>'
+      +'<div class="tc2-l2">'+l2.join(' · ')+'</div></div>';
+  } else {
+    el.innerHTML='<div class="tc2 due" onclick="openDay(\''+today+'\')"><div class="tc2-l1">'
+      +'<span class="tc2-name">Choose today\'s session</span>'
+      +'<span class="tc2-status" style="color:#e06020">Tap to pick</span></div>'
+      +'<div class="tc2-l2">Suggestions based on your last 7 days</div></div>';
+  }
+}
+
+// Rolling 7-day structure: how the week is shaping up against the ratio
+function renderStructureCard(){
+  const el=document.getElementById('week-strip');if(!el)return;
+  const rs=ratioStatus(),vs=volumeStatus();
+  if(!Object.keys(G.history).length){el.innerHTML='';return;}
+  const pct=vs.target>0?Math.min(100,Math.round(vs.done/vs.target*100)):0;
+  const CATS=[['max','Hard','var(--red-border)'],['thresh','Thresh','var(--green-border)'],['end','End','var(--blue-border)']];
+  const chips=CATS.map(([k,label,col])=>{
+    const want=Math.round(rs.targets[k]*10)/10,have=rs.counts[k];
+    const short=rs.deficit[k]>=0.5;
+    return'<span class="st-chip"><span class="st-dot" style="background:'+col+';opacity:'+(short?'.35':'1')+'"></span>'
+      +label+' <span class="mono-t">'+have+'/'+want+'</span></span>';
+  }).join('');
+  el.innerHTML='<div class="wstrip"><div class="wstrip-top"><span>Last 7 days</span>'
+    +'<span class="wstrip-vol">'+(vs.done/1000).toFixed(1)+'k / '+(vs.target/1000).toFixed(0)+'k</span></div>'
+    +'<div class="wstrip-bar"><span class="wstrip-fill" style="width:'+pct+'%"></span></div>'
+    +'<div class="st-chips">'+chips+'</div></div>';
+}
+
+// Below the grid: the month's totals, as encouragement rather than a streak
+function renderMonthStats(){
+  const el=document.getElementById('today-section');if(!el)return;
+  const s=monthStats(G.viewYear,G.viewMonth);
+  if(!s.sessions&&!s.rest){el.innerHTML='';return;}
+  const parts=[];
+  if(s.byType.max)parts.push(s.byType.max+' hard');
+  if(s.byType.thresh)parts.push(s.byType.thresh+' threshold');
+  if(s.byType.end)parts.push(s.byType.end+' endurance');
+  if(s.byType.test)parts.push(s.byType.test+' test');
+  el.innerHTML='<div class="mstats"><div class="ms-row">'
+    +'<div class="ms-cell"><span class="ms-val">'+s.sessions+'</span><span class="ms-lbl">sessions</span></div>'
+    +'<div class="ms-cell"><span class="ms-val">'+(s.volume/1000).toFixed(1)+'k</span><span class="ms-lbl">metres</span></div>'
+    +'<div class="ms-cell"><span class="ms-val">'+s.rest+'</span><span class="ms-lbl">rest days</span></div></div>'
+    +(parts.length?'<div class="ms-break">'+parts.join(' · ')+'</div>':'')+'</div>';
 }
 
 // ── ERG LINK ──
@@ -1461,179 +1225,203 @@ function rerenderErgSection(key){
 }
 
 // ── DAY NAVIGATION ──
-function navigateDay(dir){
-  if(!G.currentDate)return;
-  const idx=G.plan.findIndex(d=>d.date===G.currentDate);
-  if(idx===-1)return;
-  const newIdx=idx+dir;
-  if(newIdx<0||newIdx>=G.plan.length)return;
-  openDay(G.plan[newIdx].date);
+function openDay(dateStr){
+  G.currentDate=dateStr;G.editMode=false;G.currentEffort=null;
+  renderDaily(dateStr);
+  showScreen('screen-daily');
 }
-
-function renderDayNav(){
-  // Nav works across current plan only — archived days show no nav
-  const idx=G.plan.findIndex(d=>d.date===G.currentDate);
-  const prev=document.getElementById('day-nav-prev');
+function navigateDay(delta){
+  if(!G.currentDate)return;
+  openDay(addDaysStr(G.currentDate,delta));
+}
+function updateDayNav(){
+  const today=localToday();
   const next=document.getElementById('day-nav-next');
   const center=document.getElementById('day-nav-center');
-  const dayNav=document.getElementById('day-nav');
-  if(idx===-1){
-    // Archived day — hide nav
-    if(dayNav)dayNav.style.display='none';
-    return;
+  // You can look back freely, but only one day ahead — the future is unwritten
+  if(next)next.disabled=G.currentDate>=addDaysStr(today,1);
+  if(center){
+    const diff=daysBetween(today,G.currentDate);
+    center.textContent=diff===0?'Today':diff===1?'Tomorrow':diff===-1?'Yesterday'
+      :diff<0?Math.abs(diff)+' days ago':'In '+diff+' days';
   }
-  if(dayNav)dayNav.style.display='flex';
-  if(prev) prev.disabled=idx<=0;
-  if(next) next.disabled=idx>=G.plan.length-1;
-  if(center) center.textContent=`Day ${idx+1} of ${G.plan.length}`;
 }
 
 // ── DAILY VIEW ──
-function openDay(dateStr){
-  G.currentDate=dateStr;G.currentEffort=null;G.editMode=false;G._ergEditMode=null;
-  const plan=planFor(dateStr);
-  const dt=new Date(dateStr+'T00:00:00');
-  document.getElementById('daily-date-label').textContent=MONTHS[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear();
-  renderDayNav();
-  if(plan){
-    renderDaily(plan);
-  } else {
-    // Check archive
-    const archived=archiveFor(dateStr);
-    if(archived){
-      renderArchivedDay(archived.day,archived.entry);
-    } else {
-      // Date exists but has no plan data
-      const body=document.getElementById('daily-body');
-      body.innerHTML=`<div style="padding:32px 0;text-align:center;color:var(--text3);font-size:14px;">No session recorded for this day.</div>`;
-      document.getElementById('save-bar').style.display='none';
-    }
-  }
-  showScreen('screen-daily');
-}
-
-function renderDaily(plan){
-  const body=document.getElementById('daily-body');const saveBar=document.getElementById('save-bar');
-  if(!plan||plan.slot==='rest'){
-    body.innerHTML=`<div style="padding:32px 0;text-align:center;"><div style="font-size:32px;margin-bottom:12px;color:var(--text3)">—</div><div style="font-size:20px;font-weight:600;margin-bottom:6px;">Rest day</div><div style="font-size:14px;color:var(--text2);">Recovery is part of training.</div></div>`;
-    saveBar.style.display='none';return;
-  }
-  const s=plan.session;const primer=plan.primer||null;const tgt=getTgt(s,plan.date);
-  const typeCls=TYPE_BADGE[s.type]||'b-end';const typeLabel=TYPE_LABEL[s.type]||s.type;
-  const isLogged=plan.status==='done';const isTest=s.type==='test';
-  const isSkipped=plan.status==='skipped';
-  const logKey=plan.date+'_'+s.key;const log=G.logs[logKey]||{};
-  const prevDays=G.plan.filter(d=>d.session&&d.session.key===s.key&&d.status==='done'&&d.date!==plan.date);
-  const prev=prevDays.length?prevDays[prevDays.length-1]:null;
-  const prevLog=prev?G.logs[prev.date+'_'+s.key]:null;
+function renderDaily(dateStr){
+  if(!dateStr)return;
+  const st=dayState(dateStr);
+  const body=document.getElementById('daily-body');
+  const saveBar=document.getElementById('save-bar');
+  const d=new Date(dateStr+'T00:00:00');
+  document.getElementById('daily-date-label').textContent=
+    DAYS_SHORT[(d.getDay()+6)%7]+', '+MONTHS[d.getMonth()]+' '+d.getDate();
+  updateDayNav();
+  saveBar.style.display='none';
   let html='';
-  if(isLogged&&!G.editMode){
-    html+=`<div class="complete-banner"><div style="font-size:20px">✓</div>
-      <div><div class="complete-text">Workout logged</div>
-      <div class="complete-sub">${log.pace?log.pace+' /500m avg':''} ${log.effort?'· Effort '+log.effort+'/4':''}</div></div>
-      <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(planFor(G.currentDate))">Edit</button></div>`;
-  }
-  if(isSkipped){
-    html+=`<div class="complete-banner" style="background:#241a08;border-color:var(--amber-border);">
-      <div style="font-size:18px">⏭</div>
-      <div><div class="complete-text" style="color:var(--amber)">Marked as skipped</div>
-      <div class="complete-sub">Ended up doing it anyway? Log a result below and it comes off the skipped list.</div></div></div>`;
-  }
-  if(isTest){
-    const proj=projected2k();
-    html+=`<div class="test-note-box"><div class="test-note-title">Month-end time trial</div>
-      <div class="test-note-text">Row for a genuine personal best. Enter your result below — if it's a new PB, the tracker will celebrate with you and take you straight to next month's plan with your updated benchmarks.</div>
-      ${proj?`<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--amber-border);font-size:13px;color:var(--amber);">Goal: <span style="font-family:var(--mono);font-weight:600;">${fmt(proj.time)}</span> <span style="font-size:11px;color:var(--text3);">(${fmt(proj.pace)} /500m) — from your recent max + threshold work</span></div>`:''}</div>`;
-  }
-  const canSwap=!isLogged&&!isTest;
-  // Repeat session? (done before under this key, in current plan or archive)
-  const doneBefore=!!prev||(G.archive||[]).some(e=>Object.keys(e.logs||{}).some(k=>k.endsWith('_'+s.key)));
-  const detailsOpen=!doneBefore;
 
-  // 1. Hero — badge + name + one combined target line
-  const tgtLine=[s.meta,fmtSessionDur(s)];
-  if(tgt)tgtLine.push('target <span class="mono-t">'+tgt.val+'</span>');
-  let adaptedNote='';
-  if(tgt&&tgt.adapted){
-    const ad=new Date(tgt.adapted.fromDate+'T00:00:00');
-    adaptedNote='<div style="font-size:11px;color:var(--text3);margin-top:3px;">↝ adapted from your '+tgt.adapted.fromName+' ('+MONTHS[ad.getMonth()].slice(0,3)+' '+ad.getDate()+')</div>';
-  }
-  html+=`<div class="workout-hero">
-    <div class="hero-top"><span class="sc-badge ${typeCls}" style="font-size:11px;padding:3px 10px;">${typeLabel}</span>
-    ${canSwap?'<button type="button" class="daily-swap-btn" onclick="toggleDailySwap()">swap session ↕</button>':''}</div>
-    <div class="workout-name">${s.name}</div>
-    <div class="hero-tgt">${tgtLine.join(' · ')}${adaptedNote}</div></div>`;
-  if(canSwap)html+=`<div class="daily-swap-panel" id="daily-swap-panel"></div>`;
-
-  // 2. Send to erg — the pre-row action, right where the pre-row visit needs it
-  html+=`<div class="log-section" style="margin-top:14px;"><span class="log-label">Send to erg</span>
-    <div id="erg-section-content">${renderErgSection(s.key)}</div></div>`;
-
-  // 3. Primer (hard days)
-  if(primer){
-    const ps=getByKey(primer.key)||primer;
-    html+=`<div class="primer-card"><div class="primer-hdr"><span class="primer-badge">Do first</span> 5–6 min rest before main session</div>
-      <div class="primer-name">${ps.name} <span style="font-size:11px;color:var(--text3);font-weight:400">${ps.meta}</span></div>
-      ${(ps.notes||[]).slice(0,2).map(n=>`<div class="pn">${n}</div>`).join('')}</div>`;
+  // Logged rest day
+  if(st.kind==='rest'){
+    html='<div class="complete-banner"><div style="font-size:18px">☾</div><div>'
+      +'<div class="complete-text">Rest day</div>'
+      +'<div class="complete-sub">Recovery is training too.</div></div></div>'
+      +'<button type="button" class="btn" style="width:100%" onclick="undoRest()">Undo — I did row</button>';
+    body.innerHTML=html;return;
   }
 
-  // 4. Last time — one compact line
-  if(prev&&prevLog){
-    const pd=new Date(prev.date+'T00:00:00');
-    html+=`<div class="lasttime"><span>Last time (${MONTHS[pd.getMonth()].slice(0,3)} ${pd.getDate()}):</span>
-      <span class="lt-pace">${prevLog.pace||'—'}</span>
-      ${prevLog.effort?`<span>· effort ${prevLog.effort}/4</span>`:''}
-      ${prevLog.fwd?`<span class="lt-fwd">"${prevLog.fwd}"</span>`:''}</div>`;
-  }
+  // A session is chosen or logged for this day
+  if(st.session){
+    const s=st.session;
+    const isLogged=st.kind==='session';
+    const rec=st.rec||{};
+    const tgt=getTgt(s,dateStr);
+    const typeCls=TYPE_BADGE[s.type]||'b-end';
+    const typeLabel=TYPE_LABEL[s.type]||s.type;
+    const primer=(rec.primerKey&&getByKey(rec.primerKey))||(s.type==='max'?pickPrimer(0):null);
+    // Previous outing of this same session, for the "last time" line
+    const prevAll=sessionsInRange('0000-01-01',addDaysStr(dateStr,-1)).filter(x=>x.key===s.key);
+    const prev=prevAll.length?prevAll[prevAll.length-1]:null;
+    const doneBefore=!!prev;
 
-  // 5. Description + coaching notes — collapsed for repeat sessions
-  html+=`<div class="details-toggle" onclick="toggleDetails()">
-    <span>Session details</span><span class="dt-arrow" id="dt-arrow">${detailsOpen?'▲ hide':'▼ show'}</span></div>
-    <div id="details-body" style="display:${detailsOpen?'block':'none'}">
-    <div class="desc-text">${s.desc}</div>`;
-  if(s.notes&&s.notes.length){
-    html+=s.notes.map(n=>`<div class="note-row"><div class="note-dot"></div><div class="note-text">${n}</div></div>`).join('');
-  }
-  html+=`</div>`;
-
-  // 6. Log form
-  if(!isLogged||G.editMode){
-    const hasReflect=!!(log.reflect&&log.reflect.length);
-    const paceHint=tgt?tgt.val.replace(' /500m',''):'m:ss.t';
-    html+=`<div class="log-section" style="margin-top:16px;"><span class="log-label">Avg pace / 500m</span>
-      <div class="pace-wrap"><input class="pace-in" id="log-pace" type="text" inputmode="decimal" onblur="this.value=normalizePace(this.value)" placeholder="${paceHint}" value="${log.pace||''}">
-      <span class="pace-unit">/ 500m</span></div></div>
-      <div class="log-section"><span class="log-label">Effort</span>
-      <div class="effort-grid">
-        <button type="button" class="eff-btn" style="padding:12px 4px;" id="e1" onclick="selEff(1)"><span class="eff-label">Easy</span><span class="eff-sub">held back</span></button>
-        <button type="button" class="eff-btn" style="padding:12px 4px;" id="e2" onclick="selEff(2)"><span class="eff-label">Solid</span><span class="eff-sub">on target</span></button>
-        <button type="button" class="eff-btn" style="padding:12px 4px;" id="e3" onclick="selEff(3)"><span class="eff-label">Hard</span><span class="eff-sub">stretched</span></button>
-        <button type="button" class="eff-btn" style="padding:12px 4px;" id="e4" onclick="selEff(4)"><span class="eff-label">Max</span><span class="eff-sub">everything</span></button>
-      </div></div>
-      <div class="log-section"><span class="log-label">Note for next time</span>
-      <textarea class="txt-in" id="log-fwd" rows="2" placeholder="Tip or target to carry forward...">${log.fwd||''}</textarea>
-      <div class="fwd-hint">↗ Shown next time you open this session</div></div>
-      <div class="log-section" id="reflect-section">
-      ${hasReflect
-        ?`<span class="log-label">Reflection</span><textarea class="txt-in" id="log-reflect" rows="3" placeholder="How did it feel?">${log.reflect}</textarea>`
-        :`<span class="reflect-link" onclick="expandReflect()">+ add a reflection</span>`}
-      </div>`;
-    if(log.effort){G.currentEffort=log.effort;setTimeout(()=>selEff(log.effort),0);}
-    saveBar.style.display='flex';
-    const skipLink=document.getElementById('skip-link');
-    if(skipLink)skipLink.style.display=isSkipped?'none':'';
-  } else {
-    if(log){
-      html+=`<div class="log-section"><span class="log-label">Your log</span>`;
-      if(log.reflect)html+=`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:8px">${log.reflect}</div>`;
-      if(log.fwd)html+=`<div style="font-size:13px;color:var(--text3);font-style:italic">Note for next time: "${log.fwd}"</div>`;
-      html+=`</div>`;
+    if(isLogged&&!G.editMode){
+      html+='<div class="complete-banner"><div style="font-size:18px">✓</div><div>'
+        +'<div class="complete-text">Workout logged</div>'
+        +'<div class="complete-sub">'+(rec.pace?rec.pace+' /500m':'No pace recorded')
+        +(rec.effort?' · effort '+rec.effort+'/4':'')+'</div></div>'
+        +'<button type="button" class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(G.currentDate)">Edit</button></div>';
     }
-    saveBar.style.display='none';
+    if(s.type==='test'){
+      const proj=projected2k();
+      html+='<div class="test-note-box"><div class="test-note-title">2k time trial</div>'
+        +'<div class="test-note-text">Row for a genuine personal best. Enter your result below — a new PB updates every pace target from here on.</div>'
+        +(proj?'<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--amber-border);font-size:13px;color:var(--amber);">Goal: <span style="font-family:var(--mono);font-weight:600;">'+fmt(proj.time)+'</span> <span style="font-size:11px;color:var(--text3);">('+fmt(proj.pace)+' /500m) — from your recent max + threshold work</span></div>':'')
+        +'</div>';
+    }
+    const tgtLine=[s.meta,fmtSessionDur(s)];
+    if(tgt)tgtLine.push('target <span class="mono-t">'+tgt.val+'</span>');
+    let adaptedNote='';
+    if(tgt&&tgt.adapted){
+      const ad=new Date(tgt.adapted.fromDate+'T00:00:00');
+      adaptedNote='<div style="font-size:11px;color:var(--text3);margin-top:3px;">↝ adapted from your '+tgt.adapted.fromName+' ('+MONTHS[ad.getMonth()].slice(0,3)+' '+ad.getDate()+')</div>';
+    }
+    const canSwap=!isLogged;
+    html+='<div class="workout-hero"><div class="hero-top">'
+      +'<span class="sc-badge '+typeCls+'" style="font-size:11px;padding:3px 10px;">'+typeLabel+'</span>'
+      +(canSwap?'<button type="button" class="daily-swap-btn" onclick="toggleDailySwap()">choose another ↕</button>':'')
+      +'</div><div class="workout-name">'+s.name+'</div>'
+      +'<div class="hero-tgt">'+tgtLine.join(' · ')+adaptedNote+'</div></div>';
+    if(canSwap)html+='<div class="daily-swap-panel" id="daily-swap-panel"></div>';
+
+    html+='<div class="log-section" style="margin-top:14px;"><span class="log-label">Send to erg</span>'
+      +'<div id="erg-section-content">'+renderErgSection(s.key)+'</div></div>';
+
+    if(primer&&!isLogged){
+      html+='<div class="primer-card"><div class="primer-hdr"><span class="primer-badge">Do first</span> 5–6 min rest before main session</div>'
+        +'<div class="primer-name">'+primer.name+' <span style="font-size:11px;color:var(--text3);font-weight:400">'+primer.meta+'</span></div>'
+        +(primer.notes||[]).slice(0,2).map(n=>'<div class="pn">'+n+'</div>').join('')+'</div>';
+    }
+    if(prev){
+      const pd=new Date(prev.date+'T00:00:00');
+      html+='<div class="lasttime"><span>Last time ('+MONTHS[pd.getMonth()].slice(0,3)+' '+pd.getDate()+'):</span>'
+        +'<span class="lt-pace">'+(prev.pace||'—')+'</span>'
+        +(prev.effort?'<span>· effort '+prev.effort+'/4</span>':'')
+        +(prev.fwd?'<span class="lt-fwd">"'+prev.fwd+'"</span>':'')+'</div>';
+    }
+    const detailsOpen=!doneBefore;
+    html+='<div class="details-toggle" onclick="toggleDetails()"><span>Session details</span>'
+      +'<span class="dt-arrow" id="dt-arrow">'+(detailsOpen?'▲ hide':'▼ show')+'</span></div>'
+      +'<div id="details-body" style="display:'+(detailsOpen?'block':'none')+'">'
+      +'<div class="desc-text">'+s.desc+'</div>'
+      +(s.notes||[]).map(n=>'<div class="note-row"><div class="note-dot"></div><div class="note-text">'+n+'</div></div>').join('')
+      +'</div>';
+
+    if(!isLogged||G.editMode){
+      const hasReflect=!!(rec.reflect&&rec.reflect.length);
+      const paceHint=tgt?tgt.val.replace(' /500m',''):'m:ss.t';
+      html+='<div class="log-section" style="margin-top:16px;"><span class="log-label">Avg pace / 500m</span>'
+        +'<div class="pace-wrap"><input class="pace-in" id="log-pace" type="text" inputmode="decimal" onblur="this.value=normalizePace(this.value)" placeholder="'+paceHint+'" value="'+(rec.pace||'')+'">'
+        +'<span class="pace-unit">/ 500m</span></div></div>'
+        +'<div class="log-section"><span class="log-label">Effort</span><div class="effort-grid">'
+        +[[1,'Easy','held back'],[2,'Solid','on target'],[3,'Hard','stretched'],[4,'Max','everything']].map(([n,l,sub])=>
+          '<button type="button" class="eff-btn" style="padding:12px 4px;" id="e'+n+'" onclick="selEff('+n+')"><span class="eff-label">'+l+'</span><span class="eff-sub">'+sub+'</span></button>').join('')
+        +'</div></div>'
+        +'<div class="log-section"><span class="log-label">Note for next time</span>'
+        +'<textarea class="txt-in" id="log-fwd" rows="2" placeholder="Tip or target to carry forward...">'+(rec.fwd||'')+'</textarea>'
+        +'<div class="fwd-hint">↗ Shown next time you open this session</div></div>'
+        +'<div class="log-section" id="reflect-section">'
+        +(hasReflect?'<span class="log-label">Reflection</span><textarea class="txt-in" id="log-reflect" rows="3">'+rec.reflect+'</textarea>'
+                    :'<span class="reflect-link" onclick="expandReflect()">+ add a reflection</span>')
+        +'</div>';
+      if(rec.effort){G.currentEffort=rec.effort;setTimeout(()=>selEff(rec.effort),0);}
+      saveBar.style.display='flex';
+    }
+    body.innerHTML=html;
+    return;
   }
-  body.innerHTML=html;
+
+  // Nothing chosen yet — offer the menu (today and past days; future stays blank)
+  if(st.kind==='future'){
+    body.innerHTML='<div class="empty-day">Nothing planned yet.<div class="empty-sub">Your next session gets suggested when you log today\'s.</div></div>';
+    return;
+  }
+  body.innerHTML=renderSuggestionMenu(dateStr);
 }
 
+// ── SUGGESTION MENU ──
+function renderSuggestionMenu(dateStr){
+  const today=localToday();
+  const past=dateStr<today;
+  const sug=suggestSessions();
+  const rs=ratioStatus(),vs=volumeStatus();
+  let intro;
+  if(past)intro='Add a session you rowed on this day.';
+  else if(vs.gap>8000)intro='You\'re '+(vs.gap/1000).toFixed(1)+'k under your 7-day volume.';
+  else if(rs.total>=rs.targetTotal)intro='You\'ve hit your target for the week — anything more is a bonus.';
+  else intro='Based on your last 7 days.';
+  let html='<div class="menu-intro">'+intro+'</div>';
+  html+=sug.map(o=>{
+    const t=getTgt(o.session,dateStr);
+    return'<div class="sug-card'+(o.primary?' primary':'')+'" onclick="chooseSession(\''+o.session.key+'\')">'
+      +'<div class="sug-top"><span class="sc-badge '+(TYPE_BADGE[o.session.type]||'b-end')+'">'+(TYPE_LABEL[o.session.type]||o.session.type)+'</span>'
+      +'<span class="sug-name">'+o.session.name+'</span></div>'
+      +'<div class="sug-meta">'+o.session.meta+' · '+fmtSessionDur(o.session)+(t?' · '+t.val:'')+'</div>'
+      +'<div class="sug-reason">'+o.reason+'</div>'
+      +(o.warn?'<div class="sug-warn">⚠ '+o.warn+'</div>':'')
+      +'</div>';
+  }).join('');
+  html+='<div class="menu-actions">'
+    +'<button type="button" class="btn" style="width:100%" onclick="toggleDailySwap()">Browse all sessions</button>'
+    +'<div class="daily-swap-panel" id="daily-swap-panel"></div>';
+  if(!past)html+='<button type="button" class="btn btn-ghost" style="width:100%;margin-top:8px;" onclick="logRest()">Log a rest day</button>';
+  html+='</div>';
+  return html;
+}
+function chooseSession(key){
+  if(!G.currentDate)return;
+  G.nextUp={date:G.currentDate,key};
+  commit({cal:true,daily:true});
+}
+function logRest(){
+  if(!G.currentDate)return;
+  G.history[G.currentDate]={kind:'rest',loggedAt:new Date().toISOString()};
+  if(G.nextUp&&G.nextUp.date===G.currentDate)G.nextUp=null;
+  commit({cal:true,daily:true});
+  showToast('Rest day logged');
+}
+function undoRest(){
+  if(!G.currentDate)return;
+  delete G.history[G.currentDate];
+  commit({cal:true,daily:true});
+}
+
+// ── LOGGING ──
+function selEff(n){
+  G.currentEffort=n;
+  [1,2,3,4].forEach(i=>{
+    const b=document.getElementById('e'+i);
+    if(b)b.classList.toggle('sel',i===n);
+  });
+}
 function toggleDetails(){
   const b=document.getElementById('details-body'),t=document.getElementById('dt-arrow');
   if(!b)return;
@@ -1642,19 +1430,12 @@ function toggleDetails(){
   if(t)t.textContent=open?'▼ show':'▲ hide';
 }
 function expandReflect(){
-  const sec=document.getElementById('reflect-section');
-  if(!sec)return;
-  sec.innerHTML=`<span class="log-label">Reflection</span><textarea class="txt-in" id="log-reflect" rows="3" placeholder="How did it feel? What worked, what didn't?"></textarea>`;
+  const sec=document.getElementById('reflect-section');if(!sec)return;
+  sec.innerHTML='<span class="log-label">Reflection</span><textarea class="txt-in" id="log-reflect" rows="3" placeholder="How did it feel? What worked, what didn\'t?"></textarea>';
   document.getElementById('log-reflect').focus();
 }
-function selEff(n){
-  G.currentEffort=n;
-  [1,2,3,4].forEach(k=>{const el=document.getElementById('e'+k);if(el)el.className='eff-btn'+(k===n?' sel-'+k:'');});
-}
 // Number pads have no ":" — accept what they CAN type and normalize:
-//   2.04.5 → 2:04.5   ·   2.04 / 2.045 → 2:04.0 / 2:04.5
-//   204 → 2:04.0   ·   2045 → 2:04.5  (PM5 convention m:ss.t)
-// Anything already containing ":" or too ambiguous passes through untouched.
+//   2.04.5 → 2:04.5 · 2.04 → 2:04.0 · 204 → 2:04.0 · 2045 → 2:04.5
 function normalizePace(raw){
   if(!raw)return '';
   const s=raw.trim();
@@ -1664,107 +1445,45 @@ function normalizePace(raw){
     if(s.length===4)return s[0]+':'+s.slice(1,3)+'.'+s[3];
     return s;
   }
-  const parts=s.split('.');
-  if(parts.length===3&&parts[0]&&parts[1])return parts[0]+':'+parts[1]+'.'+(parts[2]||'0');
-  if(parts.length===2&&parts[1].length>=2)return parts[0]+':'+parts[1].slice(0,2)+'.'+(parts[1][2]||'0');
+  const p=s.split('.');
+  if(p.length===3&&p[0]&&p[1])return p[0]+':'+p[1]+'.'+(p[2]||'0');
+  if(p.length===2&&p[1].length>=2)return p[0]+':'+p[1].slice(0,2)+'.'+(p[1][2]||'0');
   return s;
 }
 function saveLog(){
-  const plan=planFor(G.currentDate);if(!plan)return;
-  const logKey=plan.date+'_'+plan.session.key;
+  const dateStr=G.currentDate;if(!dateStr)return;
+  const st=dayState(dateStr);
+  const s=st.session;if(!s)return;
   const pace=normalizePace(document.getElementById('log-pace')?.value.trim());
-  // loggedAt: set once on first save, preserved through edits — the streak's
-  // no-retroactive-repair rule depends on knowing when the log was created
-  const existingLoggedAt=G.logs[logKey]&&G.logs[logKey].loggedAt;
-  G.logs[logKey]={pace,effort:G.currentEffort,
-    loggedAt:existingLoggedAt||new Date().toISOString(),
-    reflect:document.getElementById('log-reflect')?.value.trim(),
-    fwd:document.getElementById('log-fwd')?.value.trim()};
-  plan.status='done';G.editMode=false;
+  const prior=histFor(dateStr);
+  G.history[dateStr]={kind:'session',key:s.key,pace,
+    effort:G.currentEffort,
+    loggedAt:(prior&&prior.loggedAt)||new Date().toISOString(),
+    reflect:document.getElementById('log-reflect')?.value.trim()||'',
+    fwd:document.getElementById('log-fwd')?.value.trim()||'',
+    primerKey:(prior&&prior.primerKey)||(s.type==='max'?(pickPrimer(0)||{}).key||null:null)};
+  G.editMode=false;
+  if(G.nextUp&&G.nextUp.date===dateStr)G.nextUp=null;
 
-  // Check email prompt
-  checkEmailPrompt();
-  // Check if this is a 2k test with a result entered
-  const isTest=plan.session&&plan.session.type==='test';
-  if(isTest&&pace){
-    const newSecs=parseT(pace)*4; // pace/500m * 4 = 2k time
-    const oldSecs=parseT(G.pb2k);
-    if(newSecs&&(!oldSecs||newSecs<oldSecs)){
-      // New PB — save it and show celebration
-      const newPbStr=fmt(newSecs);
-      const oldPbStr=G.pb2k||null;
-      G.pb2k=newPbStr;
-      commit({cal:true,daily:true});
-      document.getElementById('save-bar').style.display='none';
-      showPbModal(oldPbStr,newPbStr,newSecs,oldSecs);
-      return;
+  // A 2k test result updates the benchmark everything else derives from
+  if(s.type==='test'&&pace){
+    const secs=parseT(pace);
+    if(secs){
+      const newPb=fmt(secs*4);
+      const oldPb=parseT(G.pb2k);
+      G.lastTest=dateStr;G.testPromptSnoozed=null;
+      if(!oldPb||secs*4<oldPb){
+        const prevStr=G.pb2k;
+        G.pb2k=newPb;
+        pinNext();commit({cal:true,daily:true});
+        showPbModal(prevStr,newPb,secs*4,oldPb);return;
+      }
     }
   }
-
-  // Check milestone
-  const streak=calcStreak();
-  const ms=checkMilestone(streak);
-  if(ms){G.activeMilestone=ms;showMilestoneModal(ms);}
+  pinNext();
   commit({cal:true,daily:true});
-  document.getElementById('save-bar').style.display='none';
-  showToast('Workout saved ✓');
-}
-// ── ARCHIVED DAY VIEW (read-only) ──
-function renderArchivedDay(day,entry){
-  const body=document.getElementById('daily-body');
-  const saveBar=document.getElementById('save-bar');
-  saveBar.style.display='none';
-
-  if(!day.session||day.slot==='rest'){
-    body.innerHTML=`<div style="padding:32px 0;text-align:center;"><div style="font-size:32px;margin-bottom:12px;color:var(--text3)">—</div><div style="font-size:20px;font-weight:600;margin-bottom:6px;">Rest day</div></div>`;
-    return;
-  }
-
-  const s=day.session;
-  const typeCls=TYPE_BADGE[s.type]||'b-end';
-  const typeLabel=TYPE_LABEL[s.type]||s.type;
-  const logKey=day.date+'_'+s.key;
-  const log=entry.logs&&entry.logs[logKey];
-
-  let html=`
-    <div style="background:var(--bg2);border:.5px solid var(--border2);border-radius:8px;padding:8px 14px;margin:12px 20px 0;font-size:11px;color:var(--text3);text-align:center;letter-spacing:.05em;text-transform:uppercase;">
-      Archived — ${MONTHS[new Date(entry.planStart+'T00:00:00').getMonth()]} plan · Read only
-    </div>
-    <div class="daily-body" style="padding-bottom:40px;">
-      <div class="workout-hero">
-        <span class="sc-badge ${typeCls}" style="font-size:11px;padding:3px 10px;margin-bottom:10px;display:inline-block;">${typeLabel}</span>
-        <div class="workout-name">${s.name}</div>
-        <div class="workout-meta-line">${s.meta}</div>
-      </div>`;
-
-  if(log){
-    html+=`<div class="prev-block" style="border-left-color:var(--green-border)">
-      <span class="prev-label">Your result</span>
-      <div class="prev-pace">${log.pace||'—'} <span style="font-size:13px;color:var(--text3)">/500m avg</span></div>
-      ${log.effort?`<div class="prev-sub">Effort ${log.effort}/4</div>`:''}
-      ${log.reflect?`<div class="prev-note">${log.reflect}</div>`:''}
-      ${log.fwd?`<div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic">Note for next time: "${log.fwd}"</div>`:''}
-    </div>`;
-  } else {
-    html+=`<div style="font-size:13px;color:var(--text3);padding:12px 0;font-style:italic;">No result logged for this session.</div>`;
-  }
-
-  // Show benchmarks that were active during this plan
-  html+=`<div style="margin-top:12px;padding:10px 12px;background:var(--bg2);border-radius:8px;border:.5px solid var(--border2);">
-    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Benchmarks at time of plan</div>
-    <div style="font-size:13px;color:var(--text2);">${[entry.pb2k?'2k: '+entry.pb2k:'',entry.pb500?'500m: '+entry.pb500:'',entry.pb5k?'5k: '+entry.pb5k:''].filter(Boolean).join(' · ')||'—'}</div>
-  </div>`;
-
-  html+=`</div>`;
-  body.innerHTML=html;
-}
-
-function confirmSkip(){
-  if(confirm('Mark this session as skipped? It will stay visible in your calendar.')){
-    const plan=planFor(G.currentDate);
-    if(plan){plan.status='skipped';delete G.logs[plan.date+'_'+plan.session?.key];}
-    commit({cal:true});openDay(G.currentDate);
-  }
+  showToast('Workout logged');
+  showScreen('screen-cal');
 }
 
 // ── PROGRESS CHART ──
@@ -1781,24 +1500,20 @@ function formulaRefFor(pb2kStr,type){
   const p=t/4;
   return type==='max'?p:type==='thresh'?p*THRESH_BASE:null;
 }
-function collectProgressPoints(days,logs,pb2k,out){
-  (days||[]).forEach(d=>{
-    if(!d.session||d.status!=='done')return;
-    const lib=getByKey(d.session.key);if(!lib)return;
-    if(lib.type!=='max'&&lib.type!=='thresh')return;
-    const log=(logs||{})[d.date+'_'+d.session.key];
-    const obs=log&&parseT(log.pace);if(!obs)return;
-    let imp=impliedRef(lib,obs);if(imp===null)return;
-    const f=formulaRefFor(pb2k,lib.type);
-    if(f)imp=Math.max(f*0.9,Math.min(f*1.1,imp));
-    out.push({date:d.date,sec:imp,type:lib.type});
-  });
-}
 function allProgressPoints(){
   const pts=[];
-  (G.archive||[]).forEach(e=>collectProgressPoints(e.plan,e.logs,e.pb2k||G.pb2k,pts));
-  collectProgressPoints(G.plan,G.logs,G.pb2k,pts);
-  return pts.sort((a,b)=>a.date<b.date?-1:1);
+  Object.keys(G.history).sort().forEach(date=>{
+    const h=G.history[date];
+    if(h.kind!=='session')return;
+    const lib=getByKey(h.key);if(!lib)return;
+    if(lib.type!=='max'&&lib.type!=='thresh')return;
+    const obs=parseT(h.pace);if(!obs)return;
+    let imp=impliedRef(lib,obs);if(imp===null)return;
+    const f=formulaRefFor(G.pb2k,lib.type);
+    if(f)imp=Math.max(f*0.9,Math.min(f*1.1,imp));
+    pts.push({date,sec:imp,type:lib.type});
+  });
+  return pts;
 }
 function dateNum(ds){const[y,m,d]=ds.split('-').map(Number);return new Date(y,m-1,d).getTime();}
 
@@ -1904,24 +1619,17 @@ function renderProgressChart(){
   const d0=new Date(t0),d1=new Date(t1);
   svg+='<text x="24" y="158" font-size="9" fill="var(--text3)">'+MONTHS[d0.getMonth()].slice(0,3)+' '+d0.getDate()+'</text>';
   if(t1>t0)svg+='<text x="304" y="158" font-size="9" fill="var(--text3)" text-anchor="end">'+MONTHS[d1.getMonth()].slice(0,3)+' '+d1.getDate()+'</text>';
-  // Month-over-month strip: closing reference per plan round, per category
-  const rounds=[];
-  const roundOf=(days,logs,pb2k)=>{
-    const pts=[];collectProgressPoints(days,logs,pb2k,pts);
-    if(!pts.length)return null;
-    pts.sort((a,b)=>a.date<b.date?-1:1);
-    const r={};
-    ['thresh','max'].forEach(tp=>{
-      const c=pts.filter(p=>p.type===tp);
-      if(c.length)r[tp]=c[c.length-1].sec;
-    });
-    const ld=pts[pts.length-1].date;
-    const[yy,mm]=ld.split('-').map(Number);
-    r.label=MONTHS[mm-1].slice(0,3);
-    return r;
-  };
-  (G.archive||[]).forEach(e=>{const r=roundOf(e.plan,e.logs,e.pb2k||G.pb2k);if(r)rounds.push(r);});
-  {const r=roundOf(G.plan,G.logs,G.pb2k);if(r)rounds.push(r);}
+  // Month-over-month strip: closing reference per calendar month, per category
+  const byMonth={};
+  allProgressPoints().forEach(p=>{
+    const mk=p.date.slice(0,7);
+    byMonth[mk]=byMonth[mk]||{};
+    byMonth[mk][p.type]=p.sec; // later dates overwrite → closing value
+  });
+  const rounds=Object.keys(byMonth).sort().map(mk=>({
+    label:MONTHS[Number(mk.slice(5,7))-1].slice(0,3),
+    thresh:byMonth[mk].thresh,max:byMonth[mk].max
+  }));
   let strip='';
   if(rounds.length>=2){
     const show=rounds.slice(-5);
@@ -1937,269 +1645,33 @@ function renderProgressChart(){
     +strip+'</div>';
 }
 
-// ── DAILY SWAP (swap today's session for anything in the library) ──
+// ── BROWSE ALL SESSIONS ──
+// The suggestion menu is a shortlist; this is the full library, filtered by type.
 let _dswFilter=null;
 function toggleDailySwap(){
   const panel=document.getElementById('daily-swap-panel');
   if(!panel)return;
   if(panel.classList.contains('open')){panel.classList.remove('open');return;}
-  const plan=planFor(G.currentDate);
-  _dswFilter=plan&&plan.session?plan.session.type:'end';
-  if(!['max','thresh','end'].includes(_dswFilter))_dswFilter='end';
+  const st=dayState(G.currentDate);
+  _dswFilter=(st.session&&['max','thresh','end'].includes(st.session.type))?st.session.type:'end';
   renderDailySwap();
   panel.classList.add('open');
 }
 function dswSetFilter(t){_dswFilter=t;renderDailySwap();}
 function renderDailySwap(){
-  const panel=document.getElementById('daily-swap-panel');
-  if(!panel)return;
-  const plan=planFor(G.currentDate);
-  const currentKey=plan&&plan.session?plan.session.key:null;
-  const filters=[['max','Max effort'],['thresh','Threshold'],['end','Endurance']];
-  const tabs=filters.map(([k,label])=>
-    `<button type="button" class="dsw-filter${_dswFilter===k?' on-'+k:''}" onclick="dswSetFilter('${k}')">${label}</button>`).join('');
-  const pool=LIB[_dswFilter]||[];
-  const opts=pool.map(s=>{
-    const t=getTgt(s);
-    return `<div class="swap-opt${s.key===currentKey?' cur':''}" onclick="dailySwap('${s.key}')">
-      <div class="swap-opt-top"><span class="swap-opt-name">${s.name}</span><span class="swap-opt-tgt">${t?t.val:''}</span></div>
-      <div class="swap-opt-sub">${s.meta} · ${fmtSessionDur(s)}</div></div>`;
+  const panel=document.getElementById('daily-swap-panel');if(!panel)return;
+  const st=dayState(G.currentDate);
+  const currentKey=st.session?st.session.key:null;
+  const tabs=[['max','Max effort'],['thresh','Threshold'],['end','Endurance']].map(([k,label])=>
+    '<button type="button" class="dsw-filter'+(_dswFilter===k?' on-'+k:'')+'" onclick="dswSetFilter(\''+k+'\')">'+label+'</button>').join('');
+  const opts=(LIB[_dswFilter]||[]).map(s=>{
+    const t=getTgt(s,G.currentDate);
+    return'<div class="swap-opt'+(s.key===currentKey?' cur':'')+'" onclick="chooseSession(\''+s.key+'\')">'
+      +'<div class="swap-opt-top"><span class="swap-opt-name">'+s.name+'</span>'
+      +'<span class="swap-opt-tgt">'+(t?t.val:'')+'</span></div>'
+      +'<div class="swap-opt-sub">'+s.meta+' · '+fmtSessionDur(s)+'</div></div>';
   }).join('');
-  panel.innerHTML=`<div class="dsw-filters">${tabs}</div><div class="dsw-list">${opts}</div>`;
-}
-function dailySwap(newKey){
-  const plan=planFor(G.currentDate);
-  if(!plan||plan.status==='done')return;
-  const s=getByKey(newKey);if(!s||s.key===plan.session?.key){toggleDailySwap();return;}
-  plan.session={...s};
-  plan.slot=s.type==='max'?'hard':s.type; // keep the slot label consistent with the new session
-  // Primer only makes sense before a max effort session
-  plan.primer=s.type==='max'?(plan.primer||pickPrimer(0)):null;
-  commit({cal:true,daily:true});
-  showToast('Session swapped for today');
-}
-
-// ── PLAN MENU ──
-function openPlanMenu(){document.getElementById('plan-menu-overlay').classList.remove('hidden');}
-function closePlanMenu(){document.getElementById('plan-menu-overlay').classList.add('hidden');}
-
-// ── SHIFT REMAINING DAYS ──
-let _shiftDays=3;
-function openShiftModal(){
-  _shiftDays=3;
-  updateShiftUI();
-  document.getElementById('shift-overlay').classList.remove('hidden');
-}
-function shiftAdjust(d){_shiftDays=Math.max(1,Math.min(21,_shiftDays+d));updateShiftUI();}
-function updateShiftUI(){
-  document.getElementById('shift-val').textContent=_shiftDays;
-  const remaining=G.plan.filter(d=>d.status==='upcoming'&&d.session).length;
-  const test=G.plan.find(d=>d.session&&d.session.type==='test'&&d.status!=='done');
-  let preview=remaining+' session'+(remaining===1?'':'s')+' will move';
-  if(test){
-    const[y,m,dd]=test.date.split('-').map(Number);
-    const nd=new Date(y,m-1,dd+_shiftDays);
-    preview+=' · test moves to '+MONTHS[nd.getMonth()]+' '+nd.getDate();
-  }
-  document.getElementById('shift-preview').textContent=preview;
-}
-// After shifting, two entries can share a date (e.g. a past-due rest day pushed
-// onto a logged day). Logged/skipped entries always win; redundant rest days are
-// dropped; a colliding real session is nudged to the next free date.
-function resolveDateCollisions(){
-  const score=x=>(x.status==='done'||x.status==='skipped'?2:0)+(x.session?1:0);
-  G.plan.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:score(b)-score(a));
-  const out=[];const used=new Set();
-  for(const d of G.plan){
-    if(!used.has(d.date)){used.add(d.date);out.push(d);continue;}
-    if(!d.session&&d.status==='upcoming')continue; // contentless rest day — drop
-    let[y,m,dd]=d.date.split('-').map(Number);
-    let nd=new Date(y,m-1,dd),ds=d.date;
-    while(used.has(ds)){
-      nd=new Date(nd.getFullYear(),nd.getMonth(),nd.getDate()+1);
-      ds=nd.getFullYear()+'-'+String(nd.getMonth()+1).padStart(2,'0')+'-'+String(nd.getDate()).padStart(2,'0');
-    }
-    d.date=ds;used.add(ds);out.push(d);
-  }
-  G.plan=out.sort((a,b)=>a.date<b.date?-1:1);
-}
-
-function doShift(){
-  const n=_shiftDays;
-  G.plan.forEach(d=>{
-    if(d.status==='upcoming'){
-      const[y,m,dd]=d.date.split('-').map(Number);
-      const nd=new Date(y,m-1,dd+n);
-      d.date=nd.getFullYear()+'-'+String(nd.getMonth()+1).padStart(2,'0')+'-'+String(nd.getDate()).padStart(2,'0');
-    }
-  });
-  resolveDateCollisions();
-  document.getElementById('shift-overlay').classList.add('hidden');
-  commit({cal:true});
-  showToast('Plan shifted by '+n+' day'+(n===1?'':'s'));
-}
-
-// ── RESTRUCTURE REMAINING WEEKS ──
-let _rsRest=1,_rsVol='standard';
-function openRestructureModal(){
-  const today=localToday();
-  const test=G.plan.find(d=>d.session&&d.session.type==='test'&&d.status!=='done'&&d.date>=today);
-  if(!test){showToast('No upcoming test day — use New plan instead');return;}
-  _rsRest=G.restDays||1;_rsVol='standard';
-  const doneCount=G.plan.filter(d=>d.status==='done').length;
-  const[y,m,dd]=test.date.split('-').map(Number);
-  document.getElementById('rs-preserve').innerHTML=
-    '✓ Your '+doneCount+' logged session'+(doneCount===1?'':'s')+' and your test on <strong>'+MONTHS[m-1]+' '+dd+'</strong> stay exactly where they are.';
-  rsSetRest(_rsRest);rsSetVol(_rsVol);
-  document.getElementById('restructure-overlay').classList.remove('hidden');
-}
-function rsSetRest(n){
-  _rsRest=n;
-  [1,2].forEach(k=>document.getElementById('rs-rest-'+k).classList.toggle('sel',k===n));
-}
-function rsSetVol(v){
-  _rsVol=v;
-  ['standard','lighter','ramp'].forEach(k=>document.getElementById('rs-vol-'+k).classList.toggle('sel',k===v));
-}
-
-// Pick sessions for an arbitrary run of slots at a given weekly volume target.
-// First 'thresh' in the run draws from the heavy pool, the second from the light pool.
-function pickSessionsForSlots(slots,weeklyTarget,usedKeys,seed){
-  // Prorate the weekly target by segment length — a 4-day chunk gets 4/7 of the volume
-  weeklyTarget=Math.round(weeklyTarget*slots.length/7);
-  // Pre-pick hard + threshold so the endurance budget is known
-  let hard=null;
-  if(slots.includes('hard')){
-    const pool=LIB.max.filter(s=>!usedKeys.has(s.key));
-    const src=pool.length?pool:LIB.max;
-    hard={...src[seed%src.length]};usedKeys.add(hard.key);
-  }
-  const threshCount=slots.filter(x=>x==='thresh').length;
-  const threshPicks=[];
-  for(let i=0;i<threshCount;i++){
-    const poolKeys=i===0?THRESH_HEAVY:THRESH_LIGHT;
-    const pool=LIB.thresh.filter(s=>poolKeys.includes(s.key)&&!usedKeys.has(s.key));
-    const src=pool.length?pool:LIB.thresh.filter(s=>poolKeys.includes(s.key));
-    const pick={...src[(seed+i)%src.length]};usedKeys.add(pick.key);
-    threshPicks.push(pick);
-  }
-  const hardDist=hard?sessionDist(hard):0;
-  const threshDist=threshPicks.reduce((s,p)=>s+sessionDist(p),0);
-  const endSlots=slots.filter(x=>x==='end'||x==='end-short').length;
-  const endBudget=Math.max(0,weeklyTarget-hardDist-threshDist);
-  // end-short takes ~22% of the endurance budget when present
-  const hasShort=slots.includes('end-short');
-  const shortTarget=hasShort?Math.round(endBudget*0.22):0;
-  const mainSlots=endSlots-(hasShort?1:0);
-  // Clamp per-session endurance targets to a sane range — segments with few
-  // threshold slots would otherwise dump their whole budget into endurance
-  const mainTarget=mainSlots>0?Math.min(11000,Math.max(6000,Math.round((endBudget-shortTarget)/mainSlots))):0;
-  const bias=hard?(hardDist>=4000?-500:500):0;
-  function pickEndAt(target){
-    const pool=LIB.end.filter(s=>!usedKeys.has(s.key));
-    const src=pool.length?pool:LIB.end;
-    const sorted=[...src].sort((a,b)=>Math.abs(sessionDist(a)-(target+bias))-Math.abs(sessionDist(b)-(target+bias)));
-    const pick={...sorted[0]};usedKeys.add(pick.key);
-    return pick;
-  }
-  function pickEndShort(){
-    const pool=LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key)&&!usedKeys.has(s.key));
-    const src=pool.length?pool:LIB.end.filter(s=>END_SHORT_END_POOL.includes(s.key));
-    const sorted=[...src].sort((a,b)=>sessionDist(a)-sessionDist(b));
-    const pick={...sorted[0]};usedKeys.add(pick.key);
-    return pick;
-  }
-  // Assemble in slot order
-  let ti=0;
-  return slots.map(slot=>{
-    if(slot==='rest')return{session:null,primer:null};
-    if(slot==='test')return{session:{...LIB.test[0]},primer:null};
-    if(slot==='hard')return{session:hard,primer:pickPrimer(seed)};
-    if(slot==='thresh')return{session:threshPicks[ti++],primer:null};
-    if(slot==='end-short')return{session:pickEndShort(),primer:null};
-    return{session:pickEndAt(mainTarget),primer:null};
-  });
-}
-
-function doRestructure(){
-  const today=localToday();
-  const test=G.plan.find(d=>d.session&&d.session.type==='test'&&d.status!=='done'&&d.date>=today);
-  if(!test)return;
-  const testDate=test.date;
-  // Dates from today to testDate, excluding any already logged/skipped (those stay put)
-  const allDates=[];
-  {
-    const[y,m,dd]=today.split('-').map(Number);
-    let cur=new Date(y,m-1,dd);
-    const[ty,tm,td]=testDate.split('-').map(Number);
-    const end=new Date(ty,tm-1,td);
-    while(cur<=end){
-      allDates.push(cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0'));
-      cur=new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+1);
-    }
-  }
-  const availableDates=allDates.filter(dt=>{
-    const ex=G.plan.find(p=>p.date===dt);
-    return !(ex&&(ex.status==='done'||ex.status==='skipped'));
-  });
-  const A=availableDates.length;
-  if(A===0){showToast('Nothing left to rebuild before the test');return;}
-  // Final lead-in always ends at the test: Hard · End · Thresh · End · Rest · Test
-  const LEAD=['hard','end','thresh','end','rest','test'];
-  const leadLen=Math.min(6,A);
-  const leadSlots=LEAD.slice(6-leadLen);
-  const gapLen=A-leadLen;
-  const STD=_rsRest===1?['hard','end','thresh','end','thresh','end-short','rest']
-                        :['hard','end','thresh','rest','thresh','end','rest'];
-  const RAMP=['end','thresh','end','rest','thresh','end','rest']; // no hard day, extra rest
-  // Segment the gap. Ramp mode: the first 7 rebuilt days are always the ramp week
-  // (no hard day) — coming back from illness, easing must cover a full week even
-  // when the calendar chunks unevenly. The remainder (and all of standard/lighter
-  // mode) segments as: partial chunk first using the TAIL of the template — so the
-  // rebuild eases in and ends on rest before the first full week opens with the
-  // hard day — then full weeks.
-  const segments=[];
-  let remaining=gapLen;
-  if(_rsVol==='ramp'&&remaining>0){
-    const rampLen=Math.min(7,remaining);
-    segments.push({slots:RAMP.slice(0,rampLen),ramp:true});
-    remaining-=rampLen;
-  }
-  const partial=remaining%7,fullWeeks=Math.floor(remaining/7);
-  if(partial>0)segments.push({slots:STD.slice(7-partial),ramp:false});
-  for(let w=0;w<fullWeeks;w++)segments.push({slots:STD,ramp:false});
-  // Build the new day entries
-  const usedKeys=new Set();
-  const rebuilt=[];
-  segments.forEach((seg,si)=>{
-    const target=seg.ramp?35000:(_rsVol==='lighter'?42000:50000);
-    const picks=pickSessionsForSlots(seg.slots,target,usedKeys,si);
-    seg.slots.forEach((slot,i)=>rebuilt.push({slot,session:picks[i].session,primer:picks[i].primer,status:'upcoming'}));
-  });
-  const leadPicks=pickSessionsForSlots(leadSlots,50000,usedKeys,segments.length+1);
-  leadSlots.forEach((slot,i)=>{
-    if(slot==='test'){
-      rebuilt.push({slot:'test',session:test.session,primer:null,status:test.status});
-    }else{
-      rebuilt.push({slot,session:leadPicks[i].session,primer:leadPicks[i].primer,status:'upcoming'});
-    }
-  });
-  // Assign rebuilt days to available dates in order
-  rebuilt.forEach((d,i)=>{d.date=availableDates[i];});
-  // New plan = kept days (logged/skipped/past, plus post-test days as rest) + rebuilt
-  const availSet=new Set(availableDates);
-  const kept=G.plan.filter(p=>!availSet.has(p.date)).map(p=>{
-    if(p.date>testDate&&p.status==='upcoming')return{...p,slot:'rest',session:null,primer:null};
-    return p;
-  });
-  G.plan=[...kept,...rebuilt];
-  resolveDateCollisions();
-  G.restDays=_rsRest;
-  document.getElementById('restructure-overlay').classList.add('hidden');
-  commit({cal:true});
-  showScreen('screen-cal');
-  const n=rebuilt.filter(d=>d.session&&d.slot!=='test').length;
-  showToast('Rebuilt '+n+' sessions to your test — keep going');
+  panel.innerHTML='<div class="dsw-filters">'+tabs+'</div><div class="dsw-list">'+opts+'</div>';
 }
 
 // ── PB CELEBRATION ──
@@ -2239,14 +1711,27 @@ function dismissPbModal(e){
 
 function pbModalStartNewPlan(){
   document.getElementById('pb-modal-overlay').classList.add('hidden');
-  // Pre-fill setup with updated benchmarks and go to setup for next plan
-  document.getElementById('pb2k').value=G.pb2k||'';
-  document.getElementById('pb500').value=G.pb500||'';
-  document.getElementById('pb5k').value=G.pb5k||'';
-  document.getElementById('plan-start').value=localToday();
-  if(G.restDays)selRest(G.restDays);
-  showScreen('screen-setup');
-  showToast('Benchmarks updated — build your next plan!');
+  showScreen('screen-cal');
+  showToast('Benchmarks updated — every target moves with you');
+}
+
+// ── SETUP ──
+// Runs once at first use, and doubles as the settings screen afterwards.
+function finishSetup(){
+  const v2k=document.getElementById('pb2k').value.trim();
+  if(!parseT(v2k)){showToast('Enter your 2k PB as mm:ss.t (e.g. 7:48.0)');return;}
+  G.pb2k=v2k;
+  G.pb500=document.getElementById('pb500').value.trim();
+  G.pb5k=document.getElementById('pb5k').value.trim();
+  if(!G.startedAt)G.startedAt=localToday();
+  const t=localToday();const[y,m]=t.split('-').map(Number);
+  if(G.viewYear===null){G.viewYear=y;G.viewMonth=m-1;}
+  commit({cal:true});
+  showScreen('screen-cal');
+}
+function fillSetupInputs(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+  set('pb2k',G.pb2k);set('pb500',G.pb500);set('pb5k',G.pb5k);
 }
 
 // ── EXPORT / IMPORT ──
@@ -2256,14 +1741,12 @@ function buildExportString(){
     _schema:SCHEMA_VERSION,
     _exportedAt:new Date().toISOString(),
     pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
-    planStart:G.planStart,restDays:G.restDays,focus:G.focus,
-    plan:G.plan,logs:G.logs,ergLinks:G.ergLinks,
-    archive:G.archive||[],
-    activeMilestone:G.activeMilestone,
+    startedAt:G.startedAt,lastTest:G.lastTest,
+    history:G.history,ergLinks:G.ergLinks,targets:G.targets,
     viewYear:G.viewYear,viewMonth:G.viewMonth
   };
-  const doneCount=(G.plan||[]).filter(d=>d.status==='done').length;
-  const archiveCount=(G.archive||[]).reduce((n,e)=>(e.plan||[]).filter(d=>d.status==='done').length+n,0);
+  const doneCount=Object.keys(G.history).filter(d=>G.history[d].kind==='session').length;
+  const archiveCount=0;
   const d=new Date();
   const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const label=`TRT_v2 | 2k:${G.pb2k||'—'} | ${doneCount+archiveCount} sessions | ${dateStr}`;
@@ -2296,7 +1779,7 @@ function summariseExport(state){
 function renderBackup(){
   // Update back button destination
   const backBtn=document.getElementById('backup-back-btn');
-  if(backBtn)backBtn.setAttribute('onclick',G.plan&&G.plan.length?"showScreen('screen-cal')":" showScreen('screen-setup')");
+  if(backBtn)backBtn.setAttribute('onclick',Object.keys(G.history).length?"showScreen('screen-cal')":"showScreen('screen-setup')");
 
   const str=buildExportString();
   const s=summariseExport(G);
@@ -2364,15 +1847,16 @@ function doImport(){
   if(!_pendingImport)return;
   const d=migrateState(_pendingImport); // old exports get upgraded on the way in
   G.pb500=d.pb500||'';G.pb2k=d.pb2k||'';G.pb5k=d.pb5k||'';
-  G.planStart=d.planStart||null;G.restDays=d.restDays||null;G.focus=d.focus||'2k';
-  G.plan=d.plan||[];G.logs=d.logs||{};G.ergLinks=d.ergLinks||{};G.archive=d.archive||[];
+  G.startedAt=d.startedAt||localToday();G.lastTest=d.lastTest||null;
+  G.history=d.history||{};G.ergLinks=d.ergLinks||{};
+  G.targets=d.targets||{sessions:6,volume:50000,updatedAt:null};
   G.activeMilestone=d.activeMilestone||null;
   G.viewYear=d.viewYear||new Date().getFullYear();
   G.viewMonth=d.viewMonth!==undefined?d.viewMonth:new Date().getMonth();
   _pendingImport=null;
   dismissImportModal();
   commit();
-  if(G.plan&&G.plan.length){renderCal();showScreen('screen-cal');}
+  if(Object.keys(G.history).length){renderCal();showScreen('screen-cal');}
   else showScreen('screen-setup');
   showToast('Data imported successfully ✓');
 }
@@ -2415,7 +1899,6 @@ async function initSupabase(){
         if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
         if(G.pb500) document.getElementById('pb500').value = G.pb500;
         if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
-        if(G.restDays) selRest(G.restDays);
         renderCal(); showScreen('screen-cal');
         return true;
       }
@@ -2445,9 +1928,9 @@ async function syncToSupabase(){
       user_id: user.id,
       state: {
         _schema:SCHEMA_VERSION,
-        focus:G.focus, restDays:G.restDays, pb500:G.pb500, pb2k:G.pb2k, pb5k:G.pb5k,
-        planStart:G.planStart, plan:G.plan, logs:G.logs, ergLinks:G.ergLinks,
-        archive:G.archive||[], activeMilestone:G.activeMilestone,
+        pb500:G.pb500, pb2k:G.pb2k, pb5k:G.pb5k,
+        startedAt:G.startedAt, lastTest:G.lastTest,
+        history:G.history, ergLinks:G.ergLinks, targets:G.targets,
         viewYear:G.viewYear, viewMonth:G.viewMonth
       },
       email_claimed: !!user.email,
@@ -2579,7 +2062,6 @@ async function handleMagicLink(){
         if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
         if(G.pb500) document.getElementById('pb500').value = G.pb500;
         if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
-        if(G.restDays) selRest(G.restDays);
         renderCal(); showScreen('screen-cal');
         showToast('✓ Account linked — your data is restored');
         return true;
@@ -2590,8 +2072,7 @@ async function handleMagicLink(){
 }
 
 // ── INIT ──
-// Always set plan-start to today — goSetup also resets it, so old dates never leak in
-document.getElementById('plan-start').value=localToday();
+
 
 (async () => {
   // 1. Handle magic link return (device linking)
@@ -2604,14 +2085,13 @@ document.getElementById('plan-start').value=localToday();
   // 3. Fall back to localStorage if cloud load didn't navigate us
   if(!cloudLoaded){
     const loaded = loadState();
-    if(loaded && G.plan && G.plan.length){
+    if(loaded && Object.keys(G.history).length){
       const today = new Date();
       G.viewYear  = G.viewYear  || today.getFullYear();
       G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
       if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
       if(G.pb500) document.getElementById('pb500').value = G.pb500;
       if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
-      if(G.restDays) selRest(G.restDays);
       renderCal(); showScreen('screen-cal');
     } else {
       showScreen('screen-setup');
