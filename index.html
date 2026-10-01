@@ -128,20 +128,6 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 .today-section{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
 
 /* STREAK */
-.streak-card{border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;border:0.5px solid var(--border2);}
-.streak-card.active{background:linear-gradient(135deg,#0a1a0a,#0a200f);border-color:var(--green-border);}
-.streak-card.zero{background:var(--bg2);}
-.streak-flame{font-size:26px;flex-shrink:0;padding-top:2px;}
-.streak-main{flex:1;}
-.streak-count{font-size:22px;font-weight:700;font-family:var(--mono);color:#40d060;line-height:1;}
-.streak-count.zero{color:var(--text3);}
-.streak-label{font-size:12px;color:var(--text2);margin-top:3px;}
-.streak-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-.streak-dots{display:flex;gap:4px;flex-shrink:0;padding-top:4px;}
-.sdot{width:8px;height:8px;border-radius:50%;}
-.sdot-done{background:var(--green-border);}
-.sdot-today{background:#40d060;}
-.sdot-up{background:var(--border2);opacity:.3;}
 .milestone-note{margin-top:10px;padding:8px 10px;border-radius:7px;background:#0a2010;border:0.5px solid var(--green-border);display:flex;align-items:flex-start;gap:8px;}
 .milestone-note-icon{font-size:14px;flex-shrink:0;padding-top:1px;}
 .milestone-note-text{font-size:12px;color:var(--green);line-height:1.5;flex:1;}
@@ -155,17 +141,6 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 .tw-name{font-size:16px;font-weight:600;margin-bottom:3px;}
 .tw-meta{font-size:12px;color:var(--text3);}
 
-/* MILESTONE MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
-.modal-overlay.hidden{display:none;}
-.milestone-modal{background:var(--bg);border-radius:16px;padding:28px 24px;max-width:340px;width:100%;border:0.5px solid var(--green-border);text-align:center;}
-.modal-flame{font-size:44px;margin-bottom:10px;display:block;}
-.modal-count{font-size:34px;font-weight:700;font-family:var(--mono);color:#40d060;line-height:1;margin-bottom:3px;}
-.modal-count-label{font-size:12px;color:var(--text2);margin-bottom:14px;}
-.modal-title{font-size:17px;font-weight:600;margin-bottom:10px;line-height:1.3;}
-.modal-message{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:20px;}
-.modal-btn{background:#20a060;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:500;color:#fff;cursor:pointer;font-family:inherit;width:100%;transition:opacity .15s;}
-.modal-btn:hover{opacity:.88;}
 
 /* DAILY */
 .daily-body{padding:0 20px 100px;max-width:600px;margin:0 auto;}
@@ -392,6 +367,19 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 .st-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
 .st-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 
+.dsw-section{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);padding:10px 12px 5px;background:var(--bg);border-bottom:0.5px solid var(--border);}
+
+.remove-link{font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.remove-link:hover{color:var(--red);}
+.remove-link.armed{color:var(--red);font-weight:500;}
+.pb-row{display:flex;align-items:baseline;gap:8px;margin-bottom:3px;}
+.pb-dist{font-size:11px;color:var(--text3);width:34px;flex-shrink:0;}
+.pb-time{font-family:var(--mono);font-size:12px;color:var(--text);}
+.pb-date{font-size:10px;color:var(--text3);}
+.pb-note{font-size:9px;color:var(--text3);margin-left:auto;}
+
+.complete-ack{font-size:11px;color:var(--green);margin-top:4px;}
+
 /* MONTH STATS */
 .mstats{background:var(--bg2);border-radius:11px;padding:12px;margin-top:12px;}
 .ms-row{display:flex;}
@@ -439,7 +427,10 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 <!-- SETUP -->
 <div class="screen active" id="screen-setup">
   <div class="nav">
-    <span class="nav-title">Tom's rowing tracker</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button type="button" class="btn btn-ghost btn-sm" id="setup-back-btn" onclick="showScreen('screen-cal')" style="display:none">‹ Back</button>
+      <span class="nav-title">Tom's rowing tracker</span>
+    </div>
     <button type="button" class="btn btn-primary" onclick="finishSetup()">Start →</button>
   </div>
   <div class="setup-body">
@@ -567,12 +558,10 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
     </div>
     <div class="pb-modal-improvement" id="pb-modal-improvement"></div>
     <div class="pb-modal-sub" id="pb-modal-sub"></div>
-    <button type="button" class="pb-modal-btn" onclick="pbModalStartNewPlan()">Start next month →</button>
-    <button type="button" class="pb-modal-skip" onclick="pbModalStay()">Stay on calendar</button>
+    <button type="button" class="pb-modal-btn" onclick="pbModalStay()">Nice work →</button>
   </div>
 </div>
 
-<!-- MILESTONE MODAL -->
 <div class="toast" id="toast"></div>
 
 <!-- EMAIL PROMPT BAR -->
@@ -595,43 +584,33 @@ const LIB={
     {key:'8x500',dist:4000,type:'max',reps:8,repDist:500,restSecs:210,name:'8 × 500m',meta:'4000m · 3:30 rest',paceOffset:-3,pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
     {key:'pyramid',dist:4000,type:'max',reps:1,repDist:4000,restSecs:0,fixedRestMins:23,name:'Speed pyramid',meta:'4000m · scaled rest',paceOffset:0,pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
     {key:'4x1000',dist:4000,type:'max',reps:4,repDist:1000,restSecs:300,name:'4 × 1000m',meta:'4000m · 5:00 rest',paceOffset:1,pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
-    {key:'10x400m',dist:4000,type:'max',reps:10,repDist:400,restSecs:120,name:'10 × 400m',meta:'4000m · 2:00 rest',paceOffset:-4,pl:'Target pace',desc:'10 reps of 400m with 2:00 rest. Total: 4000m. Shorter, faster intervals targeting top-end speed above 2k race pace.',notes:['Warm up generously — minimum 15 minutes easy rowing plus a few 10-stroke pickups at target pace.','Target pace is faster than 2k pace — these develop the speed ceiling above race pace.','2:00 rest after ~1:40 of work is roughly equal work-to-rest.','Focus on consistent pace across all 10 reps rather than going out hard and fading.']},
-    {key:'12x300m',dist:3600,type:'max',reps:12,repDist:300,restSecs:120,name:'12 × 300m',meta:'3600m · 2:00 rest',paceOffset:-4,pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
-    {key:'6x3min',dist:3600,type:'max',timed:true,workMins:18,restSecs:180,restCount:5,name:'6 × 3 min',meta:'~3600m · 3:00 rest',totalMins:33,paceOffset:0,pl:'Target pace',desc:'6 reps of 3 minutes at 2k pace with 3:00 rest. ~3600m total. A VO2max interval session targeting the aerobic ceiling that limits 2k performance.',notes:['Warm up thoroughly — minimum 15–20 minutes easy rowing building into 2–3 short pieces at target pace.','Based on Norwegian interval research, 3-minute pieces at 85–100% effort with equal rest is one of the most effective VO2max development formats.','Target pace is 2k race pace — this is sustained maximum aerobic effort, not a sprint.','The effort should feel like your absolute aerobic limit by rep 4–5. If it feels manageable throughout, you are not at the right intensity.']},
+    {key:'12x300m',dist:3600,type:'max',reps:12,repDist:300,restSecs:120,name:'12 × 300m',meta:'3600m · 2:00 rest',paceOffset:-6,pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
   ],
   thresh:[
-    {key:'5x1500',dist:7500,type:'thresh',reps:5,repDist:1500,restSecs:300,name:'5 × 1500m',meta:'7500m · 5:00 rest',paceMult:1.08,pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
-    {key:'4x2000',dist:8000,type:'thresh',reps:4,repDist:2000,restSecs:300,name:'4 × 2000m',meta:'8000m · 5:00 rest',paceMult:1.08,pl:'Target pace',desc:'4 reps of 2000m at threshold pace with 5:00 rest. The landmark Pete Plan threshold session.',notes:['Go out too hard on rep 1 and rep 4 will be a fight. Rep 1 should feel almost easy.','Rest fully for all 5:00 between reps.','All four reps within 2 sec/500m of each other is an excellent session.']},
-    {key:'3k-ladder',dist:7500,type:'thresh',reps:3,repDist:2500,restSecs:300,name:'3k / 2.5k / 2k',meta:'7500m · 5:00 rest',paceMult:1.08,pl:'Target pace',desc:'Descending distance: 3000m · 2500m · 2000m with 5:00 rest. Same target pace throughout.',notes:['Decreasing distance compensates for fatigue — the pace should feel the same on every piece.','Don\'t treat the final 2k as a race. Hold threshold pace.']},
-    {key:'3x10min',dist:7100,type:'thresh',timed:true,workMins:30,restSecs:300,restCount:2,name:'3 × 10 min',meta:'Timed · 5:00 rest',totalMins:40,paceMult:1.08,pl:'Target pace',desc:'Three 10-minute pieces at threshold effort with 5:00 rest.',notes:['5:00 rest gives genuine recovery — you should hold true threshold pace across all three.','Note your total meters for each piece — improving meters/piece over weeks is your progress signal.','Treat each 10-minute block as its own piece. Don\'t hold back in piece 1.']},
-    {key:'3x2500m',dist:7500,type:'thresh',reps:3,repDist:2500,restSecs:360,name:'3 × 2500m',meta:'7500m · 6:00 rest',paceMult:1.08,pl:'Target pace',desc:'3 reps of 2500m at threshold pace with 6:00 rest. 7500m total.',notes:['6:00 rest on a ~10:30 rep is about 57% of work time — good threshold quality rest.','Only three reps but 2500m is long — pacing discipline matters from the first stroke.','Even splits across all three. Rep 3 should feel hard but not a pace collapse.']},
-    {key:'5x6min',dist:7125,type:'thresh',timed:true,workMins:30,restSecs:180,restCount:4,name:'5 × 6 min',meta:'~7125m · 3:00 rest',totalMins:42,paceMult:1.08,pl:'Target pace',desc:'Five 6-minute pieces at threshold pace with 3:00 rest. ~7125m total.',notes:['3:00 rest on a 6-minute piece is 50% of work time — exactly the threshold quality standard.','Five reps means more opportunities to dial in pace consistency.','Don\'t let the shorter reps tempt you into going out too hard. Hold target pace from rep 1.']},
-    {key:'hard-5k',dist:5000,type:'thresh',reps:1,repDist:5000,restSecs:0,name:'Hard 5k',meta:'5000m · rate free',paceMult:1.12,pl:'Target pace',desc:'One hard continuous 5000m effort. No rate cap. A sustained push above steady pace.',notes:['The one session where you lift above the 25 spm rate cap.','Pete Plan: rotate through 5k, 6k, and 2k as ranking distances over successive weeks.','Your time here is a direct ranking benchmark — record and compare across months.']},
-    {key:'2x12min',dist:5680,type:'thresh',timed:true,workMins:24,restSecs:300,restCount:1,name:'2 × 12 min',meta:'Timed · 5:00 rest',totalMins:29,paceMult:1.08,pl:'Target pace',desc:'Two 12-minute pieces at threshold effort with 5:00 rest. ~5700m total — a lighter threshold session that pairs well with a heavier threshold day earlier in the week.',notes:['5:00 rest after a 12-minute piece is 42% of work time — enough to hold genuine threshold quality on piece 2.','Record meters for each piece. Consistency between piece 1 and piece 2 is the goal.','A good lighter threshold option for weeks that already include 4×2000m or 5×1500m.','If piece 2 drops significantly below piece 1, you went out too hard.']},
-    {key:'3x8min',dist:5685,type:'thresh',timed:true,workMins:24,restSecs:240,restCount:2,name:'3 × 8 min',meta:'Timed · 4:00 rest',totalMins:32,paceMult:1.08,pl:'Target pace',desc:'Three 8-minute pieces at threshold effort with 4:00 rest. ~5700m total — more reps than the 2×12min at the same total volume.',notes:['4:00 rest on an 8-minute piece is 50% of work time — solid threshold quality rest.','Three pieces means more opportunities to calibrate pace — use piece 1 to find the right effort level.','Record meters per piece. All three should be within a few meters of each other.','A good lighter threshold option that pairs with heavier sessions like 4×2000m or 5×1500m.']},
+    {key:'5x1500',band:'end',dist:7500,type:'thresh',reps:5,repDist:1500,restSecs:300,name:'5 × 1500m',meta:'7500m · 5:00 rest',paceMult:1.08,pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
+    {key:'4x2000',band:'end',dist:8000,type:'thresh',reps:4,repDist:2000,restSecs:300,name:'4 × 2000m',meta:'8000m · 5:00 rest',paceMult:1.08,pl:'Target pace',desc:'4 reps of 2000m at threshold pace with 5:00 rest. The landmark Pete Plan threshold session.',notes:['Go out too hard on rep 1 and rep 4 will be a fight. Rep 1 should feel almost easy.','Rest fully for all 5:00 between reps.','All four reps within 2 sec/500m of each other is an excellent session.']},
+    {key:'3k-ladder',band:'end',dist:7500,type:'thresh',reps:3,repDist:2500,restSecs:300,name:'3k / 2.5k / 2k',meta:'7500m · 5:00 rest',paceMult:1.08,pl:'Target pace',desc:'Descending distance: 3000m · 2500m · 2000m with 5:00 rest. Same target pace throughout.',notes:['Decreasing distance compensates for fatigue — the pace should feel the same on every piece.','Don\'t treat the final 2k as a race. Hold threshold pace.']},
+    {key:'3x10min',band:'power',dist:7100,type:'thresh',timed:true,workMins:30,restSecs:300,restCount:2,name:'3 × 10 min',meta:'Timed · 5:00 rest',totalMins:40,paceMult:1.08,pl:'Target pace',desc:'Three 10-minute pieces at threshold effort with 5:00 rest.',notes:['5:00 rest gives genuine recovery — you should hold true threshold pace across all three.','Note your total meters for each piece — improving meters/piece over weeks is your progress signal.','Treat each 10-minute block as its own piece. Don\'t hold back in piece 1.']},
+    {key:'hard-5k',band:'end',dist:5000,type:'thresh',reps:1,repDist:5000,restSecs:0,name:'Hard 5k',meta:'5000m · rate free',paceMult:1.12,pl:'Target pace',desc:'One hard continuous 5000m effort. No rate cap. A sustained push above steady pace.',notes:['The one session where you lift above the 25 spm rate cap.','Pete Plan: rotate through 5k, 6k, and 2k as ranking distances over successive weeks.','Your time here is a direct ranking benchmark — record and compare across months.']},
+    {key:'2x15min',band:'power',dist:7100,type:'thresh',timed:true,workMins:30,restSecs:300,restCount:1,name:'2 × 15 min',meta:'Timed · 5:00 rest',totalMins:35,paceMult:1.08,pl:'Target pace',desc:'Two 15-minute blocks at threshold with 5 minutes between. Long enough to recover properly and attack the second piece.',notes:['5:00 rest after a 12-minute piece is 42% of work time — enough to hold genuine threshold quality on piece 2.','Record meters for each piece. Consistency between piece 1 and piece 2 is the goal.','A good lighter threshold option for weeks that already include 4×2000m or 5×1500m.','If piece 2 drops significantly below piece 1, you went out too hard.']},
+    {key:'4x8min',band:'power',dist:7600,type:'thresh',timed:true,workMins:32,restSecs:240,restCount:3,name:'4 × 8 min',meta:'Timed · 4:00 rest',totalMins:44,paceMult:1.08,pl:'Target pace',desc:'Three 8-minute pieces at threshold effort with 4:00 rest. ~5700m total — more reps than the 2×12min at the same total volume.',notes:['4:00 rest on an 8-minute piece is 50% of work time — solid threshold quality rest.','Three pieces means more opportunities to calibrate pace — use piece 1 to find the right effort level.','Record meters per piece. All three should be within a few meters of each other.','A good lighter threshold option that pairs with heavier sessions like 4×2000m or 5×1500m.']},
   ],
   end:[
-    {key:'steady-8k',dist:8000,type:'end',reps:1,repDist:8000,restSecs:0,name:'Steady 8k',meta:'8000m · 22–25 spm',paceMult:1.16,pl:'Steady pace',desc:'Continuous 8000m at steady aerobic pace, 22–25 spm.',notes:['Rate cap: 22–25 spm. Non-negotiable.','Should feel genuinely easy — full conversation pace.','Use this to focus on technique: long strokes, clean catches, controlled recovery.']},
-    {key:'steady-10k',dist:10000,type:'end',reps:1,repDist:10000,restSecs:0,name:'Steady 10k',meta:'10000m · 22–25 spm',paceMult:1.16,pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
-    {key:'steady-12k',dist:12000,type:'end',reps:1,repDist:12000,restSecs:0,name:'Steady 12k',meta:'12000m · 22–25 spm',paceMult:1.16,pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
-    {key:'timed-30min',dist:9000,type:'end',timed:true,workMins:30,restSecs:0,restCount:0,name:'30 min steady',meta:'Timed · 22–25 spm',totalMins:30,paceMult:1.16,pl:'Steady pace',desc:'Continuous 30-minute row at steady aerobic pace.',notes:['Record total meters each time. Meters/30min is a reliable aerobic benchmark.']},
-    {key:'2x20min',dist:8000,type:'end',timed:true,workMins:40,restSecs:90,restCount:1,name:'2 × 20 min',meta:'~8k · 90s rest',totalMins:42,paceMult:1.16,pl:'Steady pace',desc:'Two 20-minute pieces with 90 seconds rest. More volume, not more intensity.',notes:['The 90s rest is a sip of water and a breath — your heart rate won\'t drop much.','Same pace target as steady rows. Aerobic work, not threshold.']},
-    {key:'3x15min',dist:9000,type:'end',timed:true,workMins:45,restSecs:90,restCount:2,name:'3 × 15 min',meta:'~9k · 90s rest',totalMins:48,paceMult:1.16,pl:'Steady pace',desc:'Three 15-minute pieces with 90 seconds rest.',notes:['90s rest keeps the aerobic system fully engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
-    {key:'3x3000m',dist:9000,type:'end',reps:3,repDist:3000,restSecs:90,name:'3 × 3000m',meta:'9000m · 90s rest',paceMult:1.16,pl:'Steady pace',desc:'3 reps of 3000m with 90 seconds rest at endurance pace.',notes:['90s rest — just enough to reset mentally, not enough for genuine recovery.','Steady rate throughout: 22–25 spm. If rate is creeping up, pace is too fast.']},
-    {key:'4x2500m',dist:10000,type:'end',reps:4,repDist:2500,restSecs:90,name:'4 × 2500m',meta:'10000m · 90s rest',paceMult:1.16,pl:'Steady pace',desc:'4 reps of 2500m with 90 seconds rest. 10k total volume.',notes:['Four pieces at steady pace — equivalent to a steady 10k.','With four pieces, pacing consistency is easier to track than on a continuous row.']},
-    {key:'5x1500m-end',dist:7500,type:'end',reps:5,repDist:1500,restSecs:90,name:'5 × 1500m (endurance)',meta:'7500m · 90s rest',paceMult:1.16,pl:'Steady pace',desc:'5 reps of 1500m at endurance pace with 90 seconds rest.',notes:['Pace target is × 1.16 — significantly slower than the threshold 5×1500m (× 1.08).','Good lighter endurance day option.']},
-    {key:'6x1000m',dist:6000,type:'end',reps:6,repDist:1000,restSecs:90,name:'6 × 1000m',meta:'6000m · 90s rest',paceMult:1.16,pl:'Steady pace',desc:'6 reps of 1000m at endurance pace with 90 seconds rest. Lighter total volume.',notes:['Lowest total volume endurance session — 6k. Use on lighter days.','The short rep length makes this mentally easy. Good when motivation is lower.']},
-    {key:'8x1000m',dist:8000,type:'end',reps:8,repDist:1000,restSecs:90,name:'8 × 1000m',meta:'8000m · 90s rest',paceMult:1.16,pl:'Steady pace',desc:'8 reps of 1000m at endurance pace with 90 seconds rest.',notes:['8k total — equivalent to the steady 8k but broken into eight pieces.','Rate cap still applies: 22–25 spm per rep.']},
-    {key:'5x2000m',dist:10000,type:'end',reps:5,repDist:2000,restSecs:90,name:'5 × 2000m',meta:'10000m · 90s rest',paceMult:1.16,pl:'Steady pace',desc:'5 reps of 2000m with 90 seconds rest at endurance pace. 10k total.',notes:['2000m per rep — you will naturally focus on form over the full rep.','Record your split for each rep. Watching consistency improve reflects aerobic adaptation.']},
-    {key:'4x20min',dist:12000,type:'end',timed:true,workMins:80,restSecs:90,restCount:3,name:'4 × 20 min',meta:'~12k · 90s rest',totalMins:85,paceMult:1.16,pl:'Steady pace',desc:'Four 20-minute pieces with 90 seconds rest. High-volume endurance session, ~12k total.',notes:['Reserve for endurance-focused months or high-volume weeks.','At 82 minutes, nutrition and hydration before you start are important.']},
-    {key:'2x30min',dist:12000,type:'end',timed:true,workMins:60,restSecs:90,restCount:1,name:'2 × 30 min',meta:'~12k · 90s rest',totalMins:62,paceMult:1.16,pl:'Steady pace',desc:'Two 30-minute pieces with 90 seconds rest. ~12k total.',notes:['Treat this as a 60-minute continuous row with a very brief pause in the middle.','Record meters for each piece. Matching them is the goal.']},
+    {key:'timed-30min',dist:6600,type:'end',timed:true,workMins:30,restSecs:0,restCount:0,name:'30 min steady',meta:'Timed · continuous',totalMins:30,paceMult:1.165,pl:'Target pace',desc:'A single continuous 30 minutes at steady endurance pace. The shortest session in the library — the one for mornings when time is tight.',notes:['Rate 22–25 throughout.','Continuous — no breaks. Settle in and hold the rhythm.','Pace should feel conversational the whole way.','Something is better than nothing: this keeps the aerobic base ticking on a short morning.']},
+    {key:'steady-10k',dist:10000,type:'end',reps:1,repDist:10000,restSecs:0,name:'Steady 10k',meta:'10000m · 22–25 spm',paceMult:1.165,pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
+    {key:'steady-12k',dist:12000,type:'end',reps:1,repDist:12000,restSecs:0,name:'Steady 12k',meta:'12000m · 22–25 spm',paceMult:1.165,pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
+    {key:'3x15min',dist:9000,type:'end',timed:true,workMins:45,restSecs:120,restCount:2,name:'3 × 15 min',meta:'~9k · 2:00 rest',totalMins:48,paceMult:1.165,pl:'Steady pace',desc:'Three 15-minute pieces with 90 seconds rest.',notes:['90s rest keeps the aerobic system fully engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
+    {key:'3x25min',dist:16500,type:'end',timed:true,workMins:75,restSecs:180,restCount:2,name:'3 × 25 min',meta:'Timed · 3:00 rest',totalMins:78,paceMult:1.165,pl:'Target pace',desc:'Three 25-minute blocks at steady endurance pace with 90 seconds between. The longest session in the library — a genuine aerobic base builder.',notes:['Rate 22–25. If you cannot hold the rate, the pace is too fast.','Treat the 90 seconds as a drink and reset, not a recovery.','Pace should feel conversational throughout — if block three is a struggle, start block one slower next time.','Fuel beforehand. At over an hour of work this is long enough to need it.']},
+    {key:'2x30min',dist:12000,type:'end',timed:true,workMins:60,restSecs:180,restCount:1,name:'2 × 30 min',meta:'~12k · 3:00 rest',totalMins:62,paceMult:1.165,pl:'Steady pace',desc:'Two 30-minute pieces with 90 seconds rest. ~12k total.',notes:['Treat this as a 60-minute continuous row with a very brief pause in the middle.','Record meters for each piece. Matching them is the goal.']},
   ],
   speed:[
     {key:'spr-3stroke',dist:75,type:'speed',name:'5 × 3-stroke sprint',meta:'~75m · 3+ min rest',totalMins:16,pl:'Max effort',desc:'5 reps of 3 strokes at maximum force. Pure neuromuscular activation — primer before the main session.',notes:['Nervous system session. Goal: peak force on every stroke.','Take 3+ minutes between every rep — full recovery is essential.','Rest 5–6 minutes after the final sprint before starting the main piece.']},
     {key:'spr-60m',dist:180,type:'speed',name:'3 × 60m sprint',meta:'~180m · 3+ min rest',totalMins:12,pl:'Max effort',desc:'3 reps of 60m at absolute maximum effort. Neuromuscular activation.',notes:['Peak watts is your key metric — not pace or time.','Full recovery (3+ min) between every rep.','Rest 5–6 minutes after the final sprint before the main session.']},
   ],
   test:[
-    {key:'2k-test',type:'test',name:'2k time trial',meta:'2000m · max effort',totalMins:20,dist:2000,pl:'Current PB',desc:'A full 2000m time trial. The standard indoor rowing benchmark.',notes:['Full warm-up essential — 15–20 min easy rowing building into a few short hard pieces.','Pacing: slightly fast first 500m, settle to race pace for the middle 1k, empty the tank in the final 500m.','Record your split every 500m.','If you set a new PB, the tracker will celebrate and take you straight to next month\'s plan with your updated benchmarks.']},
+    {key:'500m-test',type:'test',dist:500,totalMins:15,pl:'Current PB',name:'500m time trial',meta:'500m · max effort',desc:'A flat-out 500m. Recorded as a personal best, but it does not change your training paces — those stay anchored to the 2k.',notes:['Warm up thoroughly — at least 15 minutes with several short bursts.','Rate high: 32–38. This is a sprint, not a paced piece.','Go out hard but leave something for the last 150m.','Expect to need a full easy day afterwards.']},
+    {key:'5k-test',type:'test',dist:5000,totalMins:25,pl:'Current PB',name:'5k time trial',meta:'5000m · max effort',desc:'A full 5000m time trial. Recorded as a personal best; your training paces stay anchored to the 2k.',notes:['Warm up for 15 minutes with a few rate bursts.','Settle into a rate around 26–28 and hold it.','Negative split if you can — the last 1500m is where it is won.','Treat this like a race day: fuel and hydrate beforehand.']},
+    {key:'2k-test',type:'test',benchmark:true,name:'2k time trial',meta:'2000m · max effort',totalMins:20,dist:2000,pl:'Current PB',desc:'A full 2000m time trial. The standard indoor rowing benchmark.',notes:['Full warm-up essential — 15–20 min easy rowing building into a few short hard pieces.','Pacing: slightly fast first 500m, settle to race pace for the middle 1k, empty the tank in the final 500m.','Record your split every 500m.','If you set a new PB, the tracker will celebrate and take you straight to next month\'s plan with your updated benchmarks.']},
   ],
 };
 const ALL=[...LIB.max,...LIB.thresh,...LIB.end,...LIB.speed,...LIB.test];
@@ -665,7 +644,21 @@ let G={
   viewYear:null,viewMonth:null,
   currentDate:null,currentEffort:null,editMode:false
 };
-const RATIO={max:1/6,thresh:2/6,end:3/6};   // 1 hard : 2 threshold : 3 endurance
+// 1 hard : 2 threshold (one endurance band, one power band) : 3 endurance
+const RATIO={max:1/6,'thresh-end':1/6,'thresh-power':1/6,end:3/6};
+const CAT_LABEL={max:'Hard','thresh-end':'Thr-E','thresh-power':'Thr-P',end:'End'};
+// Which ratio bucket a session counts toward
+// Which ratio bucket a session counts toward. A time trial is harder than
+// anything in the library, so it fills the hard slot — even though only the 2k
+// feeds the pace references.
+function catOf(s){
+  if(!s)return null;
+  if(s.type==='test')return 'max';
+  return refKey(s)||(s.type==='end'?'end':null);
+}
+// Below four sessions a week the 1:1:3 split stops being meaningful — half a
+// threshold session per band is noise — so the two bands merge into one target.
+function bandsMerged(){return G.targets.sessions<4;}
 const TARGET_FLOOR={sessions:3,volume:25000};
 const TARGET_CEIL={sessions:7,volume:60000};
 const REF_WINDOW_DAYS=28;                   // rolling pace-reference window
@@ -693,46 +686,86 @@ function pace2k(){return G.pb2k?parseT(G.pb2k)/4:null;}
 //    formula to shrug off typos. Endurance never adapts. References derive
 //    from current-plan logs only, so a new month resets them.
 const THRESH_BASE=1.08;
-function formulaRef(type){
+// Threshold work splits into two bands that adapt INDEPENDENTLY: a strong
+// endurance interval shouldn't drag the power reference down, or vice versa.
+// Both seed from the same formula (2k pace x 1.08) and diverge with training.
+const REF_LABEL={max:'Max effort','thresh-end':'Threshold — endurance','thresh-power':'Threshold — power'};
+function refKey(s){
+  if(!s)return null;
+  if(s.type==='max')return 'max';
+  if(s.type==='thresh')return 'thresh-'+(s.band||'end');
+  return null;
+}
+function formulaRef(rk){
   const p=pace2k();if(!p)return null;
-  return type==='max'?p:type==='thresh'?p*THRESH_BASE:null;
+  if(rk==='max')return p;
+  if(rk==='thresh-end'||rk==='thresh-power')return p*THRESH_BASE;
+  return null;
 }
 function impliedRef(s,obsSecs){
   if(s.type==='max'&&typeof s.paceOffset==='number')return obsSecs-s.paceOffset;
   if(s.type==='thresh'&&typeof s.paceMult==='number')return obsSecs/(s.paceMult/THRESH_BASE);
   return null;
 }
-// Most recent logged effort of a category before a given date (exclusive).
-// beforeDate null → all logged efforts in the current plan.
-// Most recent qualifying effort of a category within the rolling reference
-// window. Pure rolling 28 days — test dates are ignored, so a new PB simply
-// changes the formula anchor while recent training keeps its say.
-function adaptedRef(type,beforeDate){
-  const f=formulaRef(type);if(!f)return null;
+// A band's reference is the weighted mean of its last few qualifying entries.
+// Weighting: the FASTEST session counts double, and a 2k test ALWAYS counts
+// double — the test is the strongest single signal we have, so it moves every
+// band, but it ages out of the window as training continues after it.
+// Effort rating is deliberately NOT an input: it proved too easy for one bad
+// morning to erase weeks of work. With fewer than 3 entries we use what exists.
+const REF_SESSIONS=3;
+// What a logged row implies about a given band's reference. A 2k implies one
+// for EVERY band (max = 2k pace, threshold = 2k pace x 1.08); an ordinary
+// session only speaks for its own band.
+function entryRefFor(lib,obs,rk){
+  if(lib.type==='test'){
+    if(!lib.benchmark)return null;  // 500m and 5k are recorded, never recalibrate
+    return rk==='max'?obs:obs*THRESH_BASE;
+  }
+  if(refKey(lib)!==rk)return null;
+  return impliedRef(lib,obs);
+}
+function refEntries(rk,beforeDate){
+  const f=formulaRef(rk);if(!f)return[];
   const upTo=beforeDate?addDaysStr(beforeDate,-1):localToday();
   const from=addDaysStr(upTo,-(REF_WINDOW_DAYS-1));
-  const cands=sessionsInRange(from,upTo).filter(x=>x.lib.type===type);
-  for(let i=cands.length-1;i>=0;i--){
-    const d=cands[i];
-    const obs=parseT(d.pace);
-    if(!obs)continue;
-    let imp=impliedRef(d.lib,obs);
-    if(imp===null)continue;
-    imp=Math.max(f*0.9,Math.min(f*1.1,imp)); // typo guardrail
-    const e=Math.max(1,Math.min(4,d.effort||3));
-    const beat=imp<f;
-    const w=beat?[1,.75,.5,.25][e-1]:[0,.25,.5,.75][e-1];
-    return{ref:w*imp+(1-w)*f,fromName:d.lib.name,fromDate:d.date};
-  }
-  return null;
+  const out=[];
+  Object.keys(G.history).filter(d=>d>=from&&d<=upTo).sort().forEach(date=>{
+    const h=G.history[date];if(h.kind!=='session')return;
+    const lib=getByKey(h.key);if(!lib)return;
+    const obs=parseT(h.pace);if(!obs)return;
+    let v=entryRefFor(lib,obs,rk);if(v===null)return;
+    v=Math.max(f*0.9,Math.min(f*1.1,v)); // typo guardrail
+    out.push({date,v,isTest:lib.type==='test',name:lib.name});
+  });
+  return out;
+}
+function adaptedRef(rk,beforeDate){
+  const f=formulaRef(rk);if(!f)return null;
+  const all=refEntries(rk,beforeDate);
+  if(!all.length)return null;
+  const win=all.slice(-REF_SESSIONS);
+  const sessionVals=win.filter(e=>!e.isTest).map(e=>e.v);
+  const fastest=sessionVals.length?Math.min(...sessionVals):null;
+  let usedFast=false,sum=0,w=0;
+  win.forEach(e=>{
+    let k=1;
+    if(e.isTest)k=2;
+    else if(fastest!==null&&e.v===fastest&&!usedFast){k=2;usedFast=true;}
+    sum+=e.v*k;w+=k;
+  });
+  const last=win[win.length-1];
+  return{ref:sum/w,fromName:last.name,fromDate:last.date,
+    n:win.length,hasTest:win.some(e=>e.isTest)};
 }
 // beforeDate (optional): compute the target as it stood entering that day
 function sessionPace(s,beforeDate){
   if(!s)return null;
   const p=pace2k();if(!p)return null;
-  if(s.type==='max'||s.type==='thresh'){
-    const a=adaptedRef(s.type,beforeDate);
-    const ref=a?a.ref:formulaRef(s.type);
+  const rk=refKey(s);
+  if(rk){
+    const a=adaptedRef(rk,beforeDate);
+    const ref=a?a.ref:formulaRef(rk);
     if(s.type==='max'&&typeof s.paceOffset==='number')return ref+s.paceOffset;
     if(s.type==='thresh'&&typeof s.paceMult==='number')return ref*(s.paceMult/THRESH_BASE);
   }
@@ -743,10 +776,10 @@ function sessionPace(s,beforeDate){
 function getTgt(s,beforeDate){
   const v=sessionPace(s,beforeDate);
   if(!v)return null;
-  const a=(s.type==='max'||s.type==='thresh')?adaptedRef(s.type,beforeDate):null;
-  return{label:(s&&s.pl)||'Target pace',val:fmt(v)+' /500m',adapted:a?{fromName:a.fromName,fromDate:a.fromDate}:null};
+  const a=refKey(s)?adaptedRef(refKey(s),beforeDate):null;
+  return{label:(s&&s.pl)||'Target pace',val:fmt(v)+' /500m',
+    adapted:a?{fromName:a.fromName,fromDate:a.fromDate,n:a.n,hasTest:a.hasTest}:null};
 }
-function fmtDur(m){return m<60?'~'+m+' min':'~'+Math.floor(m/60)+'h '+(m%60)+'m';}
 function getByKey(k){return ALL.find(s=>s.key===k)||null;}
 
 // ── DYNAMIC SESSION CALCULATIONS ──
@@ -784,7 +817,12 @@ function fmtSessionDur(s){
   const m = sessionMins(s);
   return m < 60 ? '~'+m+' min' : '~'+Math.floor(m/60)+'h '+(m%60)+'m';
 }
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='screen-backup')renderBackup();}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-backup')renderBackup();
+  if(id==='screen-setup')fillSetupInputs();
+}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function localToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
@@ -868,6 +906,7 @@ function loadState(){
 // ── COMMIT: single path for state changes ──
 // persist locally -> schedule cloud sync -> re-render requested views.
 function commit(opts={}){
+  updateTargets();   // adapt before persisting, or the new targets save a cycle late
   saveState();
   scheduleSyncToSupabase();
   if(opts.cal)renderCal();
@@ -895,9 +934,6 @@ function recentSessions(days){
   const today=localToday();
   return sessionsInRange(addDaysStr(today,-(days-1)),today);
 }
-
-// ── SETUP ──
-
 
 // ── DATE HELPERS ──
 function addDaysStr(dateStr,n){
@@ -932,14 +968,18 @@ function updateTargets(){
 
 // ── ROLLING STATUS (last 7 days) ──
 function ratioStatus(){
-  const sess=recentSessions(7).filter(x=>x.lib.type!=='test');
-  const counts={max:0,thresh:0,end:0};
-  sess.forEach(x=>{if(counts[x.lib.type]!==undefined)counts[x.lib.type]++;});
+  const sess=recentSessions(7);
+  const fine={max:0,'thresh-end':0,'thresh-power':0,end:0};
+  sess.forEach(x=>{const k=catOf(x.lib);if(fine[k]!==undefined)fine[k]++;});
   const N=G.targets.sessions;
-  const targets={max:N*RATIO.max,thresh:N*RATIO.thresh,end:N*RATIO.end};
-  const deficit={};
-  Object.keys(targets).forEach(k=>deficit[k]=targets[k]-counts[k]);
-  return{counts,targets,deficit,total:sess.length,targetTotal:N};
+  let counts,ratio;
+  if(bandsMerged()){
+    counts={max:fine.max,thresh:fine['thresh-end']+fine['thresh-power'],end:fine.end};
+    ratio={max:1/6,thresh:2/6,end:3/6};
+  } else { counts=fine;ratio=RATIO; }
+  const targets={},deficit={};
+  Object.keys(ratio).forEach(k=>{targets[k]=N*ratio[k];deficit[k]=targets[k]-counts[k];});
+  return{counts,targets,deficit,merged:bandsMerged(),total:sess.length,targetTotal:N};
 }
 function volumeStatus(){
   const done=recentSessions(7).reduce((s,x)=>s+sessionDist(x.lib),0);
@@ -959,8 +999,15 @@ function lastUsedMap(){
 // Max and threshold rotate least-recently-used (variety); endurance fits the
 // remaining volume. Suggestions are always soft — every option is offered,
 // nothing is blocked.
+function poolFor(cat){
+  if(cat==='end')return(LIB.end||[]);
+  if(cat==='max')return(LIB.max||[]);
+  if(cat==='thresh')return(LIB.thresh||[]);   // merged bucket: either band
+  const band=cat==='thresh-power'?'power':'end';
+  return(LIB.thresh||[]).filter(s=>(s.band||'end')===band);
+}
 function pickSessionForCategory(cat,targetDist){
-  const pool=(LIB[cat]||[]).filter(s=>!s.beginnerOnly);
+  const pool=poolFor(cat).filter(s=>!s.beginnerOnly);
   if(!pool.length)return null;
   const used=lastUsedMap();
   if(cat==='end'&&targetDist>0){
@@ -975,7 +1022,7 @@ function pickSessionForCategory(cat,targetDist){
 }
 function reasonFor(cat,rs,vs){
   const short=rs.deficit[cat];
-  const label={max:'hard',thresh:'threshold',end:'endurance'}[cat];
+  const label={max:'hard',thresh:'threshold','thresh-end':'threshold endurance','thresh-power':'threshold power',end:'endurance'}[cat];
   if(short>=1.5)return'You\'re well short on '+label+' work this week';
   if(short>=0.5)return'You\'re due a '+label+' session';
   if(cat==='end'&&vs.gap>6000)return'Endurance would close the volume gap';
@@ -986,11 +1033,11 @@ function suggestSessions(){
   const out=[];
   // A due test outranks everything
   if(testDue()){
-    const test=LIB.test&&LIB.test[0];
+    const test=(LIB.test||[]).find(t=>t.benchmark);
     if(test)out.push({session:test,cat:'test',primary:true,
       reason:'It\'s been four weeks — time to retest your 2k'});
   }
-  const order=['max','thresh','end'].sort((a,b)=>rs.deficit[b]-rs.deficit[a]);
+  const order=Object.keys(rs.targets).sort((a,b)=>rs.deficit[b]-rs.deficit[a]);
   const remaining=Math.max(1,Math.ceil(rs.targetTotal-rs.total));
   const perSession=Math.max(5000,Math.round(vs.gap/remaining));
   order.slice(0,2).forEach(cat=>{
@@ -1008,7 +1055,10 @@ function suggestSessions(){
   const yest=histFor(addDaysStr(localToday(),-1));
   if(yest&&yest.kind==='session'){
     const yl=getByKey(yest.key);
-    if(yl&&yl.type==='max')out.forEach(o=>{if(o.cat==='max')o.warn='You went hard yesterday — two in a row is a big ask';});
+    if(yl&&catOf(yl)==='max'){
+      const what=yl.type==='test'?'You time-trialled yesterday':'You went hard yesterday';
+      out.forEach(o=>{if(o.cat==='max')o.warn=what+' — two maximal days in a row is a big ask';});
+    }
   }
   return out;
 }
@@ -1066,7 +1116,6 @@ function changeMonth(delta){
   commit({cal:true});
 }
 function renderCal(){
-  updateTargets();
   const today=localToday();
   if(G.viewYear===null){const[y,m]=today.split('-').map(Number);G.viewYear=y;G.viewMonth=m-1;}
   const yr=G.viewYear,mo=G.viewMonth;
@@ -1150,7 +1199,10 @@ function renderStructureCard(){
   const rs=ratioStatus(),vs=volumeStatus();
   if(!Object.keys(G.history).length){el.innerHTML='';return;}
   const pct=vs.target>0?Math.min(100,Math.round(vs.done/vs.target*100)):0;
-  const CATS=[['max','Hard','var(--red-border)'],['thresh','Thresh','var(--green-border)'],['end','End','var(--blue-border)']];
+  const CATS=rs.merged
+    ?[['max','Hard','var(--red-border)'],['thresh','Thresh','var(--green-border)'],['end','End','var(--blue-border)']]
+    :[['max','Hard','var(--red-border)'],['thresh-end','Thr-E','var(--green-border)'],
+      ['thresh-power','Thr-P','var(--amber-border)'],['end','End','var(--blue-border)']];
   const chips=CATS.map(([k,label,col])=>{
     const want=Math.round(rs.targets[k]*10)/10,have=rs.counts[k];
     const short=rs.deficit[k]>=0.5;
@@ -1248,8 +1300,10 @@ function updateDayNav(){
 }
 
 // ── DAILY VIEW ──
+let _lastRendered=null;
 function renderDaily(dateStr){
   if(!dateStr)return;
+  if(_lastRendered!==dateStr){G.editMode=false;G.currentEffort=null;_lastRendered=dateStr;}
   const st=dayState(dateStr);
   const body=document.getElementById('daily-body');
   const saveBar=document.getElementById('save-bar');
@@ -1284,11 +1338,14 @@ function renderDaily(dateStr){
     const doneBefore=!!prev;
 
     if(isLogged&&!G.editMode){
+      const ack=dateStr===localToday()?effortAck(s):'';
       html+='<div class="complete-banner"><div style="font-size:18px">✓</div><div>'
         +'<div class="complete-text">Workout logged</div>'
         +'<div class="complete-sub">'+(rec.pace?rec.pace+' /500m':'No pace recorded')
-        +(rec.effort?' · effort '+rec.effort+'/4':'')+'</div></div>'
-        +'<button type="button" class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(G.currentDate)">Edit</button></div>';
+        +(rec.effort?' · effort '+rec.effort+'/4':'')+'</div>'
+        +(ack?'<div class="complete-ack">'+ack+'</div>':'')+'</div>'
+        +'<button type="button" class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(G.currentDate)">Edit</button></div>'
+        +'<div style="text-align:center;margin-bottom:14px;"><span class="remove-link" id="remove-link" onclick="removeEntry()">Remove this entry</span></div>';
     }
     if(s.type==='test'){
       const proj=projected2k();
@@ -1301,8 +1358,9 @@ function renderDaily(dateStr){
     if(tgt)tgtLine.push('target <span class="mono-t">'+tgt.val+'</span>');
     let adaptedNote='';
     if(tgt&&tgt.adapted){
-      const ad=new Date(tgt.adapted.fromDate+'T00:00:00');
-      adaptedNote='<div style="font-size:11px;color:var(--text3);margin-top:3px;">↝ adapted from your '+tgt.adapted.fromName+' ('+MONTHS[ad.getMonth()].slice(0,3)+' '+ad.getDate()+')</div>';
+      const a=tgt.adapted;
+      const src=a.n===1?'your last session':'your last '+a.n+' sessions';
+      adaptedNote='<div style="font-size:11px;color:var(--text3);margin-top:3px;">↝ from '+(a.hasTest?'your 2k and ':'')+src+'</div>';
     }
     const canSwap=!isLogged;
     html+='<div class="workout-hero"><div class="hero-top">'
@@ -1398,6 +1456,7 @@ function renderSuggestionMenu(dateStr){
 }
 function chooseSession(key){
   if(!G.currentDate)return;
+  G.currentEffort=null;  // a new session starts unrated, whatever was tapped before
   G.nextUp={date:G.currentDate,key};
   commit({cal:true,daily:true});
 }
@@ -1408,10 +1467,42 @@ function logRest(){
   commit({cal:true,daily:true});
   showToast('Rest day logged');
 }
+// Two-tap removal — accidental deletion of a logged session is unrecoverable
+let _removeArmed=null;   // the date that is armed, not a bare flag
+function removeEntry(){
+  const link=document.getElementById('remove-link');
+  if(_removeArmed!==G.currentDate){
+    _removeArmed=G.currentDate;
+    if(link){link.textContent='Tap again to remove';link.classList.add('armed');}
+    setTimeout(()=>{_removeArmed=null;const l=document.getElementById('remove-link');
+      if(l){l.textContent='Remove this entry';l.classList.remove('armed');}},4000);
+    return;
+  }
+  _removeArmed=null;
+  if(!G.currentDate)return;
+  delete G.history[G.currentDate];
+  G.editMode=false;
+  commit({cal:true,daily:true});
+  showToast('Entry removed');
+}
 function undoRest(){
   if(!G.currentDate)return;
   delete G.history[G.currentDate];
   commit({cal:true,daily:true});
+}
+
+// What the athlete just banked, in the context of their week
+function effortAck(lib){
+  if(!lib)return'';
+  if(lib.type==='test')return'A maximal effort — that counts as your hard day. Take tomorrow easy.';
+  const cat=catOf(lib);if(!cat)return'';
+  const rs=ratioStatus();
+  const label={max:'hard',thresh:'threshold','thresh-end':'threshold endurance',
+    'thresh-power':'threshold power',end:'endurance'}[cat];
+  if(!label)return'';
+  const have=rs.counts[cat]||0,want=Math.round((rs.targets[cat]||0)*10)/10;
+  if(have>=want)return'That completes your '+label+' work for the week.';
+  return label.charAt(0).toUpperCase()+label.slice(1)+' banked — '+have+' of '+want+' this week.';
 }
 
 // ── LOGGING ──
@@ -1465,24 +1556,32 @@ function saveLog(){
   G.editMode=false;
   if(G.nextUp&&G.nextUp.date===dateStr)G.nextUp=null;
 
-  // A 2k test result updates the benchmark everything else derives from
+  // Time trials record a PB at their own distance. Only the 2k recalibrates
+  // training paces — 500m and 5k are tracked for their own sake.
   if(s.type==='test'&&pace){
     const secs=parseT(pace);
     if(secs){
-      const newPb=fmt(secs*4);
-      const oldPb=parseT(G.pb2k);
-      G.lastTest=dateStr;G.testPromptSnoozed=null;
-      if(!oldPb||secs*4<oldPb){
-        const prevStr=G.pb2k;
-        G.pb2k=newPb;
+      const total=secs*(s.dist/500);
+      const field={'2k-test':'pb2k','500m-test':'pb500','5k-test':'pb5k'}[s.key];
+      const prevStr=field?G[field]:null;
+      const prev=parseT(prevStr||'');
+      const isPb=!prev||total<prev;
+      if(s.benchmark){G.lastTest=dateStr;G.testPromptSnoozed=null;}
+      if(field&&isPb)G[field]=fmt(total);
+      if(isPb&&s.benchmark){
         pinNext();commit({cal:true,daily:true});
-        showPbModal(prevStr,newPb,secs*4,oldPb);return;
+        showPbModal(prevStr,fmt(total),total,prev);return;
+      }
+      if(isPb){
+        pinNext();commit({cal:true,daily:true});
+        showToast('New '+(s.key==='500m-test'?'500m':'5k')+' PB — '+fmt(total));
+        showScreen('screen-cal');return;
       }
     }
   }
   pinNext();
   commit({cal:true,daily:true});
-  showToast('Workout logged');
+  showToast(effortAck(s)||'Workout logged');
   showScreen('screen-cal');
 }
 
@@ -1495,10 +1594,12 @@ function saveLog(){
 // form, allowed to go the wrong way). Below: a month-over-month strip with the
 // closing reference of each completed plan — the long arc across plan rounds.
 const PROG_WINDOW=10;
-function formulaRefFor(pb2kStr,type){
+function formulaRefFor(pb2kStr,rk){
   const t=parseT(pb2kStr);if(!t)return null;
   const p=t/4;
-  return type==='max'?p:type==='thresh'?p*THRESH_BASE:null;
+  if(rk==='max')return p;
+  if(rk==='thresh-end'||rk==='thresh-power')return p*THRESH_BASE;
+  return null;
 }
 function allProgressPoints(){
   const pts=[];
@@ -1506,12 +1607,23 @@ function allProgressPoints(){
     const h=G.history[date];
     if(h.kind!=='session')return;
     const lib=getByKey(h.key);if(!lib)return;
-    if(lib.type!=='max'&&lib.type!=='thresh')return;
     const obs=parseT(h.pace);if(!obs)return;
+    if(lib.type==='test'){
+      if(!lib.benchmark)return; // 500m / 5k are PBs only
+      // A 2k recalibrates every band, so it plots on all three lines
+      ['max','thresh-end','thresh-power'].forEach(rk=>{
+        let v=rk==='max'?obs:obs*THRESH_BASE;
+        const f=formulaRefFor(G.pb2k,rk);
+        if(f)v=Math.max(f*0.9,Math.min(f*1.1,v));
+        pts.push({date,sec:v,type:rk,isTest:true});
+      });
+      return;
+    }
+    const rk=refKey(lib);if(!rk)return;
     let imp=impliedRef(lib,obs);if(imp===null)return;
-    const f=formulaRefFor(G.pb2k,lib.type);
+    const f=formulaRefFor(G.pb2k,rk);
     if(f)imp=Math.max(f*0.9,Math.min(f*1.1,imp));
-    pts.push({date,sec:imp,type:lib.type});
+    pts.push({date,sec:imp,type:rk,isTest:false});
   });
   return pts;
 }
@@ -1527,7 +1639,7 @@ function projected2k(){
   const todayStr=localToday();
   const cutoff=addDaysStr(todayStr,-6);
   const est={};
-  ['max','thresh'].forEach(tp=>{
+  ['max','thresh-end','thresh-power'].forEach(tp=>{
     let pts=all.filter(p=>p.type===tp&&p.date>=cutoff&&p.date<=todayStr);
     if(!pts.length){const c=all.filter(p=>p.type===tp);if(c.length)pts=[c[c.length-1]];}
     if(pts.length){
@@ -1535,25 +1647,64 @@ function projected2k(){
       est[tp]=tp==='max'?mean:mean/THRESH_BASE;
     }
   });
+  // Both threshold bands are 2k estimates; average them, then blend 60/40 with max
+  const tVals=['thresh-end','thresh-power'].map(k=>est[k]).filter(v=>v!==undefined);
+  const tEst=tVals.length?tVals.reduce((a,b)=>a+b,0)/tVals.length:undefined;
   let pace;
-  if(est.max!==undefined&&est.thresh!==undefined)pace=est.max*0.6+est.thresh*0.4;
+  if(est.max!==undefined&&tEst!==undefined)pace=est.max*0.6+tEst*0.4;
   else if(est.max!==undefined)pace=est.max;
-  else if(est.thresh!==undefined)pace=est.thresh;
+  else if(tEst!==undefined)pace=tEst;
   else return null;
   return{pace,time:pace*4};
+}
+// Best ever at each trial distance, with the date it was set. Independent of
+// the trend chart so it survives an empty training window.
+function buildPbBlock(){
+  const PB_TESTS=[['500m-test','500m',1],['2k-test','2k',4],['5k-test','5k',10]];
+  let rows='';
+  const STORED={'500m-test':'pb500','2k-test':'pb2k','5k-test':'pb5k'};
+  PB_TESTS.forEach(([key,label,mult])=>{
+    let best=null,bestDate=null;
+    Object.keys(G.history).sort().forEach(date=>{
+      const h=G.history[date];
+      if(h.kind!=='session'||h.key!==key)return;
+      const p=parseT(h.pace);if(!p)return;
+      const t=p*mult;
+      if(best===null||t<best){best=t;bestDate=date;}
+    });
+    // A benchmark entered at setup is a real PB too — show whichever is faster,
+    // and only date it when we actually watched it happen.
+    const stored=parseT(G[STORED[key]]||'');
+    if(stored&&(best===null||stored<best)){best=stored;bestDate=null;}
+    if(best===null)return;
+    let when='';
+    if(bestDate){const bd=new Date(bestDate+'T00:00:00');when=MONTHS[bd.getMonth()].slice(0,3)+' '+bd.getDate();}
+    rows+='<div class="pb-row"><span class="pb-dist">'+label+'</span>'
+      +'<span class="pb-time"'+(key==='2k-test'?' style="color:#f0c040"':'')+'>'+fmt(best)+'</span>'
+      +'<span class="pb-date">'+when+'</span>'
+      +(key==='2k-test'?'<span class="pb-note">sets all pacing</span>':'')+'</div>';
+  });
+  return rows?'<div class="pg-strip"><div class="pg-lbl" style="margin-bottom:5px;">Personal bests</div>'+rows+'</div>':'';
 }
 function renderProgressChart(){
   const el=document.getElementById('progress-chart');
   if(!el)return;
   const all=allProgressPoints();
   const CATS=[
-    {type:'thresh',label:'Threshold',short:'Thresh',line:'var(--green-border)',dot:'#60c8a0'},
+    {type:'thresh-end',label:'Thresh — end',short:'Thr-E',line:'var(--green-border)',dot:'#60c8a0'},
+    {type:'thresh-power',label:'Thresh — power',short:'Thr-P',line:'var(--amber-border)',dot:'#f0c040'},
     {type:'max',label:'Max effort',short:'Max',line:'var(--red-border)',dot:'#f09090'},
   ];
   const windows={};
   CATS.forEach(c=>{windows[c.type]=all.filter(p=>p.type===c.type).slice(-PROG_WINDOW);});
-  const winPts=[...windows.thresh,...windows.max];
-  if(!winPts.length){el.innerHTML='';return;}
+  const winPts=CATS.reduce((a,cat)=>a.concat(windows[cat.type]||[]),[]);
+  // Personal bests stand on their own — a logged 500m should show even before
+  // any threshold or max work exists to draw a trend from.
+  const pbBlockEarly=buildPbBlock();
+  if(!winPts.length){
+    el.innerHTML=pbBlockEarly?'<div class="prog-card">'+pbBlockEarly+'</div>':'';
+    return;
+  }
   // Date span across both windows
   const t0=Math.min(...winPts.map(p=>dateNum(p.date)));
   const t1=Math.max(...winPts.map(p=>dateNum(p.date)));
@@ -1597,7 +1748,16 @@ function renderProgressChart(){
     if(cp.length>1){
       svg+='<polyline points="'+cp.map(p=>X(p.date).toFixed(1)+','+Y(p.sec).toFixed(1)).join(' ')+'" fill="none" stroke="'+c.line+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
     }
-    cp.forEach(p=>{svg+='<circle cx="'+X(p.date).toFixed(1)+'" cy="'+Y(p.sec).toFixed(1)+'" r="3.5" fill="'+c.dot+'"/>';});
+    cp.forEach(p=>{
+      const x=X(p.date),yy=Y(p.sec);
+      if(p.isTest){ // a 2k reads as a diamond so it stands apart from training
+        const r=5;
+        svg+='<polygon points="'+[[x,yy-r],[x+r,yy],[x,yy+r],[x-r,yy]].map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ')
+          +'" fill="var(--bg2)" stroke="'+c.dot+'" stroke-width="2"/>';
+      } else {
+        svg+='<circle cx="'+x.toFixed(1)+'" cy="'+yy.toFixed(1)+'" r="3.5" fill="'+c.dot+'"/>';
+      }
+    });
     const last=cp[cp.length-1];
     svg+='<text x="'+Math.min(292,X(last.date)+8).toFixed(1)+'" y="'+(Y(last.sec)+3).toFixed(1)+'" font-size="10" fill="'+c.dot+'">'+c.short+'</text>';
     const delta=cp[0].sec-last.sec;
@@ -1606,6 +1766,7 @@ function renderProgressChart(){
       +(cp.length>1?'<span class="pg-d" style="color:'+(delta>=0?c.dot:'var(--text3)')+'">'+(delta>=0?'▼ ':'▲ ')+Math.abs(delta).toFixed(1)+'s</span>':'')
       +'</div></div>';
   });
+  // Last 2k — the benchmark everything is calibrated against
   const proj=projected2k();
   if(proj){
     const pb=parseT(G.pb2k);
@@ -1628,21 +1789,21 @@ function renderProgressChart(){
   });
   const rounds=Object.keys(byMonth).sort().map(mk=>({
     label:MONTHS[Number(mk.slice(5,7))-1].slice(0,3),
-    thresh:byMonth[mk].thresh,max:byMonth[mk].max
+    'thresh-end':byMonth[mk]['thresh-end'],'thresh-power':byMonth[mk]['thresh-power'],max:byMonth[mk].max
   }));
   let strip='';
   if(rounds.length>=2){
     const show=rounds.slice(-5);
+    const row=(label,col,key)=>'<div class="pg-srow"><span class="pg-scat" style="color:'+col+'">'+label+'</span>'
+      +show.map(r=>'<span class="pg-scol">'+(r[key]!==undefined?fmt(r[key]):'—')+'</span>').join('')+'</div>';
     strip='<div class="pg-strip"><div class="pg-srow"><span class="pg-scat"></span>'
       +show.map(r=>'<span class="pg-scol pg-smon">'+r.label+'</span>').join('')+'</div>'
-      +'<div class="pg-srow"><span class="pg-scat" style="color:#60c8a0">Thresh</span>'
-      +show.map(r=>'<span class="pg-scol">'+(r.thresh!==undefined?fmt(r.thresh):'—')+'</span>').join('')+'</div>'
-      +'<div class="pg-srow"><span class="pg-scat" style="color:#f09090">Max</span>'
-      +show.map(r=>'<span class="pg-scol">'+(r.max!==undefined?fmt(r.max):'—')+'</span>').join('')+'</div></div>';
+      +row('Thr-E','#60c8a0','thresh-end')+row('Thr-P','#f0c040','thresh-power')+row('Max','#f09090','max')+'</div>';
   }
+  const pbBlock=pbBlockEarly;
   el.innerHTML='<div class="prog-card"><div class="pg-hd">'+head+'</div>'
     +'<svg viewBox="0 0 320 164" width="100%" role="img" aria-label="Reference pace trend across the last '+PROG_WINDOW+' efforts per category; lower is faster">'+svg+'</svg>'
-    +strip+'</div>';
+    +strip+pbBlock+'</div>';
 }
 
 // ── BROWSE ALL SESSIONS ──
@@ -1653,7 +1814,7 @@ function toggleDailySwap(){
   if(!panel)return;
   if(panel.classList.contains('open')){panel.classList.remove('open');return;}
   const st=dayState(G.currentDate);
-  _dswFilter=(st.session&&['max','thresh','end'].includes(st.session.type))?st.session.type:'end';
+  _dswFilter=(st.session&&['max','thresh','end','test'].includes(st.session.type))?st.session.type:'end';
   renderDailySwap();
   panel.classList.add('open');
 }
@@ -1662,15 +1823,23 @@ function renderDailySwap(){
   const panel=document.getElementById('daily-swap-panel');if(!panel)return;
   const st=dayState(G.currentDate);
   const currentKey=st.session?st.session.key:null;
-  const tabs=[['max','Max effort'],['thresh','Threshold'],['end','Endurance']].map(([k,label])=>
+  const tabs=[['max','Max effort'],['thresh','Threshold'],['end','Endurance'],['test','Time trial']].map(([k,label])=>
     '<button type="button" class="dsw-filter'+(_dswFilter===k?' on-'+k:'')+'" onclick="dswSetFilter(\''+k+'\')">'+label+'</button>').join('');
-  const opts=(LIB[_dswFilter]||[]).map(s=>{
+  // Threshold is one list, sectioned by band so the two kinds stay visible
+  const list=(LIB[_dswFilter]||[]);
+  const render=(s)=>{
     const t=getTgt(s,G.currentDate);
     return'<div class="swap-opt'+(s.key===currentKey?' cur':'')+'" onclick="chooseSession(\''+s.key+'\')">'
       +'<div class="swap-opt-top"><span class="swap-opt-name">'+s.name+'</span>'
       +'<span class="swap-opt-tgt">'+(t?t.val:'')+'</span></div>'
       +'<div class="swap-opt-sub">'+s.meta+' · '+fmtSessionDur(s)+'</div></div>';
-  }).join('');
+  };
+  let opts;
+  if(_dswFilter==='thresh'){
+    const band=(b)=>list.filter(s=>(s.band||'end')===b);
+    opts='<div class="dsw-section">Endurance intervals</div>'+band('end').map(render).join('')
+        +'<div class="dsw-section">Power intervals</div>'+band('power').map(render).join('');
+  } else opts=list.map(render).join('');
   panel.innerHTML='<div class="dsw-filters">'+tabs+'</div><div class="dsw-list">'+opts+'</div>';
 }
 
@@ -1703,17 +1872,14 @@ function showPbModal(oldPb, newPb, newSecs, oldSecs){
 function pbModalStay(){
   document.getElementById('pb-modal-overlay').classList.add('hidden');
   showScreen('screen-cal');
+  showToast('Benchmarks updated — every target moves with you');
 }
 function dismissPbModal(e){
   if(e&&e.target!==document.getElementById('pb-modal-overlay'))return;
   document.getElementById('pb-modal-overlay').classList.add('hidden');
 }
 
-function pbModalStartNewPlan(){
-  document.getElementById('pb-modal-overlay').classList.add('hidden');
-  showScreen('screen-cal');
-  showToast('Benchmarks updated — every target moves with you');
-}
+
 
 // ── SETUP ──
 // Runs once at first use, and doubles as the settings screen afterwards.
@@ -1729,9 +1895,14 @@ function finishSetup(){
   commit({cal:true});
   showScreen('screen-cal');
 }
+// Settings reuses the setup screen, so its inputs must always reflect live
+// state — otherwise a stale field can overwrite a PB set by a later test.
 function fillSetupInputs(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
   set('pb2k',G.pb2k);set('pb500',G.pb500);set('pb5k',G.pb5k);
+  // Once there is history this screen is Settings, so it needs a way out
+  const back=document.getElementById('setup-back-btn');
+  if(back)back.style.display=Object.keys(G.history||{}).length?'':'none';
 }
 
 // ── EXPORT / IMPORT ──
@@ -1743,6 +1914,7 @@ function buildExportString(){
     pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
     startedAt:G.startedAt,lastTest:G.lastTest,
     history:G.history,ergLinks:G.ergLinks,targets:G.targets,
+    nextUp:G.nextUp,testPromptSnoozed:G.testPromptSnoozed,
     viewYear:G.viewYear,viewMonth:G.viewMonth
   };
   const doneCount=Object.keys(G.history).filter(d=>G.history[d].kind==='session').length;
@@ -1850,7 +2022,7 @@ function doImport(){
   G.startedAt=d.startedAt||localToday();G.lastTest=d.lastTest||null;
   G.history=d.history||{};G.ergLinks=d.ergLinks||{};
   G.targets=d.targets||{sessions:6,volume:50000,updatedAt:null};
-  G.activeMilestone=d.activeMilestone||null;
+  G.nextUp=d.nextUp||null;G.testPromptSnoozed=d.testPromptSnoozed||null;
   G.viewYear=d.viewYear||new Date().getFullYear();
   G.viewMonth=d.viewMonth!==undefined?d.viewMonth:new Date().getMonth();
   _pendingImport=null;
@@ -1896,9 +2068,7 @@ async function initSupabase(){
         const today = new Date();
         G.viewYear  = G.viewYear  || today.getFullYear();
         G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
-        if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
-        if(G.pb500) document.getElementById('pb500').value = G.pb500;
-        if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
+        fillSetupInputs();
         renderCal(); showScreen('screen-cal');
         return true;
       }
@@ -1931,6 +2101,7 @@ async function syncToSupabase(){
         pb500:G.pb500, pb2k:G.pb2k, pb5k:G.pb5k,
         startedAt:G.startedAt, lastTest:G.lastTest,
         history:G.history, ergLinks:G.ergLinks, targets:G.targets,
+        nextUp:G.nextUp, testPromptSnoozed:G.testPromptSnoozed,
         viewYear:G.viewYear, viewMonth:G.viewMonth
       },
       email_claimed: !!user.email,
@@ -2059,9 +2230,7 @@ async function handleMagicLink(){
         const today = new Date();
         G.viewYear  = G.viewYear  || today.getFullYear();
         G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
-        if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
-        if(G.pb500) document.getElementById('pb500').value = G.pb500;
-        if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
+        fillSetupInputs();
         renderCal(); showScreen('screen-cal');
         showToast('✓ Account linked — your data is restored');
         return true;
@@ -2089,9 +2258,7 @@ async function handleMagicLink(){
       const today = new Date();
       G.viewYear  = G.viewYear  || today.getFullYear();
       G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
-      if(G.pb2k)  document.getElementById('pb2k').value  = G.pb2k;
-      if(G.pb500) document.getElementById('pb500').value = G.pb500;
-      if(G.pb5k)  document.getElementById('pb5k').value  = G.pb5k;
+        fillSetupInputs();
       renderCal(); showScreen('screen-cal');
     } else {
       showScreen('screen-setup');
