@@ -382,6 +382,21 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 
 .complete-ack{font-size:11px;color:var(--green);margin-top:4px;}
 
+.plan-note{text-align:center;font-size:12px;color:var(--text3);margin:16px 0 8px;}
+
+.link-input{width:100%;box-sizing:border-box;background:var(--bg2);border:0.5px solid var(--border2);border-radius:8px;padding:11px 12px;font-size:16px;color:var(--text);font-family:inherit;margin-bottom:12px;}
+.link-input:focus{outline:none;border-color:var(--blue-border);}
+.link-code{font-family:var(--mono);font-size:22px;letter-spacing:.3em;text-align:center;}
+.link-alt{text-align:center;font-size:12px;color:var(--text3);margin:-4px 0 14px;}
+.link-alt-btn{cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.link-alt-btn:hover{color:var(--text2);}
+.link-error{font-size:12px;color:#e06020;margin-top:10px;min-height:1em;text-align:center;}
+
+.link-steps{margin:0 0 12px;padding-left:20px;font-size:13px;color:var(--text2);line-height:1.6;}
+.link-paste-row{display:flex;gap:8px;align-items:flex-start;}
+.link-paste{flex:1;font-family:var(--mono);font-size:14px;}
+.link-paste-btn{flex-shrink:0;padding:11px 14px;}
+
 /* MONTH STATS */
 .mstats{background:var(--bg2);border-radius:11px;padding:12px;margin-top:12px;}
 .ms-row{display:flex;}
@@ -489,6 +504,39 @@ input[type="date"]:focus{outline:none;border-color:var(--blue-border);}
 </div>
 
 <!-- CONFIRM IMPORT MODAL -->
+<div class="modal-overlay hidden" id="link-modal-overlay">
+  <div class="confirm-modal">
+    <div class="confirm-title">Link this device</div>
+    <div id="link-step-email">
+      <div class="confirm-body">Enter the email on your account and we'll send you a sign-in link. You'll copy it back into this app — tapping it would sign in Safari instead.</div>
+      <input class="link-input" id="link-email" type="email" autocomplete="email" autocapitalize="off" placeholder="you@example.com" onkeydown="if(event.key==='Enter')linkSendCode()">
+      <div class="confirm-btns">
+        <button type="button" class="btn" onclick="closeLinkModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" id="link-send-btn" onclick="linkSendCode()">Send link</button>
+      </div>
+      <div class="link-alt" style="margin:12px 0 0;"><span class="link-alt-btn" onclick="linkShowStep('code');linkErr('')">Already have an email? Paste its link</span></div>
+    </div>
+    <div id="link-step-code" style="display:none">
+      <div class="confirm-body" id="link-code-note"></div>
+      <ol class="link-steps">
+        <li>Open the email from Supabase</li>
+        <li><strong>Press and hold</strong> the Sign in link — don't tap it</li>
+        <li>Choose <strong>Copy Link</strong>, come back, tap Paste</li>
+      </ol>
+      <div class="link-paste-row">
+        <input class="link-input link-paste" id="link-code" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Sign-in link (or code)" onkeydown="if(event.key==='Enter')linkVerifyCode()">
+        <button type="button" class="btn link-paste-btn" onclick="linkPasteFromClipboard()">Paste</button>
+      </div>
+      <div class="link-alt"><span class="link-alt-btn" onclick="linkResend()">Send a new link</span> · <span class="link-alt-btn" onclick="linkBack()">Use a different email</span></div>
+      <div class="confirm-btns">
+        <button type="button" class="btn" onclick="closeLinkModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" id="link-verify-btn" onclick="linkVerifyCode()">Sign in</button>
+      </div>
+    </div>
+    <div class="link-error" id="link-error"></div>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="import-modal-overlay">
   <div class="confirm-modal">
     <div class="confirm-title">Replace current data?</div>
@@ -635,21 +683,20 @@ const PIP_CLS={max:'pip-max',thresh:'pip-thresh',end:'pip-end',speed:'pip-speed'
 // happened; the app suggests the next session rather than scheduling a month.
 //   history['2026-07-03'] = {kind:'session', key, pace, effort, loggedAt, reflect, fwd, primerKey}
 //   history['2026-07-04'] = {kind:'rest', loggedAt}
-// nextUp pins tomorrow's suggestion (set when you log, swappable in the morning).
+// planned['2026-07-06'] = '4x2000' — sessions chosen ahead of time, up to a
+// week out. Logging a day clears its plan entry; tomorrow gets an automatic
+// suggestion when you log, unless you've already planned it yourself.
 // targets adapt to what the athlete is actually accomplishing.
 let G={
   pb500:'',pb2k:'',pb5k:'',startedAt:null,lastTest:null,
   history:{},ergLinks:{},
-  nextUp:null,
+  planned:{},
   targets:{sessions:6,volume:50000,updatedAt:null},
-  testPromptSnoozed:null,
   viewYear:null,viewMonth:null,
   currentDate:null,currentEffort:null,editMode:false
 };
 // 1 hard : 2 threshold (one endurance band, one power band) : 3 endurance
 const RATIO={max:1/6,'thresh-end':1/6,'thresh-power':1/6,end:3/6};
-const CAT_LABEL={max:'Hard','thresh-end':'Thr-E','thresh-power':'Thr-P',end:'End'};
-// Which ratio bucket a session counts toward
 // Which ratio bucket a session counts toward. A time trial is harder than
 // anything in the library, so it fills the hard slot — even though only the 2k
 // feeds the pace references.
@@ -664,34 +711,30 @@ function bandsMerged(){return G.targets.sessions<4;}
 const TARGET_FLOOR={sessions:3,volume:25000};
 const TARGET_CEIL={sessions:7,volume:60000};
 const REF_WINDOW_DAYS=28;                   // rolling pace-reference window
+const PLAN_AHEAD_DAYS=7;                    // how far ahead sessions can be chosen
 
 // ── HELPERS ──
 function parseT(s){if(!s||!s.trim())return null;const p=s.replace(',','.').trim().split(':');if(p.length!==2)return null;const m=parseFloat(p[0]),sec=parseFloat(p[1]);return isNaN(m)||isNaN(sec)?null:m*60+sec;}
+// User text (notes, reflections, pasted URLs) goes into innerHTML templates;
+// escape it so a stray < or " can't break the markup.
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function fmt(s){if(!s||s<=0||!isFinite(s))return null;const m=Math.floor(s/60),r=s%60;return m+':'+r.toFixed(1).padStart(4,'0');}
-function p2w(p){return p?Math.round(2.80/Math.pow(p/500,3)):null;}
 function pace2k(){return G.pb2k?parseT(G.pb2k)/4:null;}
-// ── PACE: single source of truth + adaptive category references ──
+// ── PACE: single source of truth + adaptive references ──
 // Every session declares paceOffset (secs vs 2k pace) OR paceMult (multiplier).
-// Max and threshold targets adapt over the month via a per-category REFERENCE
-// pace that learns from every logged effort in the category — so a strong
-// 4×2000m tightens tomorrow's 2×12min too. Endurance and first principles:
-//  - Formula reference: max ref = 2k pace; thresh ref = 2k pace × 1.08.
-//  - Each session maps ref → target: max adds its offset; thresh scales by
-//    (paceMult / 1.08), so standard thresh = ref and hard 5k = ref × 1.12/1.08.
-//  - A logged effort implies a reference (same mapping in reverse). It blends
-//    with the formula ref by a weight from effort × beat-vs-miss:
-//      beat formula:  easy 100% / solid 75% / hard 50% / max 25% of implied
-//      miss formula:  easy   0% / solid 25% / hard 50% / max 75% of implied
-//    (an easy beat is proof; an easy miss earns nothing; a max miss is met
-//    most of the way but keeps a 25% anchor to the standard)
-//  - Unrated efforts count as hard (50/50). Implied refs clamp to ±10% of
-//    formula to shrug off typos. Endurance never adapts. References derive
-//    from current-plan logs only, so a new month resets them.
+// Three references adapt independently: max, threshold-endurance, threshold-power.
+//  - Seed (no history): max ref = 2k pace; both threshold refs = 2k pace x 1.08.
+//  - Each session maps ref -> target: max adds its offset; threshold scales by
+//    (paceMult / 1.08), so standard threshold = ref, hard 5k = ref x 1.12/1.08.
+//  - A logged row implies a reference by the same mapping in reverse.
+//  - Reference = weighted mean of the last 3 qualifying entries in a rolling
+//    28-day window: fastest session x2, any 2k test x2, others x1. Effort
+//    rating is NOT an input. Implied refs clamp to +/-10% of the seed (typos).
+//  - Only the 2k test recalibrates; 500m/5k are PBs only. Endurance never adapts.
 const THRESH_BASE=1.08;
 // Threshold work splits into two bands that adapt INDEPENDENTLY: a strong
 // endurance interval shouldn't drag the power reference down, or vice versa.
 // Both seed from the same formula (2k pace x 1.08) and diverge with training.
-const REF_LABEL={max:'Max effort','thresh-end':'Threshold — endurance','thresh-power':'Threshold — power'};
 function refKey(s){
   if(!s)return null;
   if(s.type==='max')return 'max';
@@ -815,6 +858,17 @@ function sessionMins(s){
 }
 
 // Wrapper for display - returns "~Xmin" or "~Xh Ym"
+// Metres actually rowed for a logged entry. Timed sessions depend on pace, so
+// use the logged pace when there is one — not today's target, which drifts
+// and would silently rewrite past volume as fitness changes.
+function loggedDist(x){
+  const lib=x.lib||getByKey(x.key);if(!lib)return 0;
+  if(lib.timed){
+    const p=parseT(x.pace);
+    if(p)return Math.round((lib.workMins*60)/(p/500));
+  }
+  return sessionDist(lib);
+}
 function fmtSessionDur(s){
   const m = sessionMins(s);
   return m < 60 ? '~'+m+' min' : '~'+Math.floor(m/60)+'h '+(m%60)+'m';
@@ -835,7 +889,9 @@ function localToday(){const d=new Date();return d.getFullYear()+'-'+String(d.get
 //   3 — declarative pace fields on sessions; plan re-hydrated from library
 //   4 — v3.0 rebuild: dated plan + archive collapse into one date-keyed
 //       history store; suggestion model replaces the month planner
-const SCHEMA_VERSION=4;
+//   5 — single nextUp pin becomes a date-keyed 'planned' map (plan the week
+//       ahead); test-prompt snooze retired — the app keeps pushing a retest
+const SCHEMA_VERSION=5;
 
 // Bring any older saved blob up to the current schema. Runs on every load; idempotent.
 function migrateState(s){
@@ -870,11 +926,17 @@ function migrateState(s){
     const allDates=Object.keys(hist).sort();
     s.startedAt=s.startedAt||s.planStart||(allDates.length?allDates[0]:localToday());
     s.targets=s.targets||{sessions:6,volume:50000,updatedAt:null};
-    s.nextUp=null;
     delete s.plan;delete s.logs;delete s.archive;
     delete s.planStart;delete s.focus;delete s.restDays;delete s.activeMilestone;
   }
+  // v4 -> v5: one pinned day becomes a plan map
+  if(from<5){
+    s.planned=s.planned||{};
+    if(s.nextUp&&s.nextUp.date&&s.nextUp.key)s.planned[s.nextUp.date]=s.nextUp.key;
+    delete s.nextUp;delete s.testPromptSnoozed;
+  }
   s.history=s.history||{};
+  s.planned=s.planned||{};
   s.targets=s.targets||{sessions:6,volume:50000,updatedAt:null};
   s.startedAt=s.startedAt||localToday();
   s._schema=SCHEMA_VERSION;
@@ -884,11 +946,11 @@ function migrateState(s){
 function saveState(){
   try{
     localStorage.setItem('trt_v2',JSON.stringify({
-      _schema:SCHEMA_VERSION,
+      _schema:SCHEMA_VERSION,savedAt:new Date().toISOString(),
       pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
       startedAt:G.startedAt,lastTest:G.lastTest,
-      history:G.history,ergLinks:G.ergLinks,nextUp:G.nextUp,
-      targets:G.targets,testPromptSnoozed:G.testPromptSnoozed,
+      history:G.history,ergLinks:G.ergLinks,planned:G.planned,
+      targets:G.targets,
       viewYear:G.viewYear,viewMonth:G.viewMonth
     }));
   }catch(e){console.warn('saveState failed:',e);}
@@ -908,6 +970,10 @@ function loadState(){
 // ── COMMIT: single path for state changes ──
 // persist locally -> schedule cloud sync -> re-render requested views.
 function commit(opts={}){
+  const today=localToday();
+  Object.keys(G.planned||{}).forEach(d=>{
+    if(d<today&&d!==G.currentDate)delete G.planned[d];   // a missed plan isn't history
+  });
   updateTargets();   // adapt before persisting, or the new targets save a cycle late
   saveState();
   scheduleSyncToSupabase();
@@ -955,10 +1021,10 @@ function updateTargets(){
   if(t.updatedAt&&daysBetween(t.updatedAt,today)<7)return;
   const age=daysBetween(G.startedAt||today,today);
   if(age<14){t.updatedAt=today;return;} // too early to judge
-  const sess=recentSessions(28).filter(x=>x.lib.type!=='test');
+  const sess=recentSessions(28);   // trials count — they fill the hard slot
   const weeks=Math.max(1,Math.min(4,age/7));
   const obsSessions=sess.length/weeks;
-  const obsVolume=sess.reduce((s,x)=>s+sessionDist(x.lib),0)/weeks;
+  const obsVolume=sess.reduce((s,x)=>s+loggedDist(x),0)/weeks;
   const adj=(cur,obs,floor,ceil)=>{
     const rate=obs>cur?0.5:0.25;
     return Math.max(floor,Math.min(ceil,cur+(obs-cur)*rate));
@@ -968,9 +1034,32 @@ function updateTargets(){
   t.updatedAt=today;
 }
 
-// ── ROLLING STATUS (last 7 days) ──
-function ratioStatus(){
-  const sess=recentSessions(7);
+// ── ROLLING STATUS (the 7 days ending on an anchor date) ──
+// Everything the suggestion engine knows is relative to an anchor date, so a
+// menu for last Tuesday reflects last Tuesday, and a menu for Friday counts the
+// sessions you've already planned for Wednesday and Thursday.
+//   withPlanned=false: what actually happened (the calendar's "last 7 days")
+//   withPlanned=true : also count sessions planned from today up to the anchor
+function weekEntries(anchor,withPlanned){
+  const today=localToday();
+  const from=addDaysStr(anchor,-6);
+  const out=[];
+  Object.keys(G.history).forEach(d=>{
+    if(d<from||d>anchor)return;
+    const h=G.history[d];if(h.kind!=='session')return;
+    const lib=getByKey(h.key);if(lib)out.push({date:d,lib,pace:h.pace,key:h.key,logged:true});
+  });
+  if(withPlanned){
+    Object.keys(G.planned||{}).forEach(d=>{
+      if(d<from||d>=anchor||d<today||G.history[d])return;
+      const lib=getByKey(G.planned[d]);if(lib)out.push({date:d,lib,key:lib.key,logged:false});
+    });
+  }
+  return out;
+}
+function ratioStatus(anchor,withPlanned){
+  anchor=anchor||localToday();
+  const sess=weekEntries(anchor,!!withPlanned);
   const fine={max:0,'thresh-end':0,'thresh-power':0,end:0};
   sess.forEach(x=>{const k=catOf(x.lib);if(fine[k]!==undefined)fine[k]++;});
   const N=G.targets.sessions;
@@ -983,8 +1072,10 @@ function ratioStatus(){
   Object.keys(ratio).forEach(k=>{targets[k]=N*ratio[k];deficit[k]=targets[k]-counts[k];});
   return{counts,targets,deficit,merged:bandsMerged(),total:sess.length,targetTotal:N};
 }
-function volumeStatus(){
-  const done=recentSessions(7).reduce((s,x)=>s+sessionDist(x.lib),0);
+function volumeStatus(anchor,withPlanned){
+  anchor=anchor||localToday();
+  // logged rows count what was actually rowed; planned rows count their target
+  const done=weekEntries(anchor,!!withPlanned).reduce((s,x)=>s+(x.logged?loggedDist(x):sessionDist(x.lib)),0);
   return{done,target:G.targets.volume,gap:G.targets.volume-done};
 }
 function lastUsedMap(){
@@ -992,6 +1083,10 @@ function lastUsedMap(){
   Object.keys(G.history).forEach(d=>{
     const h=G.history[d];
     if(h.kind==='session'&&(!m[h.key]||d>m[h.key]))m[h.key]=d;
+  });
+  // planned sessions count as "used" so the week ahead doesn't repeat itself
+  Object.keys(G.planned||{}).forEach(d=>{
+    const k=G.planned[d];if(!m[k]||d>m[k])m[k]=d;
   });
   return m;
 }
@@ -1030,14 +1125,22 @@ function reasonFor(cat,rs,vs){
   if(cat==='end'&&vs.gap>6000)return'Endurance would close the volume gap';
   return'Keeps your week balanced';
 }
-function suggestSessions(){
-  const rs=ratioStatus(),vs=volumeStatus();
+// What happened (or is planned) on a given day, for the back-to-back guard
+function sessionOn(dateStr){
+  const h=histFor(dateStr);
+  if(h)return h.kind==='session'?getByKey(h.key):null;
+  if(dateStr>=localToday()&&G.planned&&G.planned[dateStr])return getByKey(G.planned[dateStr]);
+  return null;
+}
+function suggestSessions(anchor){
+  anchor=anchor||localToday();
+  const rs=ratioStatus(anchor,true),vs=volumeStatus(anchor,true);
   const out=[];
-  // A due test outranks everything
-  if(testDue()){
+  // A due test outranks everything — the app keeps pushing a retest
+  if(testDue(anchor)){
     const test=(LIB.test||[]).find(t=>t.benchmark);
     if(test)out.push({session:test,cat:'test',primary:true,
-      reason:'It\'s been four weeks — time to retest your 2k'});
+      reason:'It\'s been four weeks since your last 2k — time to retest'});
   }
   const order=Object.keys(rs.targets).sort((a,b)=>rs.deficit[b]-rs.deficit[a]);
   const remaining=Math.max(1,Math.ceil(rs.targetTotal-rs.total));
@@ -1053,29 +1156,43 @@ function suggestSessions(){
     out.push({session:easy,cat:'end',primary:false,easy:true,
       reason:'Short and easy — something is better than nothing'});
   }
-  // Soft guard: back-to-back max efforts are allowed, but flagged
-  const yest=histFor(addDaysStr(localToday(),-1));
-  if(yest&&yest.kind==='session'){
-    const yl=getByKey(yest.key);
-    if(yl&&catOf(yl)==='max'){
-      const what=yl.type==='test'?'You time-trialled yesterday':'You went hard yesterday';
-      out.forEach(o=>{if(o.cat==='max')o.warn=what+' — two maximal days in a row is a big ask';});
-    }
+  // Soft guard: back-to-back maximal days are allowed, but flagged
+  const prev=sessionOn(addDaysStr(anchor,-1));
+  if(prev&&catOf(prev)==='max'){
+    const planned=!histFor(addDaysStr(anchor,-1));
+    const what=prev.type==='test'
+      ?(planned?'You\'ve a time trial planned the day before':'You time-trialled the day before')
+      :(planned?'You\'ve a hard session planned the day before':'You went hard the day before');
+    out.forEach(o=>{if(o.cat==='max'||o.cat==='test')o.warn=what+' — two maximal days in a row is a big ask';});
   }
   return out;
 }
 
 // ── TEST CADENCE ──
-// Four weeks after the last test (or first use), then re-asked weekly.
-function testDue(){
+// Due four weeks after the last 2k (or first use), as of the anchor date. A 2k
+// already planned before the anchor counts, so planning ahead doesn't stack two.
+function lastTestBefore(anchor){
   const today=localToday();
-  const anchor=G.lastTest||G.startedAt;
-  if(!anchor)return false;
-  if(daysBetween(anchor,today)<28)return false;
-  if(G.testPromptSnoozed&&daysBetween(G.testPromptSnoozed,today)<7)return false;
-  return true;
+  let last=null;
+  Object.keys(G.history).forEach(d=>{
+    if(d>=anchor)return;
+    const lib=getByKey(G.history[d].key);
+    if(lib&&lib.benchmark&&(!last||d>last))last=d;
+  });
+  Object.keys(G.planned||{}).forEach(d=>{
+    if(d>=anchor||d<today)return;
+    const lib=getByKey(G.planned[d]);
+    if(lib&&lib.benchmark&&(!last||d>last))last=d;
+  });
+  if(G.lastTest&&G.lastTest<anchor&&(!last||G.lastTest>last))last=G.lastTest;
+  return last;
 }
-function snoozeTest(){G.testPromptSnoozed=localToday();commit({cal:true,daily:true});}
+function testDue(anchor){
+  anchor=anchor||localToday();
+  const ref=lastTestBefore(anchor)||G.startedAt;
+  if(!ref)return false;
+  return daysBetween(ref,anchor)>=28;
+}
 
 // ── MONTH STATS ──
 function monthStats(yr,mo){
@@ -1087,7 +1204,7 @@ function monthStats(yr,mo){
   sess.forEach(x=>{if(byType[x.lib.type]!==undefined)byType[x.lib.type]++;});
   return{sessions:sess.length,
     rest:dates.filter(d=>G.history[d].kind==='rest').length,
-    volume:sess.reduce((s,x)=>s+sessionDist(x.lib),0),byType};
+    volume:sess.reduce((s,x)=>s+loggedDist(x),0),byType};
 }
 
 // ── CALENDAR (a record of what happened, not a schedule) ──
@@ -1101,21 +1218,24 @@ function dayState(dateStr){
   return{date:dateStr,kind:'empty',rec:null,session:pinnedFor(dateStr)}; // past, nothing logged yet
 }
 function pinnedFor(dateStr){
-  return(G.nextUp&&G.nextUp.date===dateStr)?getByKey(G.nextUp.key):null;
+  const k=G.planned&&G.planned[dateStr];
+  return k?getByKey(k):null;
 }
-// After logging, line up tomorrow so there's something waiting. Pinned, not
-// committed — the morning menu still offers alternatives.
+function planHorizon(){return addDaysStr(localToday(),PLAN_AHEAD_DAYS);}
+// After logging, line up tomorrow so there's something waiting — unless you've
+// already planned tomorrow yourself, which always wins.
 function pinNext(){
   const tomorrow=addDaysStr(localToday(),1);
-  const sug=suggestSessions();
-  if(sug.length)G.nextUp={date:tomorrow,key:sug[0].session.key};
+  if(G.planned[tomorrow]||G.history[tomorrow])return;
+  const sug=suggestSessions(tomorrow);
+  if(sug.length)G.planned[tomorrow]=sug[0].session.key;
 }
 
 function changeMonth(delta){
   let m=G.viewMonth+delta,y=G.viewYear;
   if(m<0){m=11;y--;}else if(m>11){m=0;y++;}
   G.viewMonth=m;G.viewYear=y;
-  commit({cal:true});
+  saveState();renderCal();   // UI navigation: persist locally, no cloud round-trip
 }
 function renderCal(){
   const today=localToday();
@@ -1143,10 +1263,10 @@ function renderCal(){
       const bar=document.createElement('span');
       bar.className='cell-bar';bar.style.background=BAR[st.session.type]||BAR.end;
       el.appendChild(bar);
-      if(st.rec.pace){const p=document.createElement('span');p.className='cell-pace';p.textContent=st.rec.pace;el.appendChild(p);}
+      if(st.rec.pace){const p=document.createElement('span');p.className='cell-pace';p.textContent=st.rec.pace;el.appendChild(p);} // textContent: already safe
     } else if(st.kind==='rest'){
       const r=document.createElement('span');r.className='cell-rest';r.textContent='·';el.appendChild(r);
-    } else if(st.session){
+    } else if(st.session&&dateStr>=today){   // planned, not yet rowed
       const bar=document.createElement('span');
       bar.className='cell-bar up';bar.style.background=BAR[st.session.type]||BAR.end;
       el.appendChild(bar);
@@ -1169,7 +1289,7 @@ function renderTodayCard(){
     return;
   }
   if(st.kind==='session'&&st.session){
-    const line2=[st.session.meta,st.rec.pace?'<span class="mono-t">'+st.rec.pace+'</span> /500m':''].filter(Boolean);
+    const line2=[st.session.meta,st.rec.pace?'<span class="mono-t">'+esc(st.rec.pace)+'</span> /500m':''].filter(Boolean);
     el.innerHTML='<div class="tc2" onclick="openDay(\''+today+'\')"><div class="tc2-l1">'
       +'<span class="sc-badge '+(TYPE_BADGE[st.session.type]||'b-end')+'">'+(TYPE_LABEL[st.session.type]||st.session.type)+'</span>'
       +'<span class="tc2-name">'+st.session.name+'</span>'
@@ -1205,11 +1325,12 @@ function renderStructureCard(){
     ?[['max','Hard','var(--red-border)'],['thresh','Thresh','var(--green-border)'],['end','End','var(--blue-border)']]
     :[['max','Hard','var(--red-border)'],['thresh-end','Thr-E','var(--green-border)'],
       ['thresh-power','Thr-P','var(--amber-border)'],['end','End','var(--blue-border)']];
+  // Targets steer the suggestions; they aren't shown. Each chip is the count
+  // done, with a dimmed dot where that category is the one you're short on.
   const chips=CATS.map(([k,label,col])=>{
-    const want=Math.round(rs.targets[k]*10)/10,have=rs.counts[k];
     const short=rs.deficit[k]>=0.5;
     return'<span class="st-chip"><span class="st-dot" style="background:'+col+';opacity:'+(short?'.35':'1')+'"></span>'
-      +label+' <span class="mono-t">'+have+'/'+want+'</span></span>';
+      +label+' <span class="mono-t">'+rs.counts[k]+'</span></span>';
   }).join('');
   el.innerHTML='<div class="wstrip"><div class="wstrip-top"><span>Last 7 days</span>'
     +'<span class="wstrip-vol">'+(vs.done/1000).toFixed(1)+'k / '+(vs.target/1000).toFixed(0)+'k</span></div>'
@@ -1226,7 +1347,7 @@ function renderMonthStats(){
   if(s.byType.max)parts.push(s.byType.max+' hard');
   if(s.byType.thresh)parts.push(s.byType.thresh+' threshold');
   if(s.byType.end)parts.push(s.byType.end+' endurance');
-  if(s.byType.test)parts.push(s.byType.test+' test');
+  if(s.byType.test)parts.push(s.byType.test+(s.byType.test===1?' time trial':' time trials'));
   el.innerHTML='<div class="mstats"><div class="ms-row">'
     +'<div class="ms-cell"><span class="ms-val">'+s.sessions+'</span><span class="ms-lbl">sessions</span></div>'
     +'<div class="ms-cell"><span class="ms-val">'+(s.volume/1000).toFixed(1)+'k</span><span class="ms-lbl">metres</span></div>'
@@ -1239,11 +1360,12 @@ function renderErgSection(sessionKey){
   const saved=G.ergLinks[sessionKey];
   const editMode=G._ergEditMode===sessionKey;
   if(saved&&!editMode){
+    const safeHref=/^https?:\/\//i.test(saved)?esc(saved):'#';   // never a javascript: link
     return `<div class="erg-saved-wrap">
-      <a class="erg-send-btn" href="${saved}" target="_blank" rel="noopener">⎋ Send to Erg</a>
+      <a class="erg-send-btn" href="${safeHref}" target="_blank" rel="noopener">⎋ Send to Erg</a>
       <div class="erg-saved-meta">
         <div class="erg-saved-label">Opens in ErgData on your phone</div>
-        <div class="erg-saved-url">${saved}</div>
+        <div class="erg-saved-url">${esc(saved)}</div>
       </div>
       <button type="button" class="erg-edit-btn" onclick="ergStartEdit('${sessionKey}')">Edit</button>
     </div>`;
@@ -1292,8 +1414,8 @@ function updateDayNav(){
   const today=localToday();
   const next=document.getElementById('day-nav-next');
   const center=document.getElementById('day-nav-center');
-  // You can look back freely, but only one day ahead — the future is unwritten
-  if(next)next.disabled=G.currentDate>=addDaysStr(today,1);
+  // Look back freely; look ahead as far as you can plan
+  if(next)next.disabled=G.currentDate>=planHorizon();
   if(center){
     const diff=daysBetween(today,G.currentDate);
     center.textContent=diff===0?'Today':diff===1?'Tomorrow':diff===-1?'Yesterday'
@@ -1329,6 +1451,7 @@ function renderDaily(dateStr){
   if(st.session){
     const s=st.session;
     const isLogged=st.kind==='session';
+    const isFuture=dateStr>localToday();
     const rec=st.rec||{};
     const tgt=getTgt(s,dateStr);
     const typeCls=TYPE_BADGE[s.type]||'b-end';
@@ -1340,19 +1463,22 @@ function renderDaily(dateStr){
     const doneBefore=!!prev;
 
     if(isLogged&&!G.editMode){
-      const ack=dateStr===localToday()?effortAck(s):'';
+      const ack=dateStr===localToday()?effortAck(s):'';  // banner: today only
       html+='<div class="complete-banner"><div style="font-size:18px">✓</div><div>'
         +'<div class="complete-text">Workout logged</div>'
-        +'<div class="complete-sub">'+(rec.pace?rec.pace+' /500m':'No pace recorded')
+        +'<div class="complete-sub">'+(rec.pace?esc(rec.pace)+' /500m':'No pace recorded')
         +(rec.effort?' · effort '+rec.effort+'/4':'')+'</div>'
         +(ack?'<div class="complete-ack">'+ack+'</div>':'')+'</div>'
         +'<button type="button" class="btn btn-sm" style="margin-left:auto" onclick="G.editMode=true;renderDaily(G.currentDate)">Edit</button></div>'
         +'<div style="text-align:center;margin-bottom:14px;"><span class="remove-link" id="remove-link" onclick="removeEntry()">Remove this entry</span></div>';
     }
     if(s.type==='test'){
-      const proj=projected2k();
-      html+='<div class="test-note-box"><div class="test-note-title">2k time trial</div>'
-        +'<div class="test-note-text">Row for a genuine personal best. Enter your result below — a new PB updates every pace target from here on.</div>'
+      const proj=s.benchmark?projected2k():null;   // the goal line is a 2k projection
+      const note=s.benchmark
+        ?'Row for a genuine personal best. Enter your average /500m below — a new 2k PB updates every pace target from here on.'
+        :'Row for a genuine personal best. Enter your average /500m below — it\'s recorded as a PB, but your training paces stay anchored to the 2k.';
+      html+='<div class="test-note-box"><div class="test-note-title">'+s.name+'</div>'
+        +'<div class="test-note-text">'+note+'</div>'
         +(proj?'<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--amber-border);font-size:13px;color:var(--amber);">Goal: <span style="font-family:var(--mono);font-weight:600;">'+fmt(proj.time)+'</span> <span style="font-size:11px;color:var(--text3);">('+fmt(proj.pace)+' /500m) — from your recent max + threshold work</span></div>':'')
         +'</div>';
     }
@@ -1383,9 +1509,9 @@ function renderDaily(dateStr){
     if(prev){
       const pd=new Date(prev.date+'T00:00:00');
       html+='<div class="lasttime"><span>Last time ('+MONTHS[pd.getMonth()].slice(0,3)+' '+pd.getDate()+'):</span>'
-        +'<span class="lt-pace">'+(prev.pace||'—')+'</span>'
+        +'<span class="lt-pace">'+esc(prev.pace||'—')+'</span>'
         +(prev.effort?'<span>· effort '+prev.effort+'/4</span>':'')
-        +(prev.fwd?'<span class="lt-fwd">"'+prev.fwd+'"</span>':'')+'</div>';
+        +(prev.fwd?'<span class="lt-fwd">"'+esc(prev.fwd)+'"</span>':'')+'</div>';
     }
     const detailsOpen=!doneBefore;
     html+='<div class="details-toggle" onclick="toggleDetails()"><span>Session details</span>'
@@ -1395,33 +1521,37 @@ function renderDaily(dateStr){
       +(s.notes||[]).map(n=>'<div class="note-row"><div class="note-dot"></div><div class="note-text">'+n+'</div></div>').join('')
       +'</div>';
 
-    if(!isLogged||G.editMode){
+    if((!isLogged||G.editMode)&&!isFuture){
       const hasReflect=!!(rec.reflect&&rec.reflect.length);
       const paceHint=tgt?tgt.val.replace(' /500m',''):'m:ss.t';
       html+='<div class="log-section" style="margin-top:16px;"><span class="log-label">Avg pace / 500m</span>'
-        +'<div class="pace-wrap"><input class="pace-in" id="log-pace" type="text" inputmode="decimal" onblur="this.value=normalizePace(this.value)" placeholder="'+paceHint+'" value="'+(rec.pace||'')+'">'
+        +'<div class="pace-wrap"><input class="pace-in" id="log-pace" type="text" inputmode="decimal" onblur="this.value=normalizePace(this.value)" placeholder="'+paceHint+'" value="'+esc(rec.pace||'')+'">'
         +'<span class="pace-unit">/ 500m</span></div></div>'
         +'<div class="log-section"><span class="log-label">Effort</span><div class="effort-grid">'
         +[[1,'Easy','held back'],[2,'Solid','on target'],[3,'Hard','stretched'],[4,'Max','everything']].map(([n,l,sub])=>
           '<button type="button" class="eff-btn" style="padding:12px 4px;" id="e'+n+'" onclick="selEff('+n+')"><span class="eff-label">'+l+'</span><span class="eff-sub">'+sub+'</span></button>').join('')
         +'</div></div>'
         +'<div class="log-section"><span class="log-label">Note for next time</span>'
-        +'<textarea class="txt-in" id="log-fwd" rows="2" placeholder="Tip or target to carry forward...">'+(rec.fwd||'')+'</textarea>'
+        +'<textarea class="txt-in" id="log-fwd" rows="2" placeholder="Tip or target to carry forward...">'+esc(rec.fwd||'')+'</textarea>'
         +'<div class="fwd-hint">↗ Shown next time you open this session</div></div>'
         +'<div class="log-section" id="reflect-section">'
-        +(hasReflect?'<span class="log-label">Reflection</span><textarea class="txt-in" id="log-reflect" rows="3">'+rec.reflect+'</textarea>'
+        +(hasReflect?'<span class="log-label">Reflection</span><textarea class="txt-in" id="log-reflect" rows="3">'+esc(rec.reflect)+'</textarea>'
                     :'<span class="reflect-link" onclick="expandReflect()">+ add a reflection</span>')
         +'</div>';
       if(rec.effort){G.currentEffort=rec.effort;setTimeout(()=>selEff(rec.effort),0);}
       saveBar.style.display='flex';
+    }
+    if(isFuture){
+      html+='<div class="plan-note">Planned · you can log it on the day</div>'
+        +'<div style="text-align:center;margin-bottom:14px;"><span class="remove-link" onclick="unplanDay()">Remove from plan</span></div>';
     }
     body.innerHTML=html;
     return;
   }
 
   // Nothing chosen yet — offer the menu (today and past days; future stays blank)
-  if(st.kind==='future'){
-    body.innerHTML='<div class="empty-day">Nothing planned yet.<div class="empty-sub">Your next session gets suggested when you log today\'s.</div></div>';
+  if(st.kind==='future'&&dateStr>planHorizon()){
+    body.innerHTML='<div class="empty-day">Too far ahead to plan.<div class="empty-sub">You can plan up to a week out.</div></div>';
     return;
   }
   body.innerHTML=renderSuggestionMenu(dateStr);
@@ -1430,11 +1560,16 @@ function renderDaily(dateStr){
 // ── SUGGESTION MENU ──
 function renderSuggestionMenu(dateStr){
   const today=localToday();
-  const past=dateStr<today;
-  const sug=suggestSessions();
-  const rs=ratioStatus(),vs=volumeStatus();
+  const past=dateStr<today,future=dateStr>today;
+  const sug=suggestSessions(dateStr);
+  const rs=ratioStatus(dateStr,true),vs=volumeStatus(dateStr,true);
+  // Every line here describes the day being viewed, not today
   let intro;
-  if(past)intro='Add a session you rowed on this day.';
+  if(past)intro='Add a session you rowed on this day. Suggestions reflect the week leading up to it.';
+  else if(future){
+    const n=Object.keys(G.planned||{}).filter(d=>d>=today&&d<dateStr&&!G.history[d]).length;
+    intro='Planning ahead'+(n?' — counting the '+n+' session'+(n===1?'':'s')+' already planned before this day.':'.');
+  }
   else if(vs.gap>8000)intro='You\'re '+(vs.gap/1000).toFixed(1)+'k under your 7-day volume.';
   else if(rs.total>=rs.targetTotal)intro='You\'ve hit your target for the week — anything more is a bonus.';
   else intro='Based on your last 7 days.';
@@ -1452,20 +1587,21 @@ function renderSuggestionMenu(dateStr){
   html+='<div class="menu-actions">'
     +'<button type="button" class="btn" style="width:100%" onclick="toggleDailySwap()">Browse all sessions</button>'
     +'<div class="daily-swap-panel" id="daily-swap-panel"></div>';
-  if(!past)html+='<button type="button" class="btn btn-ghost" style="width:100%;margin-top:8px;" onclick="logRest()">Log a rest day</button>';
+  if(!past&&!future)html+='<button type="button" class="btn btn-ghost" style="width:100%;margin-top:8px;" onclick="logRest()">Log a rest day</button>';
   html+='</div>';
   return html;
 }
 function chooseSession(key){
   if(!G.currentDate)return;
   G.currentEffort=null;  // a new session starts unrated, whatever was tapped before
-  G.nextUp={date:G.currentDate,key};
+  G.planned[G.currentDate]=key;
   commit({cal:true,daily:true});
 }
 function logRest(){
   if(!G.currentDate)return;
   G.history[G.currentDate]={kind:'rest',loggedAt:new Date().toISOString()};
-  if(G.nextUp&&G.nextUp.date===G.currentDate)G.nextUp=null;
+  delete G.planned[G.currentDate];
+  if(G.currentDate===localToday())pinNext();   // night-before suggestion, same as a workout
   commit({cal:true,daily:true});
   showToast('Rest day logged');
 }
@@ -1487,6 +1623,12 @@ function removeEntry(){
   commit({cal:true,daily:true});
   showToast('Entry removed');
 }
+function unplanDay(){
+  if(!G.currentDate)return;
+  delete G.planned[G.currentDate];
+  commit({cal:true,daily:true});
+  showToast('Removed from plan');
+}
 function undoRest(){
   if(!G.currentDate)return;
   delete G.history[G.currentDate];
@@ -1502,9 +1644,9 @@ function effortAck(lib){
   const label={max:'hard',thresh:'threshold','thresh-end':'threshold endurance',
     'thresh-power':'threshold power',end:'endurance'}[cat];
   if(!label)return'';
-  const have=rs.counts[cat]||0,want=Math.round((rs.targets[cat]||0)*10)/10;
-  if(have>=want)return'That completes your '+label+' work for the week.';
-  return label.charAt(0).toUpperCase()+label.slice(1)+' banked — '+have+' of '+want+' this week.';
+  // No numbers — targets guide suggestions, they aren't a scoreboard
+  if((rs.deficit[cat]||0)<=0)return'That completes your '+label+' work for the week.';
+  return label.charAt(0).toUpperCase()+label.slice(1)+' banked.';
 }
 
 // ── LOGGING ──
@@ -1556,7 +1698,7 @@ function saveLog(){
     fwd:document.getElementById('log-fwd')?.value.trim()||'',
     primerKey:(prior&&prior.primerKey)||(s.type==='max'?(pickPrimer(0)||{}).key||null:null)};
   G.editMode=false;
-  if(G.nextUp&&G.nextUp.date===dateStr)G.nextUp=null;
+  delete G.planned[dateStr];   // a logged day is history, not a plan
 
   // Time trials record a PB at their own distance. Only the 2k recalibrates
   // training paces — 500m and 5k are tracked for their own sake.
@@ -1568,7 +1710,7 @@ function saveLog(){
       const prevStr=field?G[field]:null;
       const prev=parseT(prevStr||'');
       const isPb=!prev||total<prev;
-      if(s.benchmark){G.lastTest=dateStr;G.testPromptSnoozed=null;}
+      if(s.benchmark&&(!G.lastTest||dateStr>G.lastTest)){G.lastTest=dateStr;}
       if(field&&isPb)G[field]=fmt(total);
       if(isPb&&s.benchmark){
         pinNext();commit({cal:true,daily:true});
@@ -1583,18 +1725,16 @@ function saveLog(){
   }
   pinNext();
   commit({cal:true,daily:true});
-  showToast(effortAck(s)||'Workout logged');
+  showToast((dateStr>=addDaysStr(localToday(),-6)?effortAck(s):'')||'Workout logged');
   showScreen('screen-cal');
+  checkEmailPrompt();
 }
 
 // ── PROGRESS CHART ──
-// Rolling form: the last 10 logged efforts per category (max / threshold),
-// normalized to implied category references, plotted on a real-date axis that
-// crosses plan boundaries. Implied refs are absolute paces, so months compare
-// honestly; only the dashed plan lines are month-bound, so we draw the CURRENT
-// plan's standard only. Headline delta = latest vs first-in-window (rolling
-// form, allowed to go the wrong way). Below: a month-over-month strip with the
-// closing reference of each completed plan — the long arc across plan rounds.
+// Card, top to bottom: reference headlines + projected 2k; trend chart of the
+// last 10 implied references per band on a real-date axis (2k tests drawn as
+// diamonds; dashed lines = seed from the current 2k PB); month strip with each
+// month's closing reference; personal bests at 500m / 2k / 5k.
 const PROG_WINDOW=10;
 function formulaRefFor(pb2kStr,rk){
   const t=parseT(pb2kStr);if(!t)return null;
@@ -1745,7 +1885,7 @@ function renderProgressChart(){
     if(c.plan!==undefined){
       const py=Y(c.plan);
       svg+='<line x1="24" y1="'+py.toFixed(1)+'" x2="284" y2="'+py.toFixed(1)+'" stroke="'+c.line+'" stroke-width="1" stroke-dasharray="4,4" opacity=".45"/>';
-      svg+='<text x="304" y="'+(py+3).toFixed(1)+'" font-size="9" fill="var(--text3)" text-anchor="end">plan</text>';
+      svg+='<text x="304" y="'+(py+3).toFixed(1)+'" font-size="9" fill="var(--text3)" text-anchor="end">PB</text>';
     }
     if(cp.length>1){
       svg+='<polyline points="'+cp.map(p=>X(p.date).toFixed(1)+','+Y(p.sec).toFixed(1)).join(' ')+'" fill="none" stroke="'+c.line+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
@@ -1768,7 +1908,6 @@ function renderProgressChart(){
       +(cp.length>1?'<span class="pg-d" style="color:'+(delta>=0?c.dot:'var(--text3)')+'">'+(delta>=0?'▼ ':'▲ ')+Math.abs(delta).toFixed(1)+'s</span>':'')
       +'</div></div>';
   });
-  // Last 2k — the benchmark everything is calibrated against
   const proj=projected2k();
   if(proj){
     const pb=parseT(G.pb2k);
@@ -1916,7 +2055,7 @@ function buildExportString(){
     pb500:G.pb500,pb2k:G.pb2k,pb5k:G.pb5k,
     startedAt:G.startedAt,lastTest:G.lastTest,
     history:G.history,ergLinks:G.ergLinks,targets:G.targets,
-    nextUp:G.nextUp,testPromptSnoozed:G.testPromptSnoozed,
+    planned:G.planned,
     viewYear:G.viewYear,viewMonth:G.viewMonth
   };
   const doneCount=Object.keys(G.history).filter(d=>G.history[d].kind==='session').length;
@@ -1942,12 +2081,21 @@ function parseExportString(str){
   }catch(e){return{ok:false,error:e.message};}
 }
 
+// Summarises either shape: v4 history, or a v3 plan+archive export being imported
 function summariseExport(state){
   const ergCount=Object.keys(state.ergLinks||{}).length;
-  const doneCount=(state.plan||[]).filter(d=>d.status==='done').length;
-  const archiveCount=(state.archive||[]).reduce((n,e)=>(e.plan||[]).filter(d=>d.status==='done').length+n,0);
-  const monthCount=(state.archive||[]).length+(state.plan&&state.plan.length?1:0);
-  return{ergCount,doneCount:doneCount+archiveCount,monthCount,pb2k:state.pb2k||'—',version:state._version||'unknown'};
+  let doneCount,monthCount;
+  if(state.history){
+    const dates=Object.keys(state.history).filter(d=>state.history[d].kind==='session');
+    doneCount=dates.length;
+    monthCount=new Set(dates.map(d=>d.slice(0,7))).size;
+  } else {
+    const cur=(state.plan||[]).filter(d=>d.status==='done').length;
+    const arc=(state.archive||[]).reduce((n,e)=>(e.plan||[]).filter(d=>d.status==='done').length+n,0);
+    doneCount=cur+arc;
+    monthCount=(state.archive||[]).length+(state.plan&&state.plan.length?1:0);
+  }
+  return{ergCount,doneCount,monthCount,pb2k:state.pb2k||'—',version:state._version||'unknown'};
 }
 
 function renderBackup(){
@@ -2024,7 +2172,7 @@ function doImport(){
   G.startedAt=d.startedAt||localToday();G.lastTest=d.lastTest||null;
   G.history=d.history||{};G.ergLinks=d.ergLinks||{};
   G.targets=d.targets||{sessions:6,volume:50000,updatedAt:null};
-  G.nextUp=d.nextUp||null;G.testPromptSnoozed=d.testPromptSnoozed||null;
+  G.planned=d.planned||{};
   G.viewYear=d.viewYear||new Date().getFullYear();
   G.viewMonth=d.viewMonth!==undefined?d.viewMonth:new Date().getMonth();
   _pendingImport=null;
@@ -2096,14 +2244,17 @@ async function syncToSupabase(){
   try{
     const { data: { user } } = await sb.auth.getUser();
     if(!user) return;
+    // Safety: an empty history is never worth uploading, and uploading one is
+    // exactly how a failed load on a new device wipes a real backup.
+    if(!Object.keys(G.history||{}).length) return;
     const payload = {
       user_id: user.id,
       state: {
-        _schema:SCHEMA_VERSION,
+        _schema:SCHEMA_VERSION, savedAt:new Date().toISOString(),
         pb500:G.pb500, pb2k:G.pb2k, pb5k:G.pb5k,
         startedAt:G.startedAt, lastTest:G.lastTest,
         history:G.history, ergLinks:G.ergLinks, targets:G.targets,
-        nextUp:G.nextUp, testPromptSnoozed:G.testPromptSnoozed,
+        planned:G.planned,
         viewYear:G.viewYear, viewMonth:G.viewMonth
       },
       email_claimed: !!user.email,
@@ -2119,18 +2270,52 @@ async function syncToSupabase(){
 }
 
 // Load state from Supabase, fall back to localStorage
-async function loadFromSupabase(){
+// opts.merge: we've just switched from an anonymous session to a real account
+// (device linking). Local data belongs to the anonymous user, so "newest wins"
+// would be wrong — it could push one stray session over a month of history.
+// Combine instead: union of both histories, the account's copy winning any
+// date both have, and account settings (PBs, targets) taking precedence.
+async function loadFromSupabase(opts={}){
   if(!sb) return false;
   try{
     const { data: { user } } = await sb.auth.getUser();
     if(!user) return false;
     const { data, error } = await sb.from('user_data').select('state').eq('user_id', user.id).single();
-    if(error || !data) return false;
-    const s = migrateState(data.state); // cloud blobs from older versions get upgraded too
-    if(s && s.plan && s.plan.length){
-      Object.assign(G, s);
+    if(opts.merge){
+      const cloud = (!error && data) ? migrateState(data.state) : null;
+      const cloudHas = cloud && cloud.history && Object.keys(cloud.history).length;
+      const localHas = Object.keys(G.history||{}).length;
+      if(!cloudHas && !localHas) return false;
+      if(cloudHas){
+        const merged = {...cloud,
+          history:{...(G.history||{}),...cloud.history},
+          planned:{...(G.planned||{}),...(cloud.planned||{})},
+          ergLinks:{...(G.ergLinks||{}),...(cloud.ergLinks||{})},
+          startedAt:[G.startedAt,cloud.startedAt].filter(Boolean).sort()[0]||localToday(),
+          lastTest:[G.lastTest,cloud.lastTest].filter(Boolean).sort().pop()||null};
+        Object.assign(G, merged);
+      }
+      // (no cloud row yet: keep what this device has and upload it)
+      saveState();
+      scheduleSyncToSupabase();
       return true;
     }
+    if(error || !data) return false;
+    const s = migrateState(data.state); // cloud blobs from older versions get upgraded too
+    // v4 state has no 'plan' (migrateState deletes it) — gate on history instead
+    if(!s || !s.history || !Object.keys(s.history).length) return false;
+    // Newest wins: an offline edit on this device must not be clobbered by an
+    // older cloud copy. Keep local if it was saved after the cloud row.
+    const local = (()=>{try{return JSON.parse(localStorage.getItem('trt_v2')||'null');}catch(e){return null;}})();
+    if(local && local.savedAt && s.savedAt && local.savedAt > s.savedAt
+       && local.history && Object.keys(local.history).length){
+      Object.assign(G, migrateState(local));
+      scheduleSyncToSupabase();          // push the newer local copy up
+      return true;
+    }
+    Object.assign(G, s);
+    saveState();                          // mirror the cloud copy locally
+    return true;
   } catch(e){
     console.warn('Supabase load failed:', e.message);
   }
@@ -2205,20 +2390,119 @@ async function submitEmail(){
 }
 
 // ── DEVICE LINKING ──
-// Shows in setup screen — lets user sign in with their email on a new device
-async function linkDevice(){
-  if(!sb){ showToast('Supabase unavailable'); return; }
-  const email = prompt('Enter the email address linked to your account:');
-  if(!email || !email.includes('@')) return;
-  try{
-    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: APP_URL } });
-    if(error) throw error;
-    showToast('✓ Magic link sent — check your email');
-  } catch(e){
-    showToast('No account found for that email');
-    console.warn('OTP failed:', e.message);
-  }
+// Sign in with a one-time code typed into the app. A home-screen web app on
+// iOS has storage isolated from Safari, so an emailed LINK signs Safari in,
+// never the pinned app. A CODE keeps the whole flow inside the app.
+// Requires {{ .Token }} in the Supabase "Magic Link" email template.
+let _linkEmail='';
+function linkDevice(){
+  if(!sb){ showToast('Sign-in is unavailable offline'); return; }
+  linkShowStep('email');
+  document.getElementById('link-error').textContent='';
+  document.getElementById('link-modal-overlay').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('link-email').focus(),50);
 }
+function closeLinkModal(){document.getElementById('link-modal-overlay').classList.add('hidden');}
+function linkShowStep(step){
+  document.getElementById('link-step-email').style.display=step==='email'?'':'none';
+  document.getElementById('link-step-code').style.display=step==='code'?'':'none';
+}
+function linkBusy(btnId,busy,label){
+  const b=document.getElementById(btnId);if(!b)return;
+  b.disabled=busy;if(label)b.textContent=label;
+}
+function linkErr(msg){document.getElementById('link-error').textContent=msg||'';}
+// Supabase error shapes vary; turn the common ones into plain language
+function linkErrMsg(e,stage){
+  const m=((e&&(e.message||e.error_description||e.msg||e.code))||'').toLowerCase();
+  if(m.includes('expired')||m.includes('invalid')||m.includes('token'))
+    return stage==='link'
+      ?'That link has expired or was already used — tapping it uses it up. Send a new one and copy it instead.'
+      :'That code didn\'t work — check it, or send a new one.';
+  if(m.includes('seconds')||m.includes('rate')||m.includes('security purposes'))return'Too many requests — wait a minute and try again.';
+  if(m.includes('signups not allowed')||m.includes('not found')||m.includes('user'))return stage==='send'?'No account found for that email.':'Sign-in failed — try again.';
+  return(e&&e.message)?e.message:'Something went wrong — try again.';
+}
+async function linkSendCode(){
+  const email=(document.getElementById('link-email').value||'').trim();
+  if(!email.includes('@')){linkErr('Enter the email on your account.');return;}
+  linkErr('');linkBusy('link-send-btn',true,'Sending…');
+  try{
+    const{error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false}});
+    if(error)throw error;
+    _linkEmail=email;
+    document.getElementById('link-code-note').innerHTML='We emailed a sign-in link to <strong>'+esc(email)+'</strong>.';
+    document.getElementById('link-code').value='';
+    linkShowStep('code');
+    setTimeout(()=>document.getElementById('link-code').focus(),50);
+  }catch(e){
+    console.warn('Send code failed:',e);linkErr(linkErrMsg(e,'send'));
+  }finally{linkBusy('link-send-btn',false,'Send link');}
+}
+// The emailed link carries a hashed one-time token:
+//   https://<project>.supabase.co/auth/v1/verify?token=<hash>&type=magiclink&...
+// Copying the link (not tapping it) and pasting it here lets us verify that
+// token inside the pinned app. A typed numeric code is accepted too, so a
+// custom {{ .Token }} email template would work with no further change.
+function parseLinkInput(raw){
+  const s=(raw||'').trim();
+  const m=s.match(/https?:\/\/[^\s"'<>]+/);   // also finds a link inside pasted email text
+  if(m){
+    try{
+      const u=new URL(m[0]);
+      // Only ever accept a verify link for THIS project
+      if(u.host!==new URL(SUPABASE_URL).host||!u.pathname.endsWith('/auth/v1/verify'))return{bad:'foreign'};
+      const token_hash=u.searchParams.get('token');
+      if(!token_hash)return{bad:'foreign'};
+      return{token_hash,type:u.searchParams.get('type')||'magiclink'};
+    }catch(e){return{bad:'foreign'};}
+  }
+  if(/^[\d\s-]{6,14}$/.test(s)){
+    const digits=s.replace(/\D/g,'');
+    if(digits.length>=6&&digits.length<=10)return{token:digits};
+  }
+  return{bad:'empty'};
+}
+async function linkPasteFromClipboard(){
+  const el=document.getElementById('link-code');
+  try{
+    const t=navigator.clipboard&&await navigator.clipboard.readText();
+    if(t){
+      el.value=t.trim();linkErr('');
+      if(parseLinkInput(t).token_hash)linkVerifyCode();   // a valid link signs straight in
+      return;
+    }
+  }catch(e){}
+  el.focus();
+  linkErr('Couldn\'t read the clipboard — tap and hold the box, then choose Paste.');
+}
+async function linkVerifyCode(){
+  const p=parseLinkInput(document.getElementById('link-code').value);
+  if(p.bad==='foreign'){linkErr('That isn\'t the sign-in link from the email — copy the Sign in link and try again.');return;}
+  if(p.bad){linkErr('Paste the sign-in link from the email.');return;}
+  if(p.token&&!_linkEmail){linkErr('Enter your email first so the code can be checked.');linkShowStep('email');return;}
+  linkErr('');linkBusy('link-verify-btn',true,'Checking…');
+  const stage=p.token_hash?'link':'verify';
+  try{
+    const args=p.token_hash?{token_hash:p.token_hash,type:p.type}:{email:_linkEmail,token:p.token,type:'email'};
+    const{error}=await sb.auth.verifyOtp(args);
+    if(error)throw error;
+    const ok=await loadFromSupabase({merge:true});
+    closeLinkModal();
+    if(ok){
+      const t=new Date();
+      if(G.viewYear===null){G.viewYear=t.getFullYear();G.viewMonth=t.getMonth();}
+      fillSetupInputs();renderCal();showScreen('screen-cal');
+      showToast('✓ Device linked — your training is here');
+    } else {
+      showToast('Signed in — no saved training found for this account yet');
+    }
+  }catch(e){
+    console.warn('Verify failed:',e&&e.message);linkErr(linkErrMsg(e,stage));   // never log the token
+  }finally{linkBusy('link-verify-btn',false,'Sign in');}
+}
+function linkResend(){linkShowStep('email');document.getElementById('link-email').value=_linkEmail;linkSendCode();}
+function linkBack(){linkErr('');linkShowStep('email');}
 
 // Handle magic link on page load (Supabase redirects back with token in URL hash)
 async function handleMagicLink(){
@@ -2234,7 +2518,13 @@ async function handleMagicLink(){
         G.viewMonth = G.viewMonth !== null ? G.viewMonth : today.getMonth();
         fillSetupInputs();
         renderCal(); showScreen('screen-cal');
-        showToast('✓ Account linked — your data is restored');
+        // Only announce it when we actually arrived from an emailed link —
+        // otherwise this would greet every launch of a linked device.
+        const fromLink=/access_token|type=magiclink|[?&]code=/.test(location.hash+location.search);
+        if(fromLink){
+          showToast('✓ Account linked — your data is restored');
+          history.replaceState(null,'',location.pathname);   // drop tokens from the URL
+        }
         return true;
       }
     }
