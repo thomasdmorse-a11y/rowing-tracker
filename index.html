@@ -635,6 +635,7 @@ body{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .step-btn{width:60px;height:80px;flex-shrink:0;border-radius:12px;border:none;background:var(--bg2);box-shadow:inset 0 0 0 1px var(--border);color:var(--text);font-size:32px;cursor:pointer;}
 .pace-lcd{flex:1;min-width:0;height:80px;border-radius:12px;border:none;background:var(--lcd);color:var(--ink);font:700 46px 'Arimo',Arial,sans-serif;letter-spacing:-1px;text-align:center;}
 .log-hint{font-size:13px;color:var(--text2);}
+.dist-lcd{flex:none;width:100%;height:64px;font-size:34px;}
 .effort-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .eff-btn{height:68px;border-radius:14px;border:1px solid var(--border);background:var(--bg2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:inherit;}
 .eff-label{font-size:17px;font-weight:600;color:inherit;}
@@ -651,12 +652,97 @@ body{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .goal-unit{color:var(--text2);font-size:15px;}
 .goal-chips{display:flex;gap:8px;margin-top:10px;}
 .goal-chip{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--border);background:transparent;color:var(--text);font:600 14px 'IBM Plex Sans',sans-serif;cursor:pointer;}
+
+/* ═════ WELCOME + ONBOARDING (v4.1) ═════ */
+html{touch-action:manipulation;}   /* no double-tap zoom on iPhone */
+.onb-scr{min-height:100vh;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 16px) 20px calc(20px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+.onb-step{display:flex;flex-direction:column;gap:16px;flex:1;}
+.onb-eyebrow{font:600 15px 'Chakra Petch',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);}
+.onb-eyebrow.sm{font-size:13px;margin-top:6px;}
+.onb-h1{font:700 34px/1.1 'Chakra Petch',sans-serif;color:var(--text);}
+.onb-h2{font:700 28px/1.15 'Chakra Petch',sans-serif;color:var(--text);}
+.onb-lead{font-size:15px;line-height:1.5;color:var(--text2);}
+.onb-pitch{display:flex;flex-direction:column;gap:10px;list-style:none;}
+.onb-pitch li{display:flex;gap:12px;align-items:center;font-size:15px;color:#E3EAF2;}
+.onb-pitch li::before{content:'';width:8px;height:8px;border-radius:2px;background:var(--go);flex-shrink:0;}
+.onb-spacer{flex:1;}
+.onb-card{background:var(--bg2);border-radius:20px;padding:16px;box-shadow:inset 0 0 0 1px var(--border);display:flex;flex-direction:column;gap:10px;}
+.onb-label{font-size:14px;font-weight:600;color:var(--text);}
+.onb-input{width:100%;height:52px;border-radius:12px;border:1.5px solid var(--border);background:var(--lcd);color:var(--ink);padding:0 14px;font:17px 'IBM Plex Sans',sans-serif;}
+.onb-fine{font-size:13px;line-height:1.45;color:var(--text2);}
+.onb-err{font-size:14px;line-height:1.4;color:#FFC2B0;min-height:1.2em;}
+.onb-err:empty{min-height:0;}
+.onb-back{align-self:flex-start;min-height:44px;padding:0 6px;border:none;background:transparent;color:var(--text2);font:15px 'IBM Plex Sans',sans-serif;display:flex;align-items:center;gap:2px;cursor:pointer;}
+.onb-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:-8px;}
+.lcd-frame{background:var(--bg2);border-radius:20px;padding:10px;box-shadow:inset 0 0 0 1px var(--border);}
+.lcd-field{display:flex;align-items:center;justify-content:flex-end;gap:8px;height:64px;padding:0 14px;border-radius:10px;background:var(--lcd);color:var(--ink);box-shadow:inset 0 0 0 2px rgba(0,0,0,.16);cursor:text;}
+.lcd-field:focus-within{box-shadow:inset 0 0 0 3px var(--go);}
+.lcd-field input{flex:1;min-width:0;border:none;background:transparent;color:var(--ink);text-align:right;font:700 38px 'Arimo',Arial,sans-serif;letter-spacing:-1px;padding:0;}
+.lcd-field input:focus{outline:none;}
+.lcd-field input::placeholder{color:#8E958F;}
+.lcd-field.code input{text-align:center;letter-spacing:10px;}
+.lcd-unit{font:600 13px 'Barlow',sans-serif;min-width:40px;}
+.onb-seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.onb-seg.three{grid-template-columns:repeat(3,minmax(0,1fr));}
+.onb-opt{min-height:48px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--text);font:600 14px 'IBM Plex Sans',sans-serif;cursor:pointer;padding:6px 8px;}
+.onb-opt.on{border:2px solid var(--go);background:var(--bg2);}
+.onb-goals{display:flex;flex-direction:column;gap:8px;}
+.onb-goal{min-height:60px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--text);text-align:left;padding:8px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;font-family:inherit;}
+.onb-goal.on{border:2px solid var(--go);background:var(--bg2);}
+.onb-goal-m{font:700 20px 'Chakra Petch',sans-serif;}
+.onb-goal-n{font-size:13px;color:var(--text2);}
+.onb-est{background:var(--bg2);border-radius:16px;padding:12px 14px;box-shadow:inset 0 0 0 1px var(--border);display:flex;flex-direction:column;gap:4px;}
+.onb-est-v{font:700 30px 'Chakra Petch',sans-serif;}
+.onb-steps{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.onb-steps li{display:flex;gap:14px;align-items:center;background:var(--bg2);border-radius:16px;padding:12px 14px;box-shadow:inset 0 0 0 1px var(--border);font-size:15px;line-height:1.4;}
+.onb-num{width:32px;height:32px;border-radius:16px;background:var(--go);color:#000;font:700 15px 'Chakra Petch',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.onb-later{align-self:center;}
 </style>
 </head>
 <body>
 
 <!-- SETUP -->
-<div class="screen active" id="screen-setup">
+<!-- WELCOME: one email box for new and returning athletes -->
+<div class="screen active" id="screen-welcome">
+  <div class="onb-scr">
+    <div class="onb-step" id="wel-email">
+      <div style="margin-top:28px;display:flex;flex-direction:column;gap:6px">
+        <span class="onb-eyebrow">Rowing Tracker</span>
+        <h1 class="onb-h1">Train at Your Pace</h1>
+      </div>
+      <ul class="onb-pitch">
+        <li>Daily sessions customized to your ability</li>
+        <li>Automatically adjusts as you get faster</li>
+        <li>Built on research for proven results</li>
+      </ul>
+      <div class="onb-spacer"></div>
+      <div class="onb-card">
+        <label class="onb-label" for="wel-email-in">Your email</label>
+        <input class="onb-input" id="wel-email-in" type="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="you@example.com" onkeydown="if(event.key==='Enter')welcomeSend()">
+        <button type="button" class="btn-go" id="wel-send-btn" onclick="welcomeSend()">Continue</button>
+        <div class="onb-err" id="wel-email-err" role="alert"></div>
+        <span class="onb-fine">New or returning, it's the same box. We'll email you a code. No password, and your training is saved to your email from the first row.</span>
+      </div>
+    </div>
+    <div class="onb-step hidden" id="wel-code">
+      <button type="button" class="onb-back" onclick="welcomeBack()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span id="wel-code-email">Back</span></button>
+      <h1 class="onb-h2">Check your email</h1>
+      <p class="onb-lead">Type the 6-digit code we sent. If you already have training saved, it comes straight back. If not, we'll set you up.</p>
+      <div class="lcd-frame"><label class="lcd-field code"><input id="wel-code-in" type="text" inputmode="numeric" autocomplete="one-time-code" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="6-digit code from your email" placeholder="000000" oninput="welCodeInput(this)" onkeydown="if(event.key==='Enter')welcomeVerify()"></label></div>
+      <div class="onb-err" id="wel-code-err" role="alert"></div>
+      <div class="onb-links"><button type="button" class="act-link" onclick="welcomeResend()">Send a new code</button></div>
+      <div class="onb-spacer"></div>
+      <button type="button" class="btn-go" id="wel-verify-btn" onclick="welcomeVerify()">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING: your 2k, your week, home screen (drawn by renderOnb) -->
+<div class="screen" id="screen-onb">
+  <div class="onb-scr" id="onb-body"></div>
+</div>
+
+<div class="screen" id="screen-setup">
   <div class="nav">
     <div style="display:flex;align-items:center;gap:8px;">
       <button type="button" class="btn btn-ghost btn-sm" id="setup-back-btn" onclick="setupBack()" style="display:none">‹ Back</button>
@@ -689,9 +775,9 @@ body{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',san
       <span class="s-sublabel">There's no fixed month plan. Each day the tracker suggests what to row based on your last 7 days, aiming for roughly 1 hard, 2 threshold and 3 endurance sessions a week. Targets adapt to what you actually do — and you can always pick something else.</span>
     </div>
     <div class="s-section">
-      <span class="s-label">Using another device?</span>
-      <span class="s-sublabel">If you've already set up an account on another device, link it here to restore your data.</span>
-      <button type="button" class="btn" style="width:100%" onclick="linkDevice()">🔗 Link this device to my account</button>
+      <span class="s-label">Account</span>
+      <span class="s-sublabel" id="acct-line">Your training is only on this phone.</span>
+      <button type="button" class="btn" style="width:100%" id="acct-btn" onclick="openSignIn()">Save to your email</button>
     </div>
   </div>
   <a class="data-link" onclick="showScreen('screen-backup')">⧉ <span>Export / Import data</span></a>
@@ -730,34 +816,25 @@ body{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 <!-- CONFIRM IMPORT MODAL -->
 <div class="modal-overlay hidden" id="link-modal-overlay">
   <div class="confirm-modal">
-    <div class="confirm-title">Link this device</div>
+    <div class="confirm-title">Sign in with your email</div>
     <div id="link-step-email">
-      <div class="confirm-body">Enter the email on your account and we'll send you a sign-in link. You'll copy it back into this app — tapping it would sign in Safari instead.</div>
-      <input class="link-input" id="link-email" type="email" autocomplete="email" autocapitalize="off" placeholder="you@example.com" onkeydown="if(event.key==='Enter')linkSendCode()">
+      <div class="confirm-body">We'll email you a 6-digit code. No password. If you already have training saved, it comes back to this phone.</div>
+      <input class="link-input" id="link-email" type="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="you@example.com" onkeydown="if(event.key==='Enter')linkSendCode()">
       <div class="confirm-btns">
         <button type="button" class="btn" onclick="closeLinkModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" id="link-send-btn" onclick="linkSendCode()">Send link</button>
+        <button type="button" class="btn btn-primary" id="link-send-btn" onclick="linkSendCode()">Send code</button>
       </div>
-      <div class="link-alt" style="margin:12px 0 0;"><span class="link-alt-btn" onclick="linkShowStep('code');linkErr('')">Already have an email? Paste its link</span></div>
     </div>
     <div id="link-step-code" style="display:none">
       <div class="confirm-body" id="link-code-note"></div>
-      <ol class="link-steps">
-        <li>Open the email from Supabase</li>
-        <li><strong>Press and hold</strong> the Sign in link — don't tap it</li>
-        <li>Choose <strong>Copy Link</strong>, come back, tap Paste</li>
-      </ol>
-      <div class="link-paste-row">
-        <input class="link-input link-paste" id="link-code" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Sign-in link (or code)" onkeydown="if(event.key==='Enter')linkVerifyCode()">
-        <button type="button" class="btn link-paste-btn" onclick="linkPasteFromClipboard()">Paste</button>
-      </div>
-      <div class="link-alt"><span class="link-alt-btn" onclick="linkResend()">Send a new link</span> · <span class="link-alt-btn" onclick="linkBack()">Use a different email</span></div>
+      <input class="link-input link-code" id="link-code" type="text" inputmode="numeric" autocomplete="one-time-code" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="000000" aria-label="6-digit code from your email" oninput="welCodeInput(this)" onkeydown="if(event.key==='Enter')linkVerifyCode()">
+      <div class="link-alt"><span class="link-alt-btn" onclick="linkResend()">Send a new code</span> · <span class="link-alt-btn" onclick="linkBack()">Use a different email</span></div>
       <div class="confirm-btns">
         <button type="button" class="btn" onclick="closeLinkModal()">Cancel</button>
         <button type="button" class="btn btn-primary" id="link-verify-btn" onclick="linkVerifyCode()">Sign in</button>
       </div>
     </div>
-    <div class="link-error" id="link-error"></div>
+    <div class="link-error" id="link-error" role="alert"></div>
   </div>
 </div>
 
@@ -860,7 +937,7 @@ body{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   <div class="email-prompt-title">⚠ Signed out of your account</div>
   <div class="email-prompt-sub" id="signedout-sub">This device is no longer signed in, so new workouts are only saved here. Link it again to sync with your account.</div>
   <div class="email-prompt-row">
-    <button type="button" class="email-submit-btn" onclick="hideSignedOutNotice();linkDevice()">Link this device</button>
+    <button type="button" class="email-submit-btn" onclick="hideSignedOutNotice();openSignIn()">Sign in again</button>
     <button type="button" class="email-dismiss" style="margin:0 0 0 auto" onclick="hideSignedOutNotice()">Not now</button>
   </div>
   <button type="button" class="email-dismiss" onclick="startFreshAccount()">Account gone? Start a new one on this device</button>
@@ -881,10 +958,12 @@ body{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 // ── SESSION LIBRARY ──
 const LIB={
   max:[
-    {key:'8x500',dist:4000,type:'max',reps:8,repDist:500,restSecs:210,name:'8 × 500m',meta:'4000m · 3:30 rest',paceOffset:-3,pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
-    {key:'pyramid',dist:4000,type:'max',reps:1,repDist:4000,restSecs:0,fixedRestMins:23,name:'Speed pyramid',meta:'4000m · scaled rest',paceOffset:0,pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
-    {key:'4x1000',dist:4000,type:'max',reps:4,repDist:1000,restSecs:300,name:'4 × 1000m',meta:'4000m · 5:00 rest',paceOffset:1,pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
-    {key:'12x300m',dist:3600,type:'max',reps:12,repDist:300,restSecs:120,name:'12 × 300m',meta:'3600m · 2:00 rest',paceOffset:-6,pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
+    {key:'8x500',band:'race',dist:4000,type:'max',reps:8,repDist:500,restSecs:210,name:'8 × 500m',meta:'4000m · 3:30 rest',paceOffset:-3,pl:'Target pace',desc:'8 reps of 500m with 3:30 rest. Do all but the last rep at target pace, then empty the tank on the final rep.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first rep.','Do reps 1–7 at a controlled, consistent target pace. Resist going out hard early.','Rep 8 is your all-out effort — everything left in the tank.','Record your average pace across all 8 reps. This is the number to beat next cycle.']},
+    {key:'pyramid',band:'race',dist:4000,type:'max',reps:1,repDist:4000,restSecs:0,fixedRestMins:23,name:'Speed pyramid',meta:'4000m · scaled rest',paceOffset:0,pl:'Target pace',desc:'250m · 500m · 750m · 1000m · 750m · 500m · 250m. Rest: 1:30 per 250m of preceding piece.',notes:['Warm up thoroughly — minimum 15 minutes easy rowing, building into a few short hard strokes or a primer sprint before the first piece.','Rest: 1:30 after 250m → 6:00 after 1000m, then mirror back down.','Hold the same pace on every piece going up and down. Don\'t sprint the openers.','If you can negative split the back half, that\'s an excellent session.']},
+    {key:'4x1000',band:'race',dist:4000,type:'max',reps:4,repDist:1000,restSecs:300,name:'4 × 1000m',meta:'4000m · 5:00 rest',paceOffset:1,pl:'Target pace',desc:'4 reps of 1000m with 5:00 rest. Your primary fitness benchmark — average pace here directly reflects 2k race fitness.',notes:['Warm up thoroughly — at least 15 minutes easy rowing with a few short pickups before the first rep.','The 5:00 rest is the longest in the Pete Plan. Use all of it.','Even splits across all four reps. Consistency beats a fast first rep that falls apart.','This is the most direct predictor of your 2k race pace. Track it across months.']},
+    {key:'12x300m',band:'race',dist:3600,type:'max',reps:12,repDist:300,restSecs:120,name:'12 × 300m',meta:'3600m · 2:00 rest',paceOffset:-6,pl:'Target pace',desc:'12 reps of 300m with 2:00 rest. Total: 3600m. Short, fast intervals — the sharpest session in the max effort pool.',notes:['Thorough warm-up is especially important — minimum 15 minutes easy, building into several short hard strokes.','At only 300m, each rep is over in under 75 seconds. The emphasis is on speed, not endurance.','2:00 rest is generous relative to the work — you should feel genuinely recovered before each rep.','The higher rep count means small technique drifts can become habits. Focus on clean, powerful strokes.']},
+    {key:'vo2-8x2.5',band:'vo2',dist:5200,type:'max',timed:true,workMins:20,restSecs:150,restCount:7,name:'8 × 2:30',meta:'Timed · 2:30 light paddle',totalMins:38,paceOffset:2,pl:'Target pace',desc:'8 × 2:30 at about 95% of 2k watts with 2:30 of light paddling between. Built to pile up time near VO2max — the format used in well-trained rower studies.',notes:['Warm up 15 minutes, building to a few firm strokes.','Keep paddling lightly during the rest — don\'t stop.','Reps 1–2 should feel controlled; the last two hard but at the same pace.','Log your average pace across the work intervals.']},
+    {key:'vo2-4x4',band:'vo2',dist:4000,type:'max',timed:true,workMins:16,restSecs:180,restCount:3,name:'4 × 4:00',meta:'Timed · 3:00 light paddle',totalMins:25,paceOffset:4,pl:'Target pace',desc:'Four 4-minute pieces at 90–95% of max heart rate with 3:00 of light paddling between. The classic 4×4 VO2max session.',notes:['Warm up 15 minutes, building to a few firm strokes.','Heart rate should reach 90–95% of max by the second half of each rep.','If you are over that by rep 2, ease off 1–2 s/500m.','Keep paddling lightly during the rest. Log average pace across the work intervals.']},
   ],
   thresh:[
     {key:'5x1500',band:'end',dist:7500,type:'thresh',reps:5,repDist:1500,restSecs:300,name:'5 × 1500m',meta:'7500m · 5:00 rest',paceMult:1.08,pl:'Target pace',desc:'5 reps of 1500m at anaerobic threshold pace with 5:00 rest.',notes:['AT work — not sprinting. Effort: comfortably hard, short sentences possible.','Even splits across all 5 reps. Rep 5 should feel hard but achievable at the same pace as rep 1.','If you can\'t hold pace by rep 4, dial back 1–2 sec/500m next session.']},
@@ -896,12 +975,13 @@ const LIB={
     {key:'4x8min',band:'power',dist:7600,type:'thresh',timed:true,workMins:32,restSecs:240,restCount:3,name:'4 × 8 min',meta:'Timed · 4:00 rest',totalMins:44,paceMult:1.08,pl:'Target pace',desc:'Four 8-minute pieces at threshold effort with 4:00 rest. Similar total work to 2 × 15 min, split into shorter pieces.',notes:['4:00 rest on an 8-minute piece is 50% of work time — solid threshold quality rest.','Four pieces means more opportunities to calibrate pace — use piece 1 to find the right effort level.','Record meters per piece. All four should be within a few meters of each other.','A good lighter threshold option that pairs with heavier sessions like 4×2000m or 5×1500m.']},
   ],
   end:[
-    {key:'timed-30min',dist:6600,type:'end',timed:true,workMins:30,restSecs:0,restCount:0,name:'30 min steady',meta:'Timed · continuous',totalMins:30,paceMult:1.165,pl:'Target pace',desc:'A single continuous 30 minutes at steady endurance pace. The shortest session in the library — the one for mornings when time is tight.',notes:['Rate 22–25 throughout.','Continuous — no breaks. Settle in and hold the rhythm.','Pace should feel conversational the whole way.','Something is better than nothing: this keeps the aerobic base ticking on a short morning.']},
-    {key:'steady-10k',dist:10000,type:'end',reps:1,repDist:10000,restSecs:0,name:'Steady 10k',meta:'10000m · 22–25 spm',paceMult:1.165,pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.']},
-    {key:'steady-12k',dist:12000,type:'end',reps:1,repDist:12000,restSecs:0,name:'Steady 12k',meta:'12000m · 22–25 spm',paceMult:1.165,pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','At 60 minutes, make sure nutrition and hydration are sorted before you start.']},
-    {key:'3x15min',dist:9000,type:'end',timed:true,workMins:45,restSecs:120,restCount:2,name:'3 × 15 min',meta:'Timed · 2:00 rest',totalMins:48,paceMult:1.165,pl:'Steady pace',desc:'Three 15-minute pieces with 2:00 rest.',notes:['2:00 rest keeps the aerobic system engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.']},
-    {key:'3x25min',dist:16500,type:'end',timed:true,workMins:75,restSecs:180,restCount:2,name:'3 × 25 min',meta:'Timed · 3:00 rest',totalMins:78,paceMult:1.165,pl:'Target pace',desc:'Three 25-minute blocks at steady endurance pace with 3:00 between. The longest session in the library — a genuine aerobic base builder.',notes:['Rate 22–25. If you cannot hold the rate, the pace is too fast.','Treat the 3:00 as a drink and reset, not a recovery.','Pace should feel conversational throughout — if block three is a struggle, start block one slower next time.','Fuel beforehand. At over an hour of work this is long enough to need it.']},
-    {key:'2x30min',dist:12000,type:'end',timed:true,workMins:60,restSecs:180,restCount:1,name:'2 × 30 min',meta:'Timed · 3:00 rest',totalMins:62,paceMult:1.165,pl:'Steady pace',desc:'Two 30-minute pieces with 3:00 rest.',notes:['Treat this as a 60-minute row with a short pause in the middle.','Record meters for each piece. Matching them is the goal.']},
+    {key:'timed-30min',dist:6600,type:'end',timed:true,workMins:30,restSecs:0,restCount:0,name:'30 min steady',meta:'Timed · continuous',totalMins:30,paceMult:1.19,pl:'Target pace',desc:'A single continuous 30 minutes at steady endurance pace. The shortest session in the library — the one for mornings when time is tight.',notes:['Rate 22–25 throughout.','Continuous — no breaks. Settle in and hold the rhythm.','Pace should feel conversational the whole way.','Something is better than nothing: this keeps the aerobic base ticking on a short morning.','If heart rate goes above 70–75% of max, slow down. Heart rate wins over pace.']},
+    {key:'steady-10k',dist:10000,type:'end',reps:1,repDist:10000,restSecs:0,name:'Steady 10k',meta:'10000m · 22–25 spm',paceMult:1.19,pl:'Steady pace',desc:'Continuous 10000m at steady aerobic pace, 22–25 spm.',notes:['22–25 spm hard limit.','Try not to watch the pace display — row by feel and rate, check at the end.','As fitness improves, pace at the same effort naturally gets faster.','If heart rate goes above 70–75% of max, slow down. Heart rate wins over pace.']},
+    {key:'steady-12k',dist:12000,type:'end',reps:1,repDist:12000,restSecs:0,name:'Steady 12k',meta:'12000m · 22–25 spm',paceMult:1.19,pl:'Steady pace',desc:'Continuous 12000m at steady aerobic pace, 22–25 spm.',notes:['Same rules as shorter steady sessions: rate 22–25 spm, genuine aerobic effort.','If heart rate goes above 70–75% of max, slow down. Heart rate wins over pace.']},
+    {key:'3x15min',dist:9000,type:'end',timed:true,workMins:45,restSecs:120,restCount:2,name:'3 × 15 min',meta:'Timed · 2:00 rest',totalMins:48,paceMult:1.19,pl:'Steady pace',desc:'Three 15-minute pieces with 2:00 rest.',notes:['2:00 rest keeps the aerobic system engaged. Treat as near-continuous rowing.','Record meters per piece — consistency across all three is the sign of a well-paced session.','If heart rate goes above 70–75% of max, slow down. Heart rate wins over pace.']},
+    {key:'3x25min',dist:16500,type:'end',timed:true,workMins:75,restSecs:180,restCount:2,name:'3 × 25 min',meta:'Timed · 3:00 rest',totalMins:78,paceMult:1.19,pl:'Target pace',desc:'Three 25-minute blocks at steady endurance pace with 3:00 between. The longest session in the library — a genuine aerobic base builder.',notes:['Rate 22–25. If you cannot hold the rate, the pace is too fast.','Treat the 3:00 as a reset, not a recovery.','Pace should feel conversational throughout — if block three is a struggle, start block one slower next time.','If heart rate goes above 70–75% of max, slow down. Heart rate wins over pace.']},
+    {key:'end-custom',type:'end',custom:true,dist:0,paceMult:1.19,name:'Your own steady row',meta:'Any distance · 22–25 spm',pl:'Steady pace',desc:'Row whatever steady distance fits your day, then record the metres and your average pace. It counts toward your weekly volume like any endurance session.',notes:['Same rules as the other steady rows: rate 22–25, conversational effort.','If heart rate goes above 70–75% of max, slow down. Heart rate wins over pace.','Enter the metres from the monitor when you log it.']},
+    {key:'2x30min',dist:12000,type:'end',timed:true,workMins:60,restSecs:180,restCount:1,name:'2 × 30 min',meta:'Timed · 3:00 rest',totalMins:62,paceMult:1.19,pl:'Steady pace',desc:'Two 30-minute pieces with 3:00 rest.',notes:['Treat this as a 60-minute row with a short pause in the middle.','Record meters for each piece. Matching them is the goal.','If heart rate goes above 70–75% of max, slow down. Heart rate wins over pace.']},
   ],
   speed:[
     {key:'spr-3stroke',dist:75,type:'speed',name:'5 × 3-stroke sprint',meta:'~75m · 3+ min rest',totalMins:16,pl:'Max effort',desc:'5 reps of 3 strokes at maximum force. Pure neuromuscular activation — primer before the main session.',notes:['Nervous system session. Goal: peak force on every stroke.','Take 3+ minutes between every rep — full recovery is essential.','Rest 5–6 minutes after the final sprint before starting the main piece.']},
@@ -916,6 +996,9 @@ const LIB={
 const ALL=[...LIB.max,...LIB.thresh,...LIB.end,...LIB.speed,...LIB.test];
 const PRIMER_KEYS=['spr-3stroke','spr-60m'];
 // Rotate primers so hard days don't always open the same way
+// Sprint primers suit race-pace max work. VO2 max sessions get a normal
+// 15-minute warm-up instead (it's in their notes), so no primer (LIB-001).
+function wantsPrimer(s){return !!s&&s.type==='max'&&s.band!=='vo2';}
 function pickPrimer(seed){
   const pool=PRIMER_KEYS.map(k=>getByKey(k)).filter(Boolean);
   if(!pool.length)return null;
@@ -1132,6 +1215,7 @@ function sessionMins(s){
 // and would silently rewrite past volume as fitness changes.
 function loggedDist(x){
   const lib=x.lib||getByKey(x.key);if(!lib)return 0;
+  if(lib.custom)return Number(x.dist)||0;   // a user-entered row: the metres you recorded
   if(lib.timed){
     const p=parseT(x.pace);
     if(p)return Math.round((lib.workMins*60)/(p/500));
@@ -1231,6 +1315,8 @@ function sanitizeState(s){
       const ef=Number(h.effort);e.effort=[1,2,3,4].includes(ef)?ef:null;
       e.reflect=str(h.reflect);e.fwd=str(h.fwd);
       e.primerKey=typeof h.primerKey==='string'?h.primerKey:null;
+      // metres recorded on a user-entered row
+      if(h.dist!==undefined){const m=Number(h.dist);if(isFinite(m)&&m>0&&m<=200000)e.dist=Math.round(m);else delete e.dist;}
     }
     e.loggedAt=typeof h.loggedAt==='string'?h.loggedAt:null;
     if(h.updatedAt!==undefined)e.updatedAt=typeof h.updatedAt==='string'?h.updatedAt:null;
@@ -1250,6 +1336,7 @@ function sanitizeState(s){
     const e={v:str(b.v).trim(),at:str(b.at),day:str(b.day)};
     if(typeof b.set==='string'&&b.set)e.set=b.set;   // when it was last changed, if not 'at'
     if(b.weak===true)e.weak=true;                    // set on a device before it joined this account
+    if(b.est===true)e.est=true;                      // estimated at onboarding, not rowed
     pbc[f]=e;
   });
   s.pbBase=pbc;
@@ -1603,7 +1690,9 @@ function countsAfter(base,date,h){
 }
 function derivePB(state,field,excludeDate){
   const base=(state.pbBase||{})[field];
-  let best=base?parseT(base.v):null;
+  // An estimated 2k (from onboarding) stands only until a real trial is rowed,
+  // even if the trial is slower: targets must come from what you can do.
+  let best=base&&!base.est?parseT(base.v):null;
   const key=PB_TESTS[field],hist=state.history||{};
   Object.keys(hist).forEach(day=>{
     const h=hist[day];
@@ -1611,13 +1700,14 @@ function derivePB(state,field,excludeDate){
     const t=trialTotal(h);
     if(t&&(!best||t<best))best=t;
   });
+  if(!best&&base&&base.est)best=parseT(base.v);
   return best?fmt(best):'';
 }
 function recomputePBs(){Object.keys(PB_TESTS).forEach(f=>{G[f]=derivePB(G,f);});}
 // Every 2k that set a new PB, in date order, with how much faster it was
 function pbEvents(){
   const base=(G.pbBase||{}).pb2k;
-  let best=base?parseT(base.v):null;
+  let best=base&&!base.est?parseT(base.v):null;   // a first real 2k replaces an estimate; it isn't a PB event
   const evs=[];
   Object.keys(G.history).sort().forEach(day=>{
     const h=G.history[day];
@@ -1759,7 +1849,7 @@ function lastUsedMap(){
 // remaining volume. Suggestions are always soft — every option is offered,
 // nothing is blocked.
 function poolFor(cat){
-  if(cat==='end')return(LIB.end||[]);
+  if(cat==='end')return(LIB.end||[]).filter(s=>!s.custom);   // your own row is chosen, never suggested
   if(cat==='max')return(LIB.max||[]);
   if(cat==='thresh')return(LIB.thresh||[]);   // merged bucket: either band
   const band=cat==='thresh-power'?'power':'end';
@@ -1819,7 +1909,9 @@ function suggestSessions(anchor){
   if(testDue(anchor)){
     const test=(LIB.test||[]).find(t=>t.benchmark);
     if(test)out.push({session:test,cat:'test',primary:true,
-      reason:'It\'s been four weeks since your last 2k — time to retest'});
+      reason:is2kEstimate()&&!lastTestBefore(anchor)
+        ?'Your 2k is still an estimate — row a real one to set your targets'
+        :'It\'s been four weeks since your last 2k — time to retest'});
   }
   // Most-needed first; when two are equally short, the easier one first, so a
   // balanced week never defaults to another hard day
@@ -1833,7 +1925,7 @@ function suggestSessions(anchor){
     out.push({session:s,cat,primary:out.length===0,reason:reasonFor(cat,rs,vs)});
   });
   // Easy fallback — always available, keeps the habit alive on a rough morning
-  const easy=[...(LIB.end||[])].sort((a,b)=>sessionDist(a)-sessionDist(b))[0];
+  const easy=[...(LIB.end||[]).filter(s=>!s.custom)].sort((a,b)=>sessionDist(a)-sessionDist(b))[0];
   if(easy&&!out.some(o=>o.session.key===easy.key)){
     out.push({session:easy,cat:'end',primary:false,easy:true,
       reason:'Short and easy — something is better than nothing'});
@@ -1872,10 +1964,13 @@ function testDue(anchor){
   // A 2k already planned in the coming week covers it — don't stack another
   const today=localToday(),horizon=planHorizon();
   if(Object.keys(G.planned||{}).some(d=>d>=today&&d<=horizon&&d!==anchor&&isBenchmarkKey(G.planned[d])))return false;
-  const ref=lastTestBefore(anchor)||G.startedAt;
+  const last=lastTestBefore(anchor);
+  if(!last&&is2kEstimate())return daysBetween(G.startedAt||anchor,anchor)>=PROVISIONAL_TEST_DAYS;
+  const ref=last||G.startedAt;
   if(!ref)return false;
   return daysBetween(ref,anchor)>=28;
 }
+function is2kEstimate(){const b=(G.pbBase||{}).pb2k;return !!(b&&b.est);}
 
 // ── MONTH STATS ──
 function monthStats(yr,mo){
@@ -2134,7 +2229,7 @@ function todayFaceHTML(ds){
   if(st.kind==='session'&&!st.session)
     return'<div class="face-empty">This day was logged with a session this version of the app doesn\'t know. Reload to update the app.</div>';
   if(st.session){
-    const s=st.session,rec=st.rec||{},logged=st.kind==='session',tgt=getTgt(s,ds),kind=(TYPE_LABEL[s.type]||s.type).toLowerCase();
+    const s=st.session,rec=st.rec||{},logged=st.kind==='session',tgt=getTgt(s,ds),kind=s.band==='vo2'?'vo2 max':(TYPE_LABEL[s.type]||s.type).toLowerCase();
     const prev=lastOf(s.key,ds),best=bestOf(s.key,ds,logged);
     const low=[[prev?(prev.pace||'—'):'—','last time',prev?dShort(prev.date):'first time'],[best||'—','best','this session']];
     if(logged){
@@ -2142,7 +2237,7 @@ function todayFaceHTML(ds){
       let diff='—',dl='vs target';
       if(tp&&lp){const d=Math.round((tp-lp)*10)/10;diff=d===0?'on':Math.abs(d).toFixed(1)+' s';dl=d>0?'faster':d<0?'slower':'target';}
       const ack=ds===today?effortAck(s):'';
-      return faceHTML({head:'logged, '+kind,top:[[s.name,''],[Number.isInteger(rec.effort)?rec.effort+'/4':'—','effort']],
+      return faceHTML({head:'logged, '+kind,top:[[s.name,''],s.custom?[fmtM(rec.dist||0),'m']:[Number.isInteger(rec.effort)?rec.effort+'/4':'—','effort']],
           big:{v:rec.pace||'—',l:'/500m'},row3:[[tgtPace(tgt)||'—','target'],[diff,dl]],low})
         +(ack?'<div class="strip strip-ok">'+esc(ack)+'</div>':'')
         +actRow([btn('btn-line','Edit entry','openLog()'),btn('btn-line','Details','openDetails()')])
@@ -2155,12 +2250,12 @@ function todayFaceHTML(ds){
     let strip='';
     const hw=catOf(s)==='max'?hardNeighbour(ds):null;
     if(hw)strip+='<div class="strip strip-warn">'+esc(hw)+'</div>';
-    const primer=(rec.primerKey&&getByKey(rec.primerKey))||(s.type==='max'?pickPrimer(0):null);
+    const primer=(rec.primerKey&&getByKey(rec.primerKey))||(wantsPrimer(s)?pickPrimer(0):null);
     if(primer)strip+='<div class="strip">Do first: '+esc(primer.name)+', then 5–6 min easy before the main session</div>';
     const link=G.ergLinks[s.key],safe=link&&/^https?:\/\//i.test(link)?esc(link):null;
     const erg=safe?'<a class="btn-go" href="'+safe+'" target="_blank" rel="noopener">Send to erg</a>':btn('btn-go','Add erg link','openDetails(true)');
     return faceHTML({head:kind,swap:true,top:[[s.name,''],[ri.v,ri.l]],big,words,
-        row3:[[fmtM(sessionDist(s)),'m'],[fmtClock(sessionMins(s)),'time']],low})
+        row3:s.custom?[['any','m'],['your call','time']]:[[fmtM(sessionDist(s)),'m'],[fmtClock(sessionMins(s)),'time']],low})
       +strip+actRow([erg,future?btn('btn-line','Remove plan','unplanDay()'):btn('btn-line','Log row','openLog()')])+DETAILS_LINK;
   }
   if(future&&ds>planHorizon())return faceHTML({head:'too far ahead',words:'—'})+'<p class="face-note">You can plan up to a week out.</p>';
@@ -2234,6 +2329,9 @@ function openLibrary(tab){
   if(_libTab==='thresh'){
     const band=b=>list.filter(s=>(s.band||'end')===b).map(row).join('');
     h+='<div class="lib-sec">Endurance intervals</div>'+band('end')+'<div class="lib-sec">Power intervals</div>'+band('power');
+  } else if(_libTab==='max'){
+    const band=b=>list.filter(s=>(s.band||'race')===b).map(row).join('');
+    h+='<div class="lib-sec">Race-pace intervals</div>'+band('race')+'<div class="lib-sec">VO2 max intervals</div>'+band('vo2');
   } else h+=list.map(row).join('');
   h+='<button type="button" class="act-link" onclick="openSwap()">Back to suggestions</button>';
   openSheet('library',h);
@@ -2244,11 +2342,11 @@ function openLog(){
   const start=rec.pace||tgtPace(tgt)||'';
   G.currentEffort=Number.isInteger(rec.effort)?rec.effort:null;
   const h=sheetHead((st.kind==='session'?'Edit ':'Log ')+esc(s.name),tgt?'target '+esc(tgtPace(tgt)):'')
+    +(s.custom?'<span class="log-label">Metres rowed</span>'
+      +'<input class="pace-lcd dist-lcd" id="log-dist" type="text" inputmode="numeric" aria-label="Metres rowed" placeholder="8,000" value="'+(rec.dist?fmtM(rec.dist):'')+'" oninput="markDirty()">':'')
     +'<span class="log-label">Average pace per 500 m</span>'
-    +'<div class="stepper"><button type="button" class="step-btn" aria-label="Take off a tenth" onclick="stepPace(-1)">−</button>'
-    +'<input class="pace-lcd" id="log-pace" type="text" inputmode="decimal" aria-label="Average pace per 500 metres" value="'+esc(start)+'" oninput="markDirty()" onblur="this.value=normalizePace(this.value)">'
-    +'<button type="button" class="step-btn" aria-label="Add a tenth" onclick="stepPace(1)">+</button></div>'
-    +'<div class="log-hint">Starts at your target. Each tap moves a tenth of a second, or tap the number to type it.</div>'
+    +'<div class="lcd-frame"><label class="lcd-field"><input id="log-pace" type="text" inputmode="decimal" autocomplete="off" aria-label="Average pace per 500 metres" value="'+esc(start)+'" oninput="markDirty()" onfocus="this.select()" onblur="this.value=normalizePace(this.value)"><span class="lcd-unit">/500m</span></label></div>'
+    +'<div class="log-hint">Starts at your target. Tap to type: 1575 or 1.57.5 both become 1:57.5.</div>'
     +'<span class="log-label">How hard was it?</span><div class="effort-grid">'
     +[[1,'Easy','held back'],[2,'Solid','on target'],[3,'Hard','stretched'],[4,'Max','everything']].map(([n,l,sub])=>
       '<button type="button" class="eff-btn" id="e'+n+'" onclick="selEff('+n+',true)"><span class="eff-label">'+l+'</span><span class="eff-sub">'+sub+'</span></button>').join('')+'</div>'
@@ -2262,13 +2360,6 @@ function openLog(){
   _formKey=s.key;_formDirty=false;   // Save stores THIS session, even if the plan changes elsewhere meanwhile
   if(G.currentEffort)selEff(G.currentEffort);
 }
-function stepPace(dir){
-  const el=document.getElementById('log-pace');if(!el)return;
-  let t=parseT(normalizePace(el.value));
-  if(!t){const tg=getTgt(getByKey(_formKey),G.currentDate);t=tg?parseT(tg.val):120;}
-  el.value=fmt(Math.max(60,Math.round((t+dir*0.1)*10)/10));
-  markDirty();
-}
 function openDetails(focusErg){
   const ds=G.currentDate,st=dayState(ds),s=st.session;if(!s)return;
   const rec=st.rec||{},tgt=getTgt(s,ds),logged=st.kind==='session',today=localToday();
@@ -2281,7 +2372,7 @@ function openDetails(focusErg){
       +(proj?'<br><b>Goal: '+fmt(proj.time)+'</b>, projected from your recent training.':'')+'</div>';
   }
   if(tgt&&tgt.adapted){const a=tgt.adapted;h+='<div class="sheet-sub" style="margin-bottom:10px">Target set from '+(a.n===1?'your last session':'your last '+a.n+' sessions')+(a.scaled?', moved with your new 2k PB':'')+'.</div>';}
-  const primer=(rec.primerKey&&getByKey(rec.primerKey))||(s.type==='max'?pickPrimer(0):null);
+  const primer=(rec.primerKey&&getByKey(rec.primerKey))||(wantsPrimer(s)?pickPrimer(0):null);
   if(primer&&!logged)h+='<div class="note-box"><b>Do first: '+esc(primer.name)+'</b> ('+esc(primer.meta)+'), then 5–6 min easy.<br>'+(primer.notes||[]).slice(0,2).join(' ')+'</div>';
   h+='<div class="desc-text">'+s.desc+'</div>'
     +(s.notes||[]).map(n=>'<div class="note-row"><div class="note-dot"></div><div class="note-text">'+n+'</div></div>').join('')
@@ -2414,6 +2505,16 @@ function saveLog(){
   // changed or removed this day's plan in the meantime
   const s=getByKey(_formKey)||dayState(dateStr).session;if(!s)return;
   const pace=normalizePace(document.getElementById('log-pace')?.value.trim()||'');
+  let dist=null;
+  if(s.custom){
+    const raw=(document.getElementById('log-dist')?.value||'').replace(/[,\s]/g,'');
+    dist=Number(raw);
+    if(!/^\d+$/.test(raw)||dist<500||dist>60000){
+      showToast('Enter the metres you rowed, between 500 and 60,000');
+      const el=document.getElementById('log-dist');if(el)el.focus();
+      return;
+    }
+  }
   // Strict format: a typo like "1:5" would otherwise be stored as 1:05
   if(pace&&!isTime(pace)){
     showToast('Type the pace like 1.57.5 or 1575 — that\'s 1:57.5');
@@ -2439,12 +2540,13 @@ function saveLog(){
 
   const entry={...(prior&&prior.kind==='session'&&prior.key===s.key?prior:{}),   // keep fields a newer version may have added
     kind:'session',key:s.key,pace,
+    ...(s.custom?{dist}:{}),
     effort:G.currentEffort,
     loggedAt:(prior&&prior.loggedAt)||now,
     updatedAt:now,
     reflect:document.getElementById('log-reflect')?.value.trim()||'',
     fwd:document.getElementById('log-fwd')?.value.trim()||'',
-    primerKey:(prior&&prior.primerKey)||(s.type==='max'?(pickPrimer(0)||{}).key||null:null)};
+    primerKey:(prior&&prior.primerKey)||(wantsPrimer(s)?(pickPrimer(0)||{}).key||null:null)};
   delete entry.pbSet;delete entry.pbPrev;   // old bookkeeping — PBs are derived now
   G.history[dateStr]=entry;
   delete G.deleted[dateStr];
@@ -2687,12 +2789,24 @@ function fillSetupInputs(){
   if(back)back.style.display='none';   // the tab bar is the way out now
   const save=document.getElementById('setup-save-btn');
   if(save)save.textContent=hasSetup()?'Save':'Start →';
+  renderAccount();
   if(_setupDirty)return;   // never overwrite what you're typing
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
   _setupShown={pb2k:G.pb2k||'',pb500:G.pb500||'',pb5k:G.pb5k||'',goal:String(volumeTarget())};
   set('pb2k',G.pb2k);set('pb500',G.pb500);set('pb5k',G.pb5k);set('vol-goal',fmtM(volumeTarget()));
   _setupShown.goal=fmtM(volumeTarget()).replace(/,/g,'');
   const tl=document.getElementById('setup-title');if(tl)tl.textContent=hasSetup()?'Settings':'Rowing tracker';
+}
+function renderAccount(){
+  const acct=readAccount(),line=document.getElementById('acct-line'),btn=document.getElementById('acct-btn');
+  if(!line||!btn)return;
+  if(acct&&acct.email){
+    line.textContent='Signed in as '+acct.email+'. Your training is saved to this account and comes back on any device.';
+    btn.classList.add('hidden');
+  } else {
+    line.textContent='Your training is only on this phone. Add your email so it\'s saved and can come back on any device.';
+    btn.classList.remove('hidden');
+  }
 }
 function setGoalChip(m){const el=document.getElementById('vol-goal');if(el){el.value=fmtM(m);setupDirty();}}
 function setupBack(){
@@ -2990,8 +3104,7 @@ async function startFreshAccount(){
   if(!confirm('Stop syncing with '+((acct&&acct.email)||'that account')+' and start a new account on this device?\n\nYour training log stays on this device.'))return;
   try{ localStorage.removeItem(ACCOUNT_KEY); }catch(e){}
   hideSignedOutNotice();
-  _cloudInit=null;
-  if(!await initCloud())showToast('Couldn\'t reach the server — it will try again when you\'re online');
+  openSignIn();
 }
 // Data saved by a newer version of the app: don't merge or upload until reloaded
 let _newerDataSeen=false;
@@ -3010,15 +3123,7 @@ function isRetryable(e){
 function initCloud(){
   if(_cloudInit) return _cloudInit;
   _cloudInit = (async () => {
-    if(!navigator.onLine) return false;   // try again when the connection is back
-    if(!await loadSupabaseLib()) return false;
-    if(!sb){
-      sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      sb.auth.onAuthStateChange(event => {
-        if(event === 'SIGNED_OUT'){ const acct = readAccount(); if(acct && acct.email) showSignedOutNotice(acct.email); }
-        else if(event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') hideSignedOutNotice();
-      });
-    }
+    if(await ensureClient() !== 'ok') return false;   // offline or no library: try again later
     // getSession also completes a sign-in arriving from an emailed link
     const { data: { session }, error: sessErr } = await sb.auth.getSession();
     // With no signal, refreshing an expired sign-in fails and comes back as
@@ -3049,11 +3154,9 @@ function initCloud(){
     }
     const acct = readAccount();
     if(acct && acct.email){ showSignedOutNotice(acct.email); return true; }
-    // New (or anonymous) user — sign in anonymously
-    const { data, error } = await sb.auth.signInAnonymously();
-    if(error) throw error;
-    rememberAccount(data && data.user);
-    scheduleSyncToSupabase();   // upload anything already on this device
+    // No account on this phone: nothing syncs until the athlete signs in with
+    // their email code (welcome screen, Settings → Account, or the save bar).
+    // Anonymous accounts are gone: their only key lived on the phone.
     return true;
   })().catch(e => {
     console.warn('Cloud connection failed, running offline:', e && e.message);
@@ -3265,7 +3368,7 @@ function checkEmailPrompt(){
     if(localStorage.getItem(EMAIL_PROMPT_DAY) === localToday()) return;               // already shown today
   }catch(e){ return; }
   sb.auth.getUser().then(({ data: { user } }) => {
-    if(!user || user.email || user.new_email) return;   // has an email, or is confirming one
+    if(user && (user.email || user.new_email)) return;   // has an email, or is confirming one
     setTimeout(() => {
       // only on the calendar, and not while another notice is up
       if((document.querySelector('.screen.active')||{}).id !== 'screen-today' || _pendingBars.update || _pendingBars.signedout) return;
@@ -3280,60 +3383,156 @@ function dismissEmailPrompt(){
   try{ localStorage.setItem('trt_email_dismissed', Date.now().toString()); }catch(e){}
 }
 
-async function submitEmail(){
-  if(!await initCloud()){ showToast('⚠ Can\'t reach the server — try again when online'); return; }
+// The "Secure your training log" bar uses the same code sign-in as everywhere else
+function submitEmail(){
   const input = document.getElementById('email-input');
-  const email = input.value.trim();
-  if(!email || !email.includes('@')){ input.focus(); return; }
-  try{
-    // If anonymous sign-in failed at load (e.g. it was disabled in Supabase at the
-    // time), there's no session to attach the email to — recover by signing in now.
-    let { data: { session } } = await sb.auth.getSession();
-    if(!session){
-      const { error: anonErr } = await sb.auth.signInAnonymously();
-      if(anonErr) throw anonErr;
-      // A brand-new session has no data yet — push current state up immediately
-      syncToSupabase();
-    }
-    const { error } = await sb.auth.updateUser({ email }, { emailRedirectTo: APP_URL });
-    if(error) throw error;
-    document.getElementById('email-prompt-bar').classList.remove('show');
-    showToast('✓ Email saved — check your inbox to confirm');
-    localStorage.removeItem('trt_email_dismissed');
-  } catch(e){
-    console.error('Email update failed — full error:', e);
-    // Supabase errors vary in shape; pull a usable message from whatever exists
-    let raw=e&&(e.message||e.error_description||e.msg||e.code)||'';
-    if(typeof raw!=='string')raw=JSON.stringify(raw);
-    if(!raw||raw==='{}')raw='Auth server rejected the request'+(e&&e.status?' (status '+e.status+')':'')+' — check Supabase Auth logs';
-    const msg=raw.toLowerCase();
-    if(msg.includes('anonymous')&&msg.includes('disabled')){
-      showToast('⚠ Enable anonymous sign-ins in Supabase first');
-    } else if(msg.includes('rate limit')){
-      showToast('⚠ Email limit reached — try again in an hour');
-    } else if(msg.includes('already')&&msg.includes('registered')){
-      showToast('⚠ That email is already registered — use "Link this device" in setup instead');
-    } else if(msg.includes('signup')&&(msg.includes('disabled')||msg.includes('not allowed'))){
-      showToast('⚠ Enable "Allow new users to sign up" in Supabase');
-    } else {
-      showToast('⚠ '+raw+(e&&e.status?' ('+e.status+')':''));
-    }
-  }
+  const email = (input.value||'').trim();
+  if(!email.includes('@')){ input.focus(); return; }
+  document.getElementById('email-prompt-bar').classList.remove('show');
+  openSignIn(email);
 }
 
-// ── DEVICE LINKING ──
-// Sign in with a one-time code typed into the app. A home-screen web app on
-// iOS has storage isolated from Safari, so an emailed LINK signs Safari in,
-// never the pinned app. A CODE keeps the whole flow inside the app.
-// Requires {{ .Token }} in the Supabase "Magic Link" email template.
-let _linkEmail='';
-async function linkDevice(){
-  if(!await initCloud()){ showToast('Sign-in is unavailable offline'); return; }
-  linkShowStep('email');
-  document.getElementById('link-error').textContent='';
-  document.getElementById('link-modal-overlay').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('link-email').focus(),50);
+// ── SIGN-IN: an emailed 6-digit code, no passwords, no anonymous accounts ──
+// A home-screen web app on iOS has storage separate from Safari, so an emailed
+// LINK would sign Safari in, never the pinned app. A typed CODE keeps it here.
+// Supabase email templates (Confirm signup, Magic Link, Change email address)
+// must show {{ .Token }}.
+//   signin: signInWithOtp creates the account if it's new, so new and
+//           returning athletes use the same box.
+//   claim : an older anonymous account adds an email (keeps its user id).
+const CLIENT_ERR={offline:'You\'re offline. Connect to the internet and try again.',
+  nolib:'Couldn\'t load sign-in. Check your connection and try again.'};
+// Load the library and create the client, without signing anyone in
+async function ensureClient(){
+  if(sb) return 'ok';
+  if(!navigator.onLine) return 'offline';
+  if(!await loadSupabaseLib()) return 'nolib';
+  if(!sb){
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    sb.auth.onAuthStateChange(event => {
+      if(event === 'SIGNED_OUT'){ const acct = readAccount(); if(acct && acct.email) showSignedOutNotice(acct.email); }
+      else if(event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') hideSignedOutNotice();
+    });
+  }
+  return 'ok';
 }
+// Supabase error shapes vary; say what actually went wrong
+function authErrMsg(e,stage){
+  const raw=String((e&&(e.message||e.error_description||e.msg||e.code))||'');
+  const m=raw.toLowerCase();
+  if(!navigator.onLine||(e&&e.status===0)||/failed to fetch|network|load failed|timed? ?out/.test(m))
+    return'Can\'t reach the server. Check your connection and try again.';
+  if(/rate limit|seconds|security purposes|too many/.test(m))return'Too many tries. Wait a minute, then try again.';
+  if(/signups? (are )?not allowed|signups?.*disabled/.test(m))return'New accounts are turned off at the moment.';
+  if(stage==='send'&&/email/.test(m)&&/invalid|valid|format/.test(m))return'That email address doesn\'t look right.';
+  if(stage==='verify'&&/expired|invalid|otp|token/.test(m))return'That code didn\'t work or has expired. Check it, or send a new one.';
+  if(e&&e.status>=500)return'The sign-in server had a problem. Try again in a minute.';
+  return raw||'Something went wrong. Try again.';
+}
+let _authEmail='',_authMode='signin';
+// Email a code. Returns '' on success, or a message to show.
+async function authSend(email){
+  const c=await ensureClient();if(c!=='ok')return CLIENT_ERR[c];
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    _authMode=session&&session.user&&!session.user.email?'claim':'signin';
+    if(_authMode==='claim'){
+      const{error}=await sb.auth.updateUser({email});
+      // Already has an account: sign in to it instead (this phone's rows join it)
+      if(error&&/already|exists|registered/i.test(error.message||''))_authMode='signin';
+      else if(error)throw error;
+    }
+    if(_authMode==='signin'){
+      const{error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+      if(error)throw error;
+    }
+    _authEmail=email;
+    return'';
+  }catch(e){console.warn('Sending the code failed:',e&&e.message);return authErrMsg(e,'send');}
+}
+// Check a typed code (or a pasted sign-in link). Returns {user} or {err}.
+async function authVerify(raw){
+  const p=parseLinkInput(raw);
+  if(p.bad==='foreign')return{err:'That isn\'t the code from the email. Check it and try again.'};
+  if(p.bad)return{err:'Type the 6-digit code from the email.'};
+  if(p.token&&!_authEmail)return{err:'Enter your email first.',needEmail:true};
+  const c=await ensureClient();if(c!=='ok')return{err:CLIENT_ERR[c]};
+  const args=p.token_hash?{token_hash:p.token_hash,type:p.type}
+    :{email:_authEmail,token:p.token,type:_authMode==='claim'?'email_change':'email'};
+  try{
+    const{data,error}=await sb.auth.verifyOtp(args);
+    if(error)throw error;
+    return{user:data&&data.user};
+  }catch(e){console.warn('Code check failed:',e&&e.message);return{err:authErrMsg(e,'verify')};}   // never log the code
+}
+// A code was accepted: join that account and merge its training with this
+// phone's. Returns true (it had training), false (none) or null (couldn't download).
+async function afterSignIn(user){
+  const prevAcct=readAccount();
+  // Joining a different account: it keeps its PBs, targets, plans and
+  // removals; this device adds its sessions (see forgetDeviceSettings)
+  if(user&&(!prevAcct||prevAcct.id!==user.id))joinAccount(user);else rememberAccount(user);
+  hideSignedOutNotice();
+  try{localStorage.removeItem('trt_email_dismissed');}catch(e){}
+  const cloudHad=await loadFromSupabase();
+  if(cloudHad===null||Object.keys(G.history||{}).length)scheduleSyncToSupabase();   // retry the download / upload this phone's rows
+  return cloudHad;
+}
+
+// Welcome screen (first run)
+let _welSignedIn=false;   // code accepted, training still downloading
+function welErr(step,msg){const el=document.getElementById('wel-'+step+'-err');if(el)el.textContent=msg||'';}
+function welShow(step){['email','code'].forEach(k=>document.getElementById('wel-'+k).classList.toggle('hidden',k!==step));}
+// Digits only, unless a whole sign-in link was pasted
+function welCodeInput(el){if(!/https?:/i.test(el.value))el.value=el.value.replace(/\D/g,'').slice(0,10);}
+async function welcomeSend(){
+  const el=document.getElementById('wel-email-in'),email=(el.value||'').trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){welErr('email','Enter your email address.');el.focus();return;}
+  welErr('email','');linkBusy('wel-send-btn',true,'Sending…');
+  const err=await authSend(email);
+  linkBusy('wel-send-btn',false,'Continue');
+  if(err){welErr('email',err);return;}
+  document.getElementById('wel-code-email').textContent=email;
+  document.getElementById('wel-code-in').value='';welErr('code','');welShow('code');
+  setTimeout(()=>document.getElementById('wel-code-in').focus(),50);
+}
+function welcomeBack(){welErr('email','');welShow('email');}
+async function welcomeResend(){
+  welErr('code','');
+  const err=await authSend(_authEmail);
+  if(err)welErr('code',err);else showToast('A new code is on its way');
+}
+async function welcomeVerify(){
+  welErr('code','');linkBusy('wel-verify-btn',true,'Checking…');
+  let cloudHad;
+  if(_welSignedIn)cloudHad=await loadFromSupabase();   // retrying the download only
+  else{
+    const r=await authVerify(document.getElementById('wel-code-in').value);
+    if(r.err){linkBusy('wel-verify-btn',false,'Sign in');welErr('code',r.err);if(r.needEmail)welShow('email');return;}
+    _welSignedIn=true;
+    cloudHad=await afterSignIn(r.user);
+  }
+  if(cloudHad===null&&!hasSetup()){
+    // Never start setup over an account whose training hasn't arrived yet
+    linkBusy('wel-verify-btn',false,'Try again');
+    welErr('code','You\'re signed in, but your saved training couldn\'t download yet. Check your connection and tap Try again.');
+    return;
+  }
+  linkBusy('wel-verify-btn',false,'Sign in');
+  _welSignedIn=false;
+  if(hasSetup()){routeHome();showToast(cloudHad?'✓ Welcome back — your training is here':'✓ Signed in');}
+  else startOnboarding();
+}
+
+// The sign-in sheet: Settings → Account, the save bar, the signed-out notice
+async function openSignIn(prefill){
+  linkShowStep('email');linkErr('');
+  const el=document.getElementById('link-email');
+  if(prefill)el.value=prefill;
+  document.getElementById('link-modal-overlay').classList.remove('hidden');
+  if(prefill)linkSendCode();else setTimeout(()=>el.focus(),50);
+}
+function linkDevice(){openSignIn();}
 function closeLinkModal(){document.getElementById('link-modal-overlay').classList.add('hidden');}
 function linkShowStep(step){
   document.getElementById('link-step-email').style.display=step==='email'?'':'none';
@@ -3344,33 +3543,19 @@ function linkBusy(btnId,busy,label){
   b.disabled=busy;if(label)b.textContent=label;
 }
 function linkErr(msg){document.getElementById('link-error').textContent=msg||'';}
-// Supabase error shapes vary; turn the common ones into plain language
-function linkErrMsg(e,stage){
-  const m=((e&&(e.message||e.error_description||e.msg||e.code))||'').toLowerCase();
-  if(m.includes('expired')||m.includes('invalid')||m.includes('token'))
-    return stage==='link'
-      ?'That link has expired or was already used — tapping it uses it up. Send a new one and copy it instead.'
-      :'That code didn\'t work — check it, or send a new one.';
-  if(m.includes('seconds')||m.includes('rate')||m.includes('security purposes'))return'Too many requests — wait a minute and try again.';
-  if(m.includes('signups not allowed')||m.includes('not found')||m.includes('user'))return stage==='send'?'No account found for that email.':'Sign-in failed — try again.';
-  return(e&&e.message)?e.message:'Something went wrong — try again.';
-}
 async function linkSendCode(){
   const email=(document.getElementById('link-email').value||'').trim();
-  if(!email.includes('@')){linkErr('Enter the email on your account.');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){linkErr('Enter your email address.');return;}
   linkErr('');linkBusy('link-send-btn',true,'Sending…');
-  try{
-    const{error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false}});
-    if(error)throw error;
-    _linkEmail=email;
-    document.getElementById('link-code-note').innerHTML='We emailed a sign-in link to <strong>'+esc(email)+'</strong>.';
-    document.getElementById('link-code').value='';
-    linkShowStep('code');
-    setTimeout(()=>document.getElementById('link-code').focus(),50);
-  }catch(e){
-    console.warn('Send code failed:',e);linkErr(linkErrMsg(e,'send'));
-  }finally{linkBusy('link-send-btn',false,'Send link');}
+  const err=await authSend(email);
+  linkBusy('link-send-btn',false,'Send code');
+  if(err){linkErr(err);return;}
+  document.getElementById('link-code-note').innerHTML='We emailed a 6-digit code to <strong>'+esc(email)+'</strong>. Type it here. It works for an hour.';
+  document.getElementById('link-code').value='';
+  linkShowStep('code');
+  setTimeout(()=>document.getElementById('link-code').focus(),50);
 }
+
 // The emailed link carries a hashed one-time token:
 //   https://<project>.supabase.co/auth/v1/verify?token=<hash>&type=magiclink&...
 // Copying the link (not tapping it) and pasting it here lets us verify that
@@ -3409,42 +3594,136 @@ async function linkPasteFromClipboard(){
   linkErr('Couldn\'t read the clipboard — tap and hold the box, then choose Paste.');
 }
 async function linkVerifyCode(){
-  const p=parseLinkInput(document.getElementById('link-code').value);
-  if(p.bad==='foreign'){linkErr('That isn\'t the sign-in link from the email — copy the Sign in link and try again.');return;}
-  if(p.bad){linkErr('Paste the sign-in link from the email.');return;}
-  if(p.token&&!_linkEmail){linkErr('Enter your email first so the code can be checked.');linkShowStep('email');return;}
   linkErr('');linkBusy('link-verify-btn',true,'Checking…');
-  const stage=p.token_hash?'link':'verify';
-  try{
-    const args=p.token_hash?{token_hash:p.token_hash,type:p.type}:{email:_linkEmail,token:p.token,type:'email'};
-    const prevAcct=readAccount();
-    const{data:vData,error}=await sb.auth.verifyOtp(args);
-    if(error)throw error;
-    const user=vData&&vData.user;
-    // Joining a different account: it keeps its PBs, targets, plans and
-    // removals; this device adds its sessions (see forgetDeviceSettings)
-    if(user&&(!prevAcct||prevAcct.id!==user.id))joinAccount(user);else rememberAccount(user);
-    hideSignedOutNotice();
-    const cloudHad=await loadFromSupabase();
-    const localHas=Object.keys(G.history||{}).length>0;
-    if(cloudHad===null||(!cloudHad&&localHas))scheduleSyncToSupabase();   // retry the download / upload this device's
-    closeLinkModal();
-    const who=(user&&user.email)||'your account';
-    if(hasSetup()){
-      const t=new Date();
-      if(G.viewYear===null){G.viewYear=t.getFullYear();G.viewMonth=t.getMonth();}
-      showScreen('screen-today');renderCal();
-    } else showScreen('screen-setup');
-    showToast(cloudHad===null?'✓ Linked as '+who+' — your training will appear once it downloads'
-      :cloudHad?'✓ Linked as '+who+' — your training is here'
-      :localHas?'✓ Linked as '+who+' — this device\'s training will be saved to it'
-      :'✓ Linked as '+who+' — no saved training on it yet');
-  }catch(e){
-    console.warn('Verify failed:',e&&e.message);linkErr(linkErrMsg(e,stage));   // never log the token
-  }finally{linkBusy('link-verify-btn',false,'Sign in');}
+  const claim=_authMode==='claim';
+  const r=await authVerify(document.getElementById('link-code').value);
+  if(r.err){linkBusy('link-verify-btn',false,'Sign in');linkErr(r.err);if(r.needEmail)linkShowStep('email');return;}
+  const cloudHad=await afterSignIn(r.user);
+  linkBusy('link-verify-btn',false,'Sign in');
+  closeLinkModal();
+  const who=(r.user&&r.user.email)||_authEmail||'your account';
+  if(hasSetup()){
+    const t=new Date();
+    if(G.viewYear===null){G.viewYear=t.getFullYear();G.viewMonth=t.getMonth();}
+    if((document.querySelector('.screen.active')||{}).id==='screen-setup')fillSetupInputs();
+    else showScreen('screen-today');
+  } else if(cloudHad!==null) startOnboarding();
+  const localHas=Object.keys(G.history||{}).length>0;
+  showToast(claim?'✓ Saved to '+who
+    :cloudHad===null?'✓ Signed in as '+who+' — your training will appear once it downloads'
+    :cloudHad?'✓ Signed in as '+who+' — your training is here'
+    :localHas?'✓ Signed in as '+who+' — this phone\'s training is saved to it'
+    :'✓ Signed in as '+who);
 }
-function linkResend(){linkShowStep('email');document.getElementById('link-email').value=_linkEmail;linkSendCode();}
+function linkResend(){linkShowStep('email');document.getElementById('link-email').value=_authEmail;linkSendCode();}
 function linkBack(){linkErr('');linkShowStep('email');}
+
+// ── ONBOARDING: your 2k, your week, home screen ──
+// Runs once, after the email code, for an account with no training yet.
+const EXP_RATIO=[1.13,1.16,1.19];        // steady split ÷ ratio ≈ 2k pace; newer rowers have a bigger gap
+const EXP_GOAL=[20000,40000,50000];      // suggested weekly metres by experience
+const PROVISIONAL_TEST_DAYS=7;           // an estimated 2k gets a real test in week 2
+const CHEV_L='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+let _onb=null;
+function isStandalone(){try{return navigator.standalone===true||!!(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);}catch(e){return false;}}
+function onbTotal(){return isStandalone()?2:3;}
+function startOnboarding(){
+  if(_onb&&(document.querySelector('.screen.active')||{}).id==='screen-onb')return;   // already in it: keep what's typed
+  _onb={step:1,know:null,exp:1,pb2k:'',split:'',goal:null,err:''};
+  renderOnb();showScreen('screen-onb');
+}
+function onbEstimate(){
+  const v=normalizePace(_onb.split);if(!isTime(v))return null;
+  const s=parseT(v);if(s<100||s>210)return null;   // 1:40–3:30 /500m
+  return fmt(s/EXP_RATIO[_onb.exp]*4);
+}
+function onbEstHTML(){
+  const e=onbEstimate();if(!e)return'';
+  return'<div class="onb-est"><span class="onb-fine">Starting 2k estimate</span><span class="onb-est-v">≈ '+e.replace(/\.\d$/,'')+'</span>'
+    +'<span class="onb-fine">A rough guess to set your first targets. The app will suggest a real 2k test in your second week.</span></div>';
+}
+function onbOpt(label,on,click){return'<button type="button" class="onb-opt'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="'+click+'">'+label+'</button>';}
+function onbField(id,val,ph,unit,label){
+  return'<label class="onb-label" for="'+id+'">'+label+'</label><div class="lcd-frame"><div class="lcd-field">'
+    +'<input id="'+id+'" type="text" inputmode="decimal" autocomplete="off" placeholder="'+ph+'" value="'+esc(val)+'" oninput="onbType(this)" onblur="onbBlur(this)">'
+    +'<span class="lcd-unit">'+unit+'</span></div></div>';
+}
+function renderOnb(){
+  const o=_onb,el=document.getElementById('onb-body');if(!o||!el)return;
+  const T=onbTotal(),head=n=>'<span class="onb-eyebrow sm">Setup · '+n+' of '+T+'</span>';
+  const back='<button type="button" class="onb-back" onclick="onbGo(-1)">'+CHEV_L+'Back</button>';
+  const err='<div class="onb-err" id="onb-err" role="alert">'+esc(o.err)+'</div>';
+  let h='';
+  if(o.step===1){
+    h=head(1)+'<h1 class="onb-h2">Your 2k</h1><p class="onb-lead">Every target pace comes from your 2k time.</p>'
+      +'<div class="onb-seg">'+onbOpt('I know it',o.know===true,"onbSet('know',true)")+onbOpt('Not sure',o.know===false,"onbSet('know',false)")+'</div>';
+    if(o.know===true){
+      h+=onbField('onb-2k',o.pb2k,'7:30.0','2k','Your best 2k')
+        +'<span class="onb-fine">Tap to type. 7300 or 7.30.0 both become 7:30.0.</span>';
+    } else if(o.know===false){
+      h+='<span class="onb-label">How long have you been rowing?</span><div class="onb-seg three">'
+        +['Just starting','Under a year','Years'].map((l,i)=>onbOpt(l,o.exp===i,"onbSet('exp',"+i+")")).join('')+'</div>'
+        +onbField('onb-split',o.split,'2:20.0','/500m','Your usual easy, steady split')
+        +'<span class="onb-fine">Tap to type. 2205 or 2.20.5 both become 2:20.5.</span>'
+        +'<div id="onb-est">'+onbEstHTML()+'</div>';
+    }
+    h+=err+'<div class="onb-spacer"></div><button type="button" class="btn-go" onclick="onbNext()">Next</button>';
+  } else if(o.step===2){
+    h=back+head(2)+'<h1 class="onb-h2">Your week</h1>'
+      +'<p class="onb-lead">How many metres a week? Reaching it keeps your streak going, and the app sizes sessions to close the gap.</p>'
+      +'<div class="onb-goals">'+[[20000,'getting started'],[40000,'regular training'],[50000,'serious training'],[60000,'race prep']].map(([m,n])=>
+        '<button type="button" class="onb-goal'+(o.goal===m?' on':'')+'" aria-pressed="'+(o.goal===m)+'" onclick="onbSet(\'goal\','+m+')"><span class="onb-goal-m">'+fmtM(m)+' m</span><span class="onb-goal-n">'+n+'</span></button>').join('')+'</div>'
+      +'<span class="onb-fine">You can change this any time in Settings.</span>'
+      +err+'<div class="onb-spacer"></div><button type="button" class="btn-go" onclick="onbNext()">'+(T===2?'Start training':'Next')+'</button>';
+  } else {
+    h=back+head(3)+'<h1 class="onb-h2">Put it on your home screen</h1>'
+      +'<p class="onb-lead">It opens like an app, works offline at the erg, and Safari won\'t clear your data.</p>'
+      +'<ol class="onb-steps">'+['Tap the Share button at the bottom of Safari','Scroll down and tap Add to Home Screen',
+        'Open the tracker from your home screen and sign in with the same email. Your setup comes with you.']
+        .map((t,i)=>'<li><span class="onb-num">'+(i+1)+'</span><span>'+t+'</span></li>').join('')+'</ol>'
+      +'<div class="onb-spacer"></div><button type="button" class="btn-go" onclick="onbFinish()">Start training</button>'
+      +'<button type="button" class="act-link onb-later" onclick="onbFinish()">I\'ll do this later</button>';
+  }
+  el.innerHTML='<div class="onb-step">'+h+'</div>';
+}
+const ONB_FIELD={'onb-2k':'pb2k','onb-split':'split'};
+function onbType(el){
+  _onb[ONB_FIELD[el.id]]=el.value;
+  if(el.id==='onb-split'){const e=document.getElementById('onb-est');if(e)e.innerHTML=onbEstHTML();}
+}
+function onbBlur(el){el.value=normalizePace(el.value);onbType(el);}
+function onbSet(k,v){_onb[k]=v;_onb.err='';renderOnb();}
+function onbGo(d){_onb.step=Math.max(1,Math.min(onbTotal(),_onb.step+d));_onb.err='';renderOnb();window.scrollTo(0,0);}
+function onbFail(msg){_onb.err=msg;const e=document.getElementById('onb-err');if(e)e.textContent=msg;}
+function onbNext(){
+  const o=_onb;if(!o)return;
+  if(o.step===1){
+    if(o.know===null)return onbFail('Choose one to continue.');
+    if(o.know){
+      const v=normalizePace(o.pb2k),t=isTime(v)?parseT(v):0;
+      if(t<300||t>720)return onbFail('Enter your 2k like 7:30.0.');
+      o.pb2k=v;
+    } else if(!onbEstimate())return onbFail('Enter your steady split like 2:20.0.');
+    if(o.goal===null)o.goal=o.know?40000:EXP_GOAL[o.exp];
+  }
+  if(o.step>=onbTotal())return onbFinish();
+  onbGo(1);
+}
+function onbFinish(){
+  const o=_onb;if(!o)return;
+  const v=o.know?o.pb2k:onbEstimate();
+  if(!v||!isTime(v)){o.step=1;o.err='Enter your 2k first.';renderOnb();return;}
+  // Like a first-run Settings PB: no timestamp, so an account's own PB always wins a merge
+  G.pbBase=G.pbBase||{};
+  G.pbBase.pb2k=o.know?{v,at:'',day:''}:{v,at:'',day:'',est:true};
+  G.volumeGoal={m:o.goal||40000,at:nowIso()};
+  if(!G.startedAt)G.startedAt=localToday();
+  _onb=null;
+  commit({cal:true});
+  syncToSupabase();   // straight away: the home-screen app signs in and needs it there
+  routeHome();
+  showToast(o.know?'You\'re set — here\'s today\'s session':'You\'re set — targets start from your estimate');
+}
 
 // ── INIT ──
 // Show this device's data straight away, then merge in the cloud copy.
@@ -3453,7 +3732,8 @@ function routeHome(){
   G.viewYear=t.getFullYear();G.viewMonth=t.getMonth();   // always open on this month
   G.currentDate=localToday();
   if(hasSetup()){fillSetupInputs();showScreen('screen-today');}
-  else showScreen('screen-setup');
+  else if((readAccount()||{}).email)startOnboarding();   // signed in, no training yet
+  else showScreen('screen-welcome');
 }
 
 // Ask the browser to keep this site's storage (Safari otherwise clears it
@@ -3476,7 +3756,7 @@ function protectStorage(){
     // Never let one bad record stop the app: show what we can, and still
     // connect below so the cloud copy can repair this device
     console.error('Startup render failed:', e);
-    try{ showScreen(hasSetup()?'screen-today':'screen-setup'); }catch(e2){}
+    try{ showScreen(hasSetup()?'screen-today':'screen-welcome'); }catch(e2){}
   }
   _lastSeenDay = localToday();
   protectStorage();
