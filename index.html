@@ -779,8 +779,12 @@ html{touch-action:manipulation;}   /* no double-tap zoom on iPhone */
       <span class="s-sublabel" id="acct-line">Your training is only on this phone.</span>
       <button type="button" class="btn" style="width:100%" id="acct-btn" onclick="openSignIn()">Save to your email</button>
     </div>
+    <div class="s-section">
+      <span class="s-label">Your data</span>
+      <span class="s-sublabel">Copy a backup of your whole training log, or restore one. Export before every app update.</span>
+      <button type="button" class="btn" style="width:100%" onclick="showScreen('screen-backup')">Export or import data</button>
+    </div>
   </div>
-  <a class="data-link" onclick="showScreen('screen-backup')">⧉ <span>Export / Import data</span></a>
 </div>
 
 <!-- BACKUP SCREEN -->
